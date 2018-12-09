@@ -224,7 +224,8 @@ for i in range(66):
     x1[i]=math.exp(v[i]-(productprice.iloc[:,1])[i])
 x1=x1/(sum(x1)+math.exp(5))
 
-
+#teteijiosjriojiojio
+#fjpajpdjsapjadps
 
 
 
