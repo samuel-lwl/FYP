@@ -214,15 +214,136 @@ productpricehigher=productprice+5
 #
 ##from scipy.stats import multivariate_normal
 ######################################## obtained parameters by mle for first price vector
-###########################################################################################
 
+
+######################################################################################################################################################################################
+# For determining X for each price vector 
+# where X is generated using a multinomial logit choice model
+# X = exp(V(i)-P(i))/sum(exp(V(i)-P(i))) for i=0,1,...,N where i=0 is when customer buys nothing
 np.random.seed(10)
-v=np.random.randint(1,10, size=66)
+v = np.random.randint(100,150, size=67)
+# set 100-150 since this will help to ensure x0 and (x1+...+xN) are realistic numbers
 
-x1=np.empty([66,1])
+xprice = np.empty([66,1])
+xpricehigher = np.empty([66,1])
+xpricelower = np.empty([66,1])
+
 for i in range(66):
-    x1[i]=math.exp(v[i]-(productprice.iloc[:,1])[i])
-x1=x1/(sum(x1)+math.exp(5))
+    xprice[i] = math.exp(v[i]-(productprice.iloc[:,1])[i])
+# x0 is the choice where they dont buy anything
+# x0=math.exp(v[66])/(sum(xprice)+math.exp(v[66]))
+xprice = xprice/(sum(xprice)+math.exp(v[66]))
+
+for i in range(66):
+    xpricehigher[i] = math.exp(v[i]-(productpricehigher.iloc[:,1])[i])
+xpricehigher = xpricehigher/(sum(xpricehigher)+math.exp(v[66]))
+
+for i in range(66):
+    xpricelower[i] = math.exp(v[i]-(productpricelower.iloc[:,1])[i])
+xpricelower = xpricelower/(sum(xpricelower)+math.exp(v[66]))
+
+# To generate additional data by creating epsilons for each price vector
+# First price vector
+ep1 = np.empty([66,10])
+np.random.seed(10)
+for i in range(66):
+    ep1[i] = np.random.uniform(low=0.0, high=xprice[i]/5, size=10)
+
+temp1 = np.empty([66,10])
+temp2 = np.empty([66,10])
+for i in range(66):
+    temp1[i] = xprice[i]+ep1[i]
+    temp2[i] = xprice[i]-ep1[i]
+datax = np.append(temp1,temp2,axis=1)
+
+# Second price vector
+ep2 = np.empty([66,10])
+np.random.seed(10)
+for i in range(66):
+    ep2[i] = np.random.uniform(low=0.0, high=xpricelower[i]/5, size=10)
+
+temp1 = np.empty([66,10])
+temp2 = np.empty([66,10])
+for i in range(66):
+    temp1[i] = xpricelower[i]+ep2[i]
+    temp2[i] = xpricelower[i]-ep2[i]
+dataxlower = np.append(temp1,temp2,axis=1)
+
+# Third price vector
+ep3 = np.empty([66,10])
+np.random.seed(10)
+for i in range(66):
+    ep3[i] = np.random.uniform(low=0.0, high=xpricehigher[i]/5, size=10)
+
+temp1 = np.empty([66,10])
+temp2 = np.empty([66,10])
+for i in range(66):
+    temp1[i] = xpricehigher[i]+ep3[i]
+    temp2[i] = xpricehigher[i]-ep3[i]
+dataxhigher=np.append(temp1,temp2,axis=1)
+
+
+
+
+# Assume each price vector has normal distribution. Use MLE to estimate parameters from data created.
+# First price vector
+productmean = np.mean(datax,axis=1)
+productcov = 0
+for i in range(11):
+    test1 = np.reshape((datax[:,i]-productmean), (66,1))
+    test2 = np.reshape((datax[:,i]-productmean), (1,66))
+    productcov += np.matmul(test1,test2)
+productcov = productcov/(i+1)
+# divide by i+1 since MLE estimate of cov matrix is divide by N not N-1
+
+# Second price vector
+productmeanlower = np.mean(dataxlower,axis=1)
+productcovlower = 0
+for i in range(11):
+    test1 = np.reshape((dataxlower[:,i]-productmeanlower), (66,1))
+    test2 = np.reshape((dataxlower[:,i]-productmeanlower), (1,66))
+    productcovlower += np.matmul(test1,test2)
+productcovlower = productcovlower/(i+1)
+
+# Third price vector
+productmeanhigher = np.mean(dataxhigher,axis=1)
+productcovhigher = 0
+for i in range(11):
+    test1 = np.reshape((dataxhigher[:,i]-productmeanhigher), (66,1))
+    test2 = np.reshape((dataxhigher[:,i]-productmeanhigher), (1,66))
+    productcovhigher += np.matmul(test1,test2)
+productcovhigher = productcovhigher/(i+1)
+
+# gives negative??
+# np.random.multivariate_normal(productmean,productcov,1).T
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
