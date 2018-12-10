@@ -254,7 +254,7 @@ temp2 = np.empty([66,10])
 for i in range(66):
     temp1[i] = xprice[i]+ep1[i]
     temp2[i] = xprice[i]-ep1[i]
-datax = np.append(temp1,temp2,axis=1)
+datax = np.append(temp1, temp2, axis=1)
 
 # Second price vector
 ep2 = np.empty([66,10])
@@ -267,7 +267,7 @@ temp2 = np.empty([66,10])
 for i in range(66):
     temp1[i] = xpricelower[i]+ep2[i]
     temp2[i] = xpricelower[i]-ep2[i]
-dataxlower = np.append(temp1,temp2,axis=1)
+dataxlower = np.append(temp1, temp2, axis=1)
 
 # Third price vector
 ep3 = np.empty([66,10])
@@ -280,52 +280,181 @@ temp2 = np.empty([66,10])
 for i in range(66):
     temp1[i] = xpricehigher[i]+ep3[i]
     temp2[i] = xpricehigher[i]-ep3[i]
-dataxhigher=np.append(temp1,temp2,axis=1)
+dataxhigher=np.append(temp1, temp2, axis=1)
 
 
 
 
 # Assume each price vector has normal distribution. Use MLE to estimate parameters from data created.
 # First price vector
-productmean = np.mean(datax,axis=1)
+productmean = np.mean(datax, axis=1)
 productcov = 0
-for i in range(11):
+for i in range(datax.shape[1]):
     test1 = np.reshape((datax[:,i]-productmean), (66,1))
     test2 = np.reshape((datax[:,i]-productmean), (1,66))
-    productcov += np.matmul(test1,test2)
+    productcov += np.matmul(test1, test2)
 productcov = productcov/(i+1)
 # divide by i+1 since MLE estimate of cov matrix is divide by N not N-1
 
 # Second price vector
-productmeanlower = np.mean(dataxlower,axis=1)
+productmeanlower = np.mean(dataxlower, axis=1)
 productcovlower = 0
-for i in range(11):
+for i in range(dataxlower.shape[1]):
     test1 = np.reshape((dataxlower[:,i]-productmeanlower), (66,1))
     test2 = np.reshape((dataxlower[:,i]-productmeanlower), (1,66))
-    productcovlower += np.matmul(test1,test2)
+    productcovlower += np.matmul(test1, test2)
 productcovlower = productcovlower/(i+1)
 
 # Third price vector
-productmeanhigher = np.mean(dataxhigher,axis=1)
+productmeanhigher = np.mean(dataxhigher, axis=1)
 productcovhigher = 0
-for i in range(11):
+for i in range(dataxhigher.shape[1]):
     test1 = np.reshape((dataxhigher[:,i]-productmeanhigher), (66,1))
     test2 = np.reshape((dataxhigher[:,i]-productmeanhigher), (1,66))
-    productcovhigher += np.matmul(test1,test2)
+    productcovhigher += np.matmul(test1, test2)
 productcovhigher = productcovhigher/(i+1)
 
 # gives negative??
 # np.random.multivariate_normal(productmean,productcov,1).T
 
 
+# Need to keep original data for validation later
+productmean2 = productmean
+productcov2 = productcov
+datax2 = datax
+
+productmeanlower2 = productmeanlower
+productcovlower2 = productcovlower
+dataxlower2 = dataxlower
+
+productmeanhigher2 = productmeanhigher
+productcovhigher2 = productcovhigher
+dataxhigher2 = dataxhigher
 
 
 
 
+# Initialise counter for the number of times each arm is selected
+counter = 0
+counterlower = 0
+counterhigher = 0
+
+# Thompson sampling done here
+np.random.seed(10)
+for i in range(1000):
+    # Randomly sample from each distribution
+    rdm = np.random.multivariate_normal(productmean, productcov,1).T
+    rdmlower = np.random.multivariate_normal(productmeanlower, productcovlower,1).T
+    rdmhigher = np.random.multivariate_normal(productmeanhigher, productcovhigher,1).T
+    
+    # Calculate revenue based on the sample
+    rev = np.multiply(rdm, productprice.iloc[:,1].values.reshape((66,1)))
+    revlower = np.multiply(rdmlower, productpricelower.iloc[:,1].values.reshape((66,1)))
+    revhigher = np.multiply(rdmhigher, productpricehigher.iloc[:,1].values.reshape((66,1)))
+    print(i)
+    print(np.sum(rev))
+    print(np.sum(revlower))
+    print(np.sum(revhigher))
+    # Choose the arm with the highest revenue
+    if np.sum(rev)>np.sum(revhigher) and np.sum(rev)>np.sum(revlower):
+        counter += 1
+        
+        # Adding random sample to list of observations
+        datax = np.append(datax, rdm, axis=1)
+        
+        # Recalculate parameters using MLE
+        productmean = np.mean(datax, axis=1)
+        productcov = 0
+        for i in range(datax.shape[1]):
+            test1 = np.reshape((datax[:,i]-productmean), (66,1))
+            test2 = np.reshape((datax[:,i]-productmean), (1,66))
+            productcov += np.matmul(test1, test2)
+        productcov = productcov/(i+1)
+
+    elif np.sum(revlower)>np.sum(rev) and np.sum(revlower)>np.sum(revhigher):
+        counterlower += 1
+        
+        # Adding random sample to list of observations
+        dataxlower = np.append(dataxlower, rdmlower, axis=1)
+        
+        # Recalculate parameters using MLE
+        productmeanlower = np.mean(dataxlower, axis=1)
+        productcovlower = 0
+        for i in range(dataxlower.shape[1]):
+            test1 = np.reshape((dataxlower[:,i]-productmeanlower), (66,1))
+            test2 = np.reshape((dataxlower[:,i]-productmeanlower), (1,66))
+            productcovlower += np.matmul(test1, test2)
+        productcovlower = productcovlower/(i+1)
+
+    else:
+        counterhigher += 1
+        
+        # Adding random sample to list of observations
+        dataxhigher = np.append(dataxhigher, rdmhigher, axis=1)
+        
+        # Recalculate parameters using MLE
+        productmeanhigher = np.mean(dataxhigher, axis=1)
+        productcovhigher = 0
+        for i in range(dataxhigher.shape[1]):
+            test1 = np.reshape((dataxhigher[:,i]-productmeanhigher), (66,1))
+            test2 = np.reshape((dataxhigher[:,i]-productmeanhigher), (1,66))
+            productcovhigher += np.matmul(test1, test2)
+        productcovhigher = productcovhigher/(i+1)
 
 
 
 
+# Validate if the chosen arm is correct
+revenue = 0
+np.random.seed(10)
+for i in range(1000):
+    rdm = np.random.multivariate_normal(productmean2, productcov2,1).T
+    rev = np.multiply(rdm, productprice.iloc[:,1].values.reshape((66,1)))
+    revenue += np.sum(rev)
+    datax2 = np.append(datax2, rdm, axis=1)
+    
+    # Recalculate parameters using MLE
+    productmean2 = np.mean(datax2, axis=1)
+    productcov2 = 0
+    for i in range(datax2.shape[1]):
+        test1 = np.reshape((datax2[:,i]-productmean2), (66,1))
+        test2 = np.reshape((datax2[:,i]-productmean2), (1,66))
+        productcov2 += np.matmul(test1, test2)
+    productcov2 = productcov2/(i+1) 
+
+revenuelower = 0
+np.random.seed(10)
+for i in range(1000):
+    rdm = np.random.multivariate_normal(productmeanlower2, productcovlower2,1).T
+    rev = np.multiply(rdm, productpricelower.iloc[:,1].values.reshape((66,1)))
+    revenuelower += np.sum(rev)
+    dataxlower2 = np.append(dataxlower2, rdm, axis=1)
+    
+    # Recalculate parameters using MLE
+    productmeanlower2 = np.mean(dataxlower2, axis=1)
+    productcovlower2 = 0
+    for i in range(dataxlower2.shape[1]):
+        test1 = np.reshape((dataxlower2[:,i]-productmeanlower2), (66,1))
+        test2 = np.reshape((dataxlower2[:,i]-productmeanlower2), (1,66))
+        productcovlower2 += np.matmul(test1, test2)
+    productcovlower2 = productcovlower2/(i+1) 
+
+revenuehigher = 0
+np.random.seed(10)
+for i in range(1000):
+    rdm = np.random.multivariate_normal(productmeanhigher2, productcovhigher2,1).T
+    rev = np.multiply(rdm, productpricehigher.iloc[:,1].values.reshape((66,1)))
+    revenuehigher += np.sum(rev)
+    dataxhigher2 = np.append(dataxhigher2, rdm, axis=1)
+    
+    # Recalculate parameters using MLE
+    productmeanhigher2= np.mean(dataxhigher2, axis=1)
+    productcovhigher2 = 0
+    for i in range(dataxhigher2.shape[1]):
+        test1 = np.reshape((dataxhigher2[:,i]-productmeanhigher2), (66,1))
+        test2 = np.reshape((dataxhigher2[:,i]-productmeanhigher2), (1,66))
+        productcovhigher2 += np.matmul(test1, test2)
+    productcovhigher2 = productcovhigher2/(i+1) 
 
 
 
