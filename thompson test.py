@@ -231,15 +231,17 @@ xpricelower = np.empty([66,1])
 for i in range(66):
     xprice[i] = math.exp(v[i]-(productprice.iloc[:,1])[i])
 # x0 is the choice where they dont buy anything
-# x0=math.exp(v[66])/(sum(xprice)+math.exp(v[66]))
+x0=math.exp(v[66])/(sum(xprice)+math.exp(v[66]))
 xprice = xprice/(sum(xprice)+math.exp(v[66]))
 
 for i in range(66):
     xpricehigher[i] = math.exp(v[i]-(productpricehigher.iloc[:,1])[i])
+x0higher=math.exp(v[66])/(sum(xpricehigher)+math.exp(v[66]))
 xpricehigher = xpricehigher/(sum(xpricehigher)+math.exp(v[66]))
 
 for i in range(66):
     xpricelower[i] = math.exp(v[i]-(productpricelower.iloc[:,1])[i])
+x0lower=math.exp(v[66])/(sum(xpricelower)+math.exp(v[66]))
 xpricelower = xpricelower/(sum(xpricelower)+math.exp(v[66]))
 
 # To generate additional data by creating epsilons for each price vector
