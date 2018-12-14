@@ -220,8 +220,21 @@ productpricehigher=productprice+5
 # For determining X for each price vector 
 # where X is generated using a multinomial logit choice model
 # X = exp(V(i)-P(i))/sum(exp(V(i)-P(i))) for i=0,1,...,N where i=0 is when customer buys nothing
+v = np.empty([66,1])
+vhigher = np.empty([66,1])
+vlower = np.empty([66,1])
 np.random.seed(10)
-v = np.random.randint(100,150, size=67)
+for i in range(66):
+    v[i] = np.random.randint(productprice.iloc[i,1]-5, productprice.iloc[i,1]+5)
+
+np.random.seed(10)
+for i in range(66):
+    vhigher[i] = np.random.randint(productpricehigher.iloc[i,1]-5, productpricehigher.iloc[i,1]+5)
+
+np.random.seed(10)
+for i in range(66):
+    vlower[i] = np.random.randint(productpricelower.iloc[i,1]-5, productpricelower.iloc[i,1]+5)
+# v = np.random.randint(100,150, size=67)
 # set 100-150 since this will help to ensure x0 and (x1+...+xN) are realistic numbers
 
 xprice = np.empty([66,1])
@@ -231,18 +244,24 @@ xpricelower = np.empty([66,1])
 for i in range(66):
     xprice[i] = math.exp(v[i]-(productprice.iloc[:,1])[i])
 # x0 is the choice where they dont buy anything
-x0=math.exp(v[66])/(sum(xprice)+math.exp(v[66]))
-xprice = xprice/(sum(xprice)+math.exp(v[66]))
+np.random.seed(10)
+x0 = math.exp(np.random.randint(0,5))/(sum(xprice)+math.exp(np.random.randint(0,5)))
+np.random.seed(10)
+xprice = xprice/(sum(xprice)+math.exp(np.random.randint(0,5)))
 
 for i in range(66):
     xpricehigher[i] = math.exp(v[i]-(productpricehigher.iloc[:,1])[i])
-x0higher=math.exp(v[66])/(sum(xpricehigher)+math.exp(v[66]))
-xpricehigher = xpricehigher/(sum(xpricehigher)+math.exp(v[66]))
+np.random.seed(10)
+x0higher = math.exp(np.random.randint(0,5))/(sum(xpricehigher)+math.exp(np.random.randint(0,5)))
+np.random.seed(10)
+xpricehigher = xpricehigher/(sum(xpricehigher)+math.exp(np.random.randint(0,5)))
 
 for i in range(66):
     xpricelower[i] = math.exp(v[i]-(productpricelower.iloc[:,1])[i])
-x0lower=math.exp(v[66])/(sum(xpricelower)+math.exp(v[66]))
-xpricelower = xpricelower/(sum(xpricelower)+math.exp(v[66]))
+np.random.seed(10)
+x0lower = math.exp(np.random.randint(0,5))/(sum(xpricelower)+math.exp(np.random.randint(0,5)))
+np.random.seed(10)
+xpricelower = xpricelower/(sum(xpricelower)+math.exp(np.random.randint(0,5)))
 
 # To generate additional data by creating epsilons for each price vector
 # First price vector
@@ -316,8 +335,7 @@ for i in range(dataxhigher.shape[1]):
     productcovhigher += np.matmul(test1, test2)
 productcovhigher = productcovhigher/(i+1)
 
-# gives negative??
-# np.random.multivariate_normal(productmean,productcov,1).T
+
 
 
 # Need to keep original data for validation later
@@ -457,8 +475,6 @@ for i in range(1000):
         test2 = np.reshape((dataxhigher2[:,i]-productmeanhigher2), (1,66))
         productcovhigher2 += np.matmul(test1, test2)
     productcovhigher2 = productcovhigher2/(i+1) 
-
-
 
 
 
