@@ -3,6 +3,7 @@
 \usepackage[english]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
+\DeclareMathOperator*{\argmax}{argmax}
 \usepackage{graphicx}
 \usepackage[colorinlistoftodos]{todonotes}
 
@@ -48,7 +49,7 @@ Since the data set only contained sales data for one set of prices, there is ins
 \newline
 \newline
 For each price vector $i$, a theoretical sales data was created using the formula below and it represents the true demand under this price vector.
-\[X_i = \frac{e^{V_i - P_i}}{\sum_{j=0}^{N}e^{V_j - P_j}}\]
+\[X_i = \frac{e^{V_i - P_i}}{\sum_{j=0}^{N}e^{V_j - P_j}} \tag{1}\]
 where $V_i$ represents the customer's valuation of product $i$ and $P_i$ is the price of product $i$. In the denominator, $j=0$ represents the option where the customer chooses not to buy anything. For the first approach, in addition to the original price vector, two other price vectors were created where the first vector is created by adding 5 to the original price vector and the second vector is created by subtracting 5 from the original price vector. 
 \newline
 \newline
@@ -61,100 +62,45 @@ With the $V$ and $P$ vectors defined, the theoretical $X_i$ corresponding to eac
 For each price vector, 20 data points were created. In order to ensure that the expected value of all data points was equal to the theoretical $X_i$, 10 epsilon vectors were created and the data points were obtained by adding and subtracting the epsilon vector from the theoretical $X_i$. This process was repeated for the other two price vectors as well. In total, there were 60 data points created with each price vector having 20 data points.
 
 \section{First approach}
-In this approach, it is assumed that the true demand function under each price vector follows a normal distribution. The prior distribution was then estimated from the 20 data points generated earlier using maximum likelihood estimation. 
-
-\section{Results and interpretation 2-3 pages}
-Show a graph of the longitudinal resistivity ($\rho_{xx}$) and Hall resistivity ($\rho_{xy}$) versus magnetic field, extracted from the raw data shown in figure \ref{fig:data}. You will have the link to the data in your absalon messages, if not e-mail Guen (guen@nbi.dk). Explain how you calculated these values, and refer to the theory.
-
-
-\subsection{Classical regime}
-Calculate the sheet electron density $n_{s}$ and electron mobility $\mu$ from the data in the low-field regime, and refer to the theory in section \ref{sec:theory}. Explain how you retrieved the values from the data (did you use a linear fit?).
-Round values off to 1 or 2 significant digits: 8.1643 ~= 8.2. Also, 5e-6 is easier to read than 0.000005.
-
-!OBS: This part is optional (only if you have time left).
-Calculate the uncertainty as follows: \newline $u(f(x, y, z)) = \sqrt{(\frac{\delta f}{\delta{x}} u(x))^{2} + (\frac{\delta f}{\delta{y}} u(y))^{2} + (\frac{\delta f}{\delta{z}} u(z))^{2}}$, where $f$ is the calculated value ($n_{s}$ or $\mu$), $x, y, z$ are the variables taken from the measurement and $u(x)$ is the uncertainty in x (and so on).
-
-\subsection{Quantum regime}
-Calculate $n_{s}$ for the high-field regime.
-Show a graph of the longitudinal conductivity ($\rho_{xx}$) and Hall conductivity($\rho_{xy}$) \textbf{in units of the resistance quantum} ($\frac{h}{e^{2}}$), depicting the integer filling factors for each plateau.
-Show a graph of the plateau number versus its corresponding value of $1/B$. From this you can determine the slope, which you use to calculate the electron density.
-Again, calculate the uncertainty for your obtained values.
-
-\section{Discussion 1/2-1 page}
-Discuss your results. Compare the two values of $n_{s}$ that you've found in the previous section. Compare your results with literature and comment on the difference. If you didn't know the value of the resistance quantum, would you be able to deduce it from your measurements? If yes/no, why?
-
-\newpage
-\section{Some LaTeX tips}
-\label{sec:latex}
-\subsection{How to Include Figures}
-
-First you have to upload the image file (JPEG, PNG or PDF) from your computer to writeLaTeX using the upload link the project menu. Then use the includegraphics command to include it in your document. Use the figure environment and the caption command to add a number and a caption to your figure. See the code for Figure \ref{fig:frog} in this section for an example.
-
-\begin{figure}
-\centering
-\includegraphics[width=0.3\textwidth]{frog.jpg}
-\caption{\label{fig:frog}This frog was uploaded to writeLaTeX via the project menu.}
-\end{figure}
-
-\subsection{How to Make Tables}
-
-Use the table and tabular commands for basic tables --- see Table~\ref{tab:widgets}, for example.
-
-\begin{table}
-\centering
-\begin{tabular}{l|r}
-Item & Quantity \\\hline
-Widgets & 42 \\
-Gadgets & 13
-\end{tabular}
-\caption{\label{tab:widgets}An example table.}
-\end{table}
-
-\subsection{How to Write Mathematics}
-
-\LaTeX{} is great at typesetting mathematics. Let $X_1, X_2, \ldots, X_n$ be a sequence of independent and identically distributed random variables with $\text{E}[X_i] = \mu$ and $\text{Var}[X_i] = \sigma^2 < \infty$, and let
-
-\begin{equation}
-S_n = \frac{X_1 + X_2 + \cdots + X_n}{n}
-      = \frac{1}{n}\sum_{i}^{n} X_i
-\label{eq:sn}
-\end{equation}
-
-denote their mean. Then as $n$ approaches infinity, the random variables $\sqrt{n}(S_n - \mu)$ converge in distribution to a normal $\mathcal{N}(0, \sigma^2)$.
-
-The equation \ref{eq:sn} is very nice.
-
-\subsection{How to Make Sections and Subsections}
-
-Use section and subsection commands to organize your document. \LaTeX{} handles all the formatting and numbering automatically. Use ref and label commands for cross-references.
-
-\subsection{How to Make Lists}
-
-You can make lists with automatic numbering \dots
-
+In this approach, the objective was to learn the true demand function under each price vector. It was assumed that the true demand functions followed normal distributions. The prior distribution for each price vector was then estimated from the 20 data points generated earlier using maximum likelihood estimation. 
+\newline
+\newline
+For iterations $k = 1,...,K$, the following process was done. 
 \begin{enumerate}
-\item Like this,
-\item and like this.
+	\item A random sample was taken from each price vector's prior distribution.
+	\item The estimated revenue under each price vector was calculated by multiplying the random sample and the price vector since each random sample represents the estimated demand under that price vector.
+	\item The price vector with the highest estimated revenue was chosen as the selected arm for this iteration.
+	\item The selected arm was pulled. The observed demand would be that price vector's theoretical $X_i$.
+	\item The observed revenue was calculated by multiplying the observed demand with the price vector and also accumulated over all iterations.
+	\item The observed demand was added as an observation to the selected arm's $H_{k-1}$ data points where $H_{k-1}$ is the number of data points under that price vector in the previous iteration.
+	\item The prior distribution of that price vector was re-estimated using the $H_{k-1} + 1$ data points.
 \end{enumerate}
-\dots or bullet points \dots
-\begin{itemize}
-\item Like this,
-\item and like this.
-\end{itemize}
-\dots or with words and descriptions \dots
-\begin{description}
-\item[Word] Definition
-\item[Concept] Explanation
-\item[Idea] Text
-\end{description}
 
-We hope you find write\LaTeX\ useful, and please let us know if you have any feedback using the help menu above.
+The number of times each price vector was selected was recorded. The price vector that was selected the most often would then be the arm with the highest revenue.
+\newline
+\newline
+In order to validate that the chosen arm in the above process was the correct arm, a simple check was conducted for each arm. In each check, the same arm was chosen in every iteration and the observed revenue was accumulated. The arm with the greatest accumulated revenue would then be the theoretically correct arm. 
+\newline
+\newline
+The process decribed in this approach has been able to accurately select the theoretically correct arm each time.
+\section{Second approach}
+In this approach, the objective was to learn the true elasticity values for each product. Since the order of prior data affects elasticity, it was assumed that the order of the price vectors implemented was as follows: lower price vector, original price vector, higher price vector. With this ordering, the prior estimates of the elasticity values could be obtained using the following formula
+\[\gamma_i = \frac{\frac{x_{i,t+1}-x_{i,t}}{x_{i,t}}}{\frac{p_{i,t+1}-p_{i,t}}{p_{i,t}}}\]
+where $\gamma_i$ is the elasticity of product $i$. It was assumed that the true elasticities followed a normal distribution i.e $\Pi_0(\gamma_*)=N(\mu_0,\Sigma_0)$. The prior estimates $\gamma_i$ were taken as the mean $\mu_0$ of the distribution while the covariance matrix was set as $\Sigma_0 = cI$. $c$ was set as $c = \frac{1}{10}\sum_{i=1}^{i=N}\gamma_i$
+\newline
+\newline
+For iterations $k = 1,...,K$, the following process was done. 
+\begin{enumerate}
+	\item Randomly sampled from $\gamma_t \sim \Pi_{t-1}$ until all components of $\gamma_t$ are negative since elasticity values are negative.
+	\item Forecasted demand $f_{i,t}$ of the following day using a vector autoregression model.
+	\item Solved the following optimisation problem to get price vector $p_t$ given $p_{i,t-1}$ and estimates $f_{i,t}$ and $\gamma_t$ \[p_t = \argmax_p \sum_{i=1}^{N}\frac{p_i^2f_{i,t}\gamma_{*,i}}{p_{i,t-1}} -p_if_{i,t}\gamma_{*,i} + p_if_{i,t}\] \[\text{subject to: } p \in C_t \]
+	\item Applied prices $p_t$. The observed demand would be generated by equation $(1)$ using $p_t$ and the same valuation vector $V$ in Section 3.
+	\item 
+	\item 
+	\item 
+	\item
+\end{enumerate}
 
-\begin{thebibliography}{9}
-\bibitem{nano3}
-  K. Grove-Rasmussen og Jesper Nygård,
-  \emph{Kvantefænomener i Nanosystemer}.
-  Niels Bohr Institute \& Nano-Science Center, Københavns Universitet
+\section{Comparison of approaches}
 
-\end{thebibliography}
 \end{document}
