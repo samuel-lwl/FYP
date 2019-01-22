@@ -231,7 +231,7 @@ for i in range(66):
     v[i] = np.random.randint(productprice.iloc[i,1]-0.05*productprice.iloc[i,1], productprice.iloc[i,1]+0.05*productprice.iloc[i,1])
 #np.random.seed(10)
 v0=np.random.randint(0, 5)
-"""np.ranodm.randint got size arg. can we use array operations instead of looping?"""
+"""np.random.randint got size arg. can we use array operations instead of looping?"""
 # Theoretical X, where X is the demand
 xprice = np.empty([66,1])
 xpricehigher = np.empty([66,1])
@@ -262,41 +262,42 @@ xpricelower = xpricelower/(np.sum(xpricelower)+math.exp(v0))
 # =============================================================================
 # To generate additional data by creating epsilons for each price vector
 # =============================================================================
+numep = 25
 # First price vector
-ep1 = np.empty([66,10])
+ep1 = np.empty([66,numep])
 #np.random.seed(10)
 for i in range(66):
-    ep1[i] = np.random.uniform(low=0.0, high=xprice[i]/5, size=10)
+    ep1[i] = np.random.uniform(low=0.0, high=xprice[i]/5, size=numep)
 
 # create data via +epsilon and -epsilon so that the mean is still the theoretical mean
-temp1 = np.empty([66,10])
-temp2 = np.empty([66,10])
+temp1 = np.empty([66,numep])
+temp2 = np.empty([66,numep])
 for i in range(66):
     temp1[i] = xprice[i]+ep1[i]
     temp2[i] = xprice[i]-ep1[i]
 datax = np.append(temp1, temp2, axis=1)
 
 # Second price vector
-ep2 = np.empty([66,10])
+ep2 = np.empty([66,numep])
 #np.random.seed(10)
 for i in range(66):
-    ep2[i] = np.random.uniform(low=0.0, high=xpricelower[i]/5, size=10)
+    ep2[i] = np.random.uniform(low=0.0, high=xpricelower[i]/5, size=numep)
 
-temp1 = np.empty([66,10])
-temp2 = np.empty([66,10])
+temp1 = np.empty([66,numep])
+temp2 = np.empty([66,numep])
 for i in range(66):
     temp1[i] = xpricelower[i]+ep2[i]
     temp2[i] = xpricelower[i]-ep2[i]
 dataxlower = np.append(temp1, temp2, axis=1)
 
 # Third price vector
-ep3 = np.empty([66,10])
+ep3 = np.empty([66,numep])
 #np.random.seed(10)
 for i in range(66):
-    ep3[i] = np.random.uniform(low=0.0, high=xpricehigher[i]/5, size=10)
+    ep3[i] = np.random.uniform(low=0.0, high=xpricehigher[i]/5, size=numep)
 
-temp1 = np.empty([66,10])
-temp2 = np.empty([66,10])
+temp1 = np.empty([66,numep])
+temp2 = np.empty([66,numep])
 for i in range(66):
     temp1[i] = xpricehigher[i]+ep3[i]
     temp2[i] = xpricehigher[i]-ep3[i]
@@ -307,14 +308,14 @@ dataall = np.append(dataxlower, datax, axis=1)
 dataall = np.append(dataall, dataxhigher, axis=1)
 
 # Obtain revenue of each day, find SD to estimate sigma in second approach
-rev1 = np.empty(20)
-for i in range(20):
+rev1 = np.empty(numep*2)
+for i in range(numep*2):
     rev1[i] = sum(np.multiply(dataxlower[:,i], productpricelower.iloc[:,1]))
-rev2 = np.empty(20)
-for i in range(20):
+rev2 = np.empty(numep*2)
+for i in range(numep*2):
     rev2[i] = sum(np.multiply(datax[:,i], productprice.iloc[:,1]))
-rev3 = np.empty(20)
-for i in range(20):
+rev3 = np.empty(numep*2)
+for i in range(numep*2):
     rev3[i] = sum(np.multiply(dataxhigher[:,i], productpricehigher.iloc[:,1]))
 
 revall = np.append(rev1, rev2)
@@ -354,15 +355,11 @@ for i in range(dataxhigher.shape[1]):
     productcovhigher += np.matmul(test1, test2)
 productcovhigher = productcovhigher/(i+1)
 
-
-
-
-
 # Initialise counter for the number of times each arm is selected
 counter = 0
 counterlower = 0
 counterhigher = 0
-realrevenue = 0
+realrevenue_one = 0
 realrevenuearr = np.zeros(1000)
 
 """Idea is to estimate the true underlying demand distribution using historical data.
@@ -393,7 +390,7 @@ for i in range(1000):
         counter += 1
         
         # Pull the arm, calculate and accumulate OBSERVED revenue
-        realrevenue += np.sum(np.multiply(xprice, productprice.iloc[:,1].values.reshape((66,1))))
+        realrevenue_one += np.sum(np.multiply(xprice, productprice.iloc[:,1].values.reshape((66,1))))
         realrevenuearr[i] += np.sum(np.multiply(xprice, productprice.iloc[:,1].values.reshape((66,1))))
         
         # Adding observed/theoretical X to list of observations
@@ -412,7 +409,7 @@ for i in range(1000):
         counterlower += 1
         
         # Pull the arm, calculate and accumulate OBSERVED revenue
-        realrevenue += np.sum(np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((66,1))))
+        realrevenue_one += np.sum(np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((66,1))))
         realrevenuearr[i] += np.sum(np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((66,1))))
         
         # Adding observed/theoretical X to list of observations
@@ -431,7 +428,7 @@ for i in range(1000):
         counterhigher += 1
         
         # Pull the arm, calculate and accumulate OBSERVED revenue
-        realrevenue += np.sum(np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((66,1))))
+        realrevenue_one += np.sum(np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((66,1))))
         realrevenuearr[i] += np.sum(np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((66,1))))
         
         # Adding observed/theoretical X to list of observations
@@ -472,20 +469,17 @@ for i in range(1000):
     revenuehigherarr[i] += np.sum(rev)
 
 # Graphical comparison of results
-#plt.plot(mylist2,'r', mylist5,'b', mylist,'g', mylist4,'m', mylist3, 'y')
-plt.plot(np.cumsum(realrevenuearr),'r')
-plt.plot(np.cumsum(revenuelowerarr),'b')
-plt.plot(np.cumsum(revenuearr),'y')
-plt.plot(np.cumsum(revenuehigherarr),'m')
-plt.ylabel('Cumulated revenue',fontsize=15)
-plt.xlabel('Time period',fontsize=15)
-plt.legend(['Real revenue','Lower arm','Middle arm','Higher arm'],fontsize=20)
-plt.show()
+#plt.plot(np.cumsum(realrevenuearr),'r')
+#plt.plot(np.cumsum(revenuelowerarr),'b')
+#plt.plot(np.cumsum(revenuearr),'y')
+#plt.plot(np.cumsum(revenuehigherarr),'m')
+#plt.ylabel('Cumulated revenue',fontsize=15)
+#plt.xlabel('Time period',fontsize=15)
+#plt.legend(['Real revenue','Lower arm','Middle arm','Higher arm'],fontsize=20)
+#plt.show()
 
-#######################################################################################################
-#######################################################################################################
-#######################################################################################################
-#######################################################################################################
+
+
 
 # =============================================================================
 # Thomson sampling (Dynamic pricing approach)
@@ -508,21 +502,28 @@ elastcov = c*np.identity(66)
 # Preparing data for var model, need to insert date-time 
 dataall = np.transpose(dataall)
 dataall = pd.DataFrame(dataall)
-dataall.insert(0, 'date_time', list(range(60)))
-dataall.iloc[:,0] = pd.to_datetime(dataall.iloc[:,0]) # converting date_time column to datetime data type
-dataall.index = dataall.date_time # change index to datetime
+dataall.insert(0, 'date_time', list(range(numep*6)))
+dataall.iloc[:,0] = pd.to_datetime(dataall.iloc[:,0]) # converting date_time column to datetime64[ns] data type
+dataall.index = dataall.date_time # change index to datetime since index must be datetime to run time series models
 dataall = dataall.drop(['date_time'], axis=1) # remove datetime from column
-#dataall.dtypes
-# ignore this step if we dont do differencing and log
-#dataall = np.log(dataall).diff().dropna() # log is numpy, diff() is pandas, first row is NA so we drop it
+#dataall.dtypes # to check if date_time is datetime64[ns]
+
+# Making data stationary
+datadiff = np.log(dataall).diff().dropna() # with diff and log
+#datadiff = dataall.diff().dropna() # with diff
+#datadiff = dataall # without diff and log
 
 # Time series model for forecasting
 from statsmodels.tsa.api import VAR
-# Make a VAR model
-model = VAR(dataall) 
+# Run a VAR model on DIFFERENCED data
+model = VAR(datadiff) 
 # Estimate the coefficients of the VAR model
+# select_order should show the information criterion for each number of lag
+#model.select_order() # >1 lag then matrix is not positive definite. w/o diff and log, cant even do lag 1.
 results = model.fit() 
+# lag_order is the best lag chosen by model.fit()
 lag_order = results.k_ar
+
 
 from scipy.optimize import minimize
 from scipy.optimize import Bounds
@@ -533,73 +534,117 @@ prevprice = productpricehigher.iloc[:,1]
 prevprice = np.array(prevprice)
 prevprice = np.reshape(prevprice, (66,1))
 
-realrevenue2 = 0
+realrevenue_two = 0
 
-f = results.forecast(dataall.values[-lag_order:], 1)
-f = np.reshape(f, (66,1))
+#f = results.forecast(datadiff.values[-lag_order:], 1)
+#f = np.reshape(f, (66,1))
+
+#f + np.reshape(np.array(orgdataall.iloc[149,:]), (66,1))
+#f = np.e**(f + np.log(np.reshape(np.array(dataall.iloc[149,:]), (66,1))))
+
+# testing for cointegration
+#from statsmodels.tsa.vector_ar.vecm import coint_johansen
+#haha = dataall.iloc[:,range(60,66)]
+#coint_johansen(haha,-1,1).eig
+
+for j in range(1000):
+    print(j)
+    # Random sample for elasticities
+    elast = np.random.multivariate_normal(elastmean.flatten(), elastcov,1)    
+    # Ensures that all components are negative 
+    while (elast<0).all() == False: 
+        print("elast is positive")
+        print(j)
+        elast = np.random.multivariate_normal(elastmean.flatten(), elastcov,1)
+    elast = np.reshape(elast, (66,1))
+    print("random sample ok")
     
-#for j in range(1000):
-#    print(j)
-#    # Random sample for elasticities
-#    elast = np.random.multivariate_normal(elastmean.flatten(), elastcov,1)    
-#    # Ensures that all components are negative 
-#    while (elast<0).all() == False: 
-#        print("in loop")
-#        elast = np.random.multivariate_normal(elastmean.flatten(), elastcov,1)
-#    elast = np.reshape(elast, (66,1))
-#    print("random sample ok")
-#    # Obtain demand forecast f and reshape
-##    f = results.forecast(dataall.values[-lag_order:], 1)
-##    f = np.reshape(f, (66,1))
-#    print("demand forecast ok")
-#    # Objective function, multiply by -1 since we want to maximize
-#    def eqn7(p):
-#        return -1.0*np.sum(p*p*f*elast/prevprice - p*f*elast + p*f)
-#    
-#    # Initial guess is previous price
-#    opresult = minimize(eqn7, prevprice, bounds=bounds)
-#    newprice = opresult.x
-#    print("optimization ok")
-#    # Apply newprice to obtain observed demand
-#    observedx = np.empty([66,1])
-#    for i in range(66):
-#        observedx[i] = math.exp(v[i]-newprice[i])
-#    observedx = observedx/(np.sum(observedx)+math.exp(v0))
-#    print("observed demand ok")
-#    # Accumulate revenue
-#    realrevenue2 += np.sum(np.multiply(observedx, np.reshape(newprice,(66,1))))
-#    
-#    # Add observed demand to observations
-#    observedx = pd.DataFrame(observedx)
-#    dataall = dataall.append(observedx.transpose())
-#    dataall.insert(0, 'date_time', list(range(60+j+1)))
-#    dataall.iloc[:,0] = pd.to_datetime(dataall.iloc[:,0]) # converting date_time column to datetime data type
-#    dataall.index = dataall.date_time # change index to datetime
-#    dataall = dataall.drop(['date_time'], axis=1) # remove datetime from column
-#    print("add demand ok")
-#    # Re-estimate VAR model
-#    model = VAR(dataall)
-#    results = model.fit() 
-#    lag_order = results.k_ar
-#    print("re-estimate var model ok")
-#    # For M inverse matrix
-#    thet = np.multiply(np.reshape(newprice**2,(66,1)),f)
-#    thet = np.divide(thet, prevprice)
-#    thet = thet - np.multiply(np.reshape(newprice,(66,1)),f)
+    # Obtain demand forecast f and reshape
+    """without diff and log"""
+#    f = results.forecast(datadiff.values[-lag_order:], 1)
+#    f = np.reshape(f, (66,1))
+    """with diff"""
+#    f = results.forecast(datadiff.values[-lag_order:], 1)
+#    f = np.reshape(f, (66,1))
+#    f = f + np.reshape(np.array(dataall.iloc[-lag_order,:]), (66,1)) 
+    """with diff and log"""
+    f = results.forecast(datadiff.values[-lag_order:], 1)
+    f = np.reshape(f, (66,1))
+    f = np.e**(f + np.log(np.reshape(np.array(dataall.iloc[-lag_order,:]), (66,1))))  
+    
+    # Checking for valid f
+    if (f>=0).all() == False:
+        print("f is negative")
+        break
+    print("demand forecast ok")
+    
+    # Objective function, multiply by -1 since we want to maximize
+    def eqn7(p):
+        return -1.0*np.sum(p*p*f*elast/prevprice - p*f*elast + p*f)
+    
+    # Initial guess is previous price
+    opresult = minimize(eqn7, prevprice, bounds=bounds)
+    newprice = opresult.x
+    print("optimization ok")
+    
+    # Apply newprice to obtain observed demand
+    observedx = np.empty([66,1])
+    for i in range(66):
+        observedx[i] = math.exp(v[i]-newprice[i])
+    observedx = observedx/(np.sum(observedx)+math.exp(v0))
+    print("observed demand ok")
+    
+    # Accumulate revenue
+    realrevenue_two += np.sum(np.multiply(observedx, np.reshape(newprice,(66,1))))
+    
+    # Add observed demand to observations
+    observedx = pd.DataFrame(observedx)
+    dataall = dataall.append(observedx.transpose())
+    dataall.insert(0, 'date_time', list(range(numep*6+j+1)))
+    dataall.iloc[:,0] = pd.to_datetime(dataall.iloc[:,0]) # converting date_time column to datetime data type
+    dataall.index = dataall.date_time # change index to datetime
+    dataall = dataall.drop(['date_time'], axis=1) # remove datetime from column
+    
+    datadiff = np.log(dataall).diff().dropna() # with diff and log
+#    datadiff = dataall.diff().dropna() # with diff
+#    datadiff = dataall # without diff and log
+    print("add demand ok")
+    
+    # Re-estimate VAR model
+    model = VAR(datadiff)
+    results = model.fit() 
+    lag_order = results.k_ar
+    print("re-estimate var model ok")
+    
+    # For M inverse matrix
+    thet = np.multiply(np.reshape(newprice**2,(66,1)),f)
+    thet = np.divide(thet, prevprice)
+    thet = thet - np.multiply(np.reshape(newprice,(66,1)),f)
 #    minv = (thet*np.transpose(thet))/sighat**2 + 0.01*np.mean(thet*np.transpose(thet))*np.identity(66)
-#    print("minv ok")
-#    # For M inverse beta matrix
-#    rbar = np.sum(np.multiply(np.reshape(newprice,(66,1)),f))
-#    rt = float(np.sum(np.multiply(observedx, np.reshape(newprice,(66,1)))))
-#    minvb = (rt - rbar)/sighat**2*thet
-#    print("minvb ok")
-#    # Update mean of elasticity's distribution
-#    pt1 = np.linalg.inv(np.linalg.inv(elastcov) + minv)
-#    pt2 = np.matmul(np.linalg.inv(elastcov), elastmean) + ((rt-rbar)/sighat**2)*thet
-#    elastmean = np.matmul(pt1, pt2)
-#    print("update mean ok")
-#    # Update covariance of elasticity's distribution
-#    elastcov = pt1
+    minv = (thet*np.transpose(thet))/sighat**2 + 1e-5*np.identity(66) # fix lambda = 1e-5
+    print("minv ok")
+    
+    # For M inverse beta matrix
+    rbar = np.sum(np.multiply(np.reshape(newprice,(66,1)),f))
+    rt = float(np.sum(np.multiply(observedx, np.reshape(newprice,(66,1)))))
+    minvb = (rt - rbar)/(sighat**2)*thet
+    print("minvb ok")
+    
+    # Update mean of elasticity's distribution
+    pt1 = np.linalg.inv(np.linalg.inv(elastcov) + minv)
+    pt2 = np.matmul(np.linalg.inv(elastcov), elastmean) + minvb
+    elastmean = np.matmul(pt1, pt2)
+    print("update mean ok")
+    
+    # Update covariance of elasticity's distribution
+    elastcov = pt1
+    
+    # Update prevprice to new price
+    prevprice = np.reshape(newprice, (66,1))
+    
+    # update sighat
+    revall = np.append(revall, np.sum(np.multiply(observedx, np.reshape(newprice,(66,1)))))
+    sighat = np.std(revall)
 
 
 
