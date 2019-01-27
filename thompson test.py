@@ -536,18 +536,20 @@ prevprice = np.reshape(prevprice, (66,1))
 
 realrevenue_two = 0
 
-#f = results.forecast(datadiff.values[-lag_order:], 1)
-#f = np.reshape(f, (66,1))
-
-#f + np.reshape(np.array(orgdataall.iloc[149,:]), (66,1))
-#f = np.e**(f + np.log(np.reshape(np.array(dataall.iloc[149,:]), (66,1))))
+f = results.forecast(datadiff.values[-lag_order:], 1)
+f = np.reshape(f, (66,1))
+f = np.e**(f + np.log(np.reshape(np.array(dataall.iloc[149,:]), (66,1))))
 
 # testing for cointegration
 #from statsmodels.tsa.vector_ar.vecm import coint_johansen
 #haha = dataall.iloc[:,range(60,66)]
 #coint_johansen(haha,-1,1).eig
 
-for j in range(1000):
+
+
+import cplex
+
+for j in range(3):
     print(j)
     # Random sample for elasticities
     elast = np.random.multivariate_normal(elastmean.flatten(), elastcov,1)    
@@ -578,13 +580,45 @@ for j in range(1000):
         break
     print("demand forecast ok")
     
-    # Objective function, multiply by -1 since we want to maximize
-    def eqn7(p):
-        return -1.0*np.sum(p*p*f*elast/prevprice - p*f*elast + p*f)
+#    # Objective function, multiply by -1 since we want to maximize
+#    def eqn7(p):
+#        return -1.0*np.sum(p*p*f*elast/prevprice - p*f*elast + p*f)
+#    
+#    # Initial guess is previous price
+#    opresult = minimize(eqn7, prevprice, bounds=bounds)
+#    newprice = opresult.x
     
-    # Initial guess is previous price
-    opresult = minimize(eqn7, prevprice, bounds=bounds)
-    newprice = opresult.x
+    # create an instance
+    problem = cplex.Cplex()
+    
+    # set the function to maximise instead of minimise
+    problem.objective.set_sense(problem.objective.sense.maximize)
+    
+    # Adds variables
+    indices = problem.variables.add(names = [str(i) for i in range(66)])
+    
+    # Changes the linear part of the objective function.
+    for i in range(66):
+        problem.objective.set_linear(i, float(f[i]-f[i]*elast[i])) # form is objective.set_linear(var, value)
+        
+    # Sets the quadratic part of the objective function.
+    quad = (f*elast/prevprice)
+    problem.objective.set_quadratic([float(i) for i in quad])
+    
+    # Sets the lower bound for a variable or set of variables
+    for i in range(66):
+        problem.variables.set_lower_bounds(i, productpricelower.iloc[i,1])
+    
+    # Sets the upper bound for a variable or set of variables
+    for i in range(66):
+        problem.variables.set_upper_bounds(i, productpricehigher.iloc[i,1])
+    
+    problem.solve()
+    newprice=problem.solution.get_values()
+    newprice = np.array(newprice)
+    
+    
+    
     print("optimization ok")
     
     # Apply newprice to obtain observed demand
@@ -642,9 +676,6 @@ for j in range(1000):
     # Update prevprice to new price
     prevprice = np.reshape(newprice, (66,1))
     
-    # update sighat
-    revall = np.append(revall, np.sum(np.multiply(observedx, np.reshape(newprice,(66,1)))))
-    sighat = np.std(revall)
 
 
 
