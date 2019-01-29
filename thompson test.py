@@ -524,12 +524,6 @@ results = model.fit()
 # lag_order is the best lag chosen by model.fit()
 lag_order = results.k_ar
 
-
-from scipy.optimize import minimize
-from scipy.optimize import Bounds
-# Set bounds to be lower prices and higher prices
-bounds = Bounds(np.array(productpricelower.iloc[:,1]), np.array(productpricehigher.iloc[:,1]))
-
 prevprice = productpricehigher.iloc[:,1]
 prevprice = np.array(prevprice)
 prevprice = np.reshape(prevprice, (66,1))
@@ -545,11 +539,19 @@ f = np.e**(f + np.log(np.reshape(np.array(dataall.iloc[149,:]), (66,1))))
 #haha = dataall.iloc[:,range(60,66)]
 #coint_johansen(haha,-1,1).eig
 
-
+oof=[]
+for i in range(66):
+    oof.append((productpricelower.iloc[i,1],productpricehigher.iloc[i,1]))
 
 import cplex
+from scipy.optimize import minimize
+from scipy.optimize import Bounds
+# Set bounds to be lower prices and higher prices
+bounds = Bounds(np.array(productpricelower.iloc[:,1]), np.array(productpricehigher.iloc[:,1]))
+from scipy.optimize import differential_evolution
+import sys, os, mosek
 
-for j in range(3):
+for j in range(1000):
     print(j)
     # Random sample for elasticities
     elast = np.random.multivariate_normal(elastmean.flatten(), elastcov,1)    
@@ -579,47 +581,129 @@ for j in range(3):
         print("f is negative")
         break
     print("demand forecast ok")
+
+    """using mosek"""
+    # Since the actual value of Infinity is ignored, we define it solely for symbolic purposes:
+    inf = 0.0
+
+    # Define a stream printer to grab output from MOSEK
+    def streamprinter(text):
+        sys.stdout.write(text)
+        sys.stdout.flush()
+    
+    def main():
+    # Open MOSEK and create an environment and task
+    # Make a MOSEK environment
+        with mosek.Env() as env:
+            # Attach a printer to the environment
+            env.set_Stream(mosek.streamtype.log, streamprinter)
+            # Create a task
+            with env.Task() as task:
+                task.set_Stream(mosek.streamtype.log, streamprinter)
+                
+                # Bound keys for variables
+                numvar = 66
+                bkx = [mosek.boundkey.ra] * numvar
+                
+                # Bound values for variables
+                blx = list(productpricelower.iloc[:,1])
+                bux = list(productpricehigher.iloc[:,1])
+                
+                # Objective linear coefficients
+                temp = f - (f * elast)
+                c = []
+                for i in range(numvar):
+                    c.append(temp[i][0])
+                print(c)
+                
+                # Append 'numvar' variables.
+                # The variables will initially be fixed at zero (x=0).
+                task.appendvars(numvar)
+    
+                for j in range(numvar):
+                    # Set the linear term c_j in the objective.
+                    task.putcj(j, c[j])
+                    
+                    # Set the bounds on variable j
+                    # blx[j] <= x_j <= bux[j] 
+                    task.putbound(mosek.accmode.var, j, bkx[j], blx[j], bux[j]) 
+                        
+                # Set up and input quadratic objective
+                qsubi = []
+                for i in range(numvar):
+                    qsubi.append(i)
+                qsubj = qsubi
+                temp = f * elast / prevprice
+                qval = []
+                for i in range(numvar):
+                    qval.append(temp[i][0])
+                print(qval)
+    
+                task.putqobj(qsubi, qsubj, qval)
+    
+                # Input the objective sense (minimize/maximize)
+                task.putobjsense(mosek.objsense.maximize)
+    
+                # Optimize
+                task.optimize()
+                
+                # Print a summary containing information
+                # about the solution for debugging purposes
+                task.solutionsummary(mosek.streamtype.msg)
+    
+                # Output a solution
+                xx = [0.] * numvar
+                task.getxx(mosek.soltype.itr,
+                           xx)
+    
+                return xx
+     # call the main function
+    newprice = main()
+    newprice = np.array(newprice)
+    
+    """using scipy.optimize"""
     
 #    # Objective function, multiply by -1 since we want to maximize
 #    def eqn7(p):
 #        return -1.0*np.sum(p*p*f*elast/prevprice - p*f*elast + p*f)
 #    
 #    # Initial guess is previous price
-#    opresult = minimize(eqn7, prevprice, bounds=bounds)
+#    opresult = minimize(eqn7, np.reshape(np.array(productpricehigher.iloc[:,1]), (66,1)), bounds=bounds)
 #    newprice = opresult.x
     
-    # create an instance
-    problem = cplex.Cplex()
-    
-    # set the function to maximise instead of minimise
-    problem.objective.set_sense(problem.objective.sense.maximize)
-    
-    # Adds variables
-    indices = problem.variables.add(names = [str(i) for i in range(66)])
-    
-    # Changes the linear part of the objective function.
-    for i in range(66):
-        problem.objective.set_linear(i, float(f[i]-f[i]*elast[i])) # form is objective.set_linear(var, value)
-        
-    # Sets the quadratic part of the objective function.
-    quad = (f*elast/prevprice)
-    problem.objective.set_quadratic([float(i) for i in quad])
-    
-    # Sets the lower bound for a variable or set of variables
-    for i in range(66):
-        problem.variables.set_lower_bounds(i, productpricelower.iloc[i,1])
-    
-    # Sets the upper bound for a variable or set of variables
-    for i in range(66):
-        problem.variables.set_upper_bounds(i, productpricehigher.iloc[i,1])
-    
-    problem.solve()
-    newprice=problem.solution.get_values()
-    newprice = np.array(newprice)
-    
-    
-    
+    """using cplex"""
+#    # create an instance
+#    problem = cplex.Cplex()
+#    
+#    # set the function to maximise instead of minimise
+#    problem.objective.set_sense(problem.objective.sense.maximize)
+#    
+#    # Adds variables
+#    indices = problem.variables.add(names = [str(i) for i in range(66)])
+#    
+#    # Changes the linear part of the objective function.
+#    for i in range(66):
+#        problem.objective.set_linear(i, float(f[i]-f[i]*elast[i])) # form is objective.set_linear(var, value)
+#        
+#    # Sets the quadratic part of the objective function.
+#    quad = (f*elast/prevprice)
+#    problem.objective.set_quadratic([float(i) for i in quad])
+#    
+#    # Sets the lower bound for a variable or set of variables
+#    for i in range(66):
+#        problem.variables.set_lower_bounds(i, productpricelower.iloc[i,1])
+#    
+#    # Sets the upper bound for a variable or set of variables
+#    for i in range(66):
+#        problem.variables.set_upper_bounds(i, productpricehigher.iloc[i,1])
+#    
+#    problem.solve()
+#    newprice=problem.solution.get_values()
+#    newprice = np.array(newprice)
     print("optimization ok")
+    
+    
+    
     
     # Apply newprice to obtain observed demand
     observedx = np.empty([66,1])
