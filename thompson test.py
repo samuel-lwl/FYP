@@ -6,21 +6,21 @@ import math
 import matplotlib.pyplot as plt
 
 #x=pd.read_excel("C:/Users/Samuel/Desktop/uninotes/FYP/selected-sales data_children%27s book_every 99 cut 50.xlsx")
-x=pd.read_excel("C:/Uninotes/FYP/data/selected-sales data_children%27s book_every 99 cut 50.xlsx")
+x = pd.read_excel("C:/Uninotes/FYP/data/selected-sales data_children%27s book_every 99 cut 50.xlsx")
 
 # removed brand_id, agio_cut_price and free_cut_price
-dataoriginalprice=x.iloc[:,[1,17]]
-datafullcut=x.iloc[:,[1,19]]
+dataoriginalprice = x.iloc[:,[1,17]]
+datafullcut = x.iloc[:,[1,19]]
 
 # merge based on order id for cut_price
-datafullcut=datafullcut.groupby(['order_id']).sum().reset_index()
+datafullcut = datafullcut.groupby(['order_id']).sum().reset_index()
 
 # merge based on order id for price per order
-dataoriginalprice=dataoriginalprice.groupby(['order_id']).sum().reset_index()
+dataoriginalprice = dataoriginalprice.groupby(['order_id']).sum().reset_index()
 
 # merge both together, sort by order amount
-datamerge=pd.merge(dataoriginalprice,datafullcut)
-datamerge=datamerge.sort_values(by='goods_money')
+datamerge = pd.merge(dataoriginalprice,datafullcut)
+datamerge = datamerge.sort_values(by='goods_money')
 
 # remove outlier index 1139 where cut_goods_money = 0.35
 datamerge.drop(1139,inplace=True)
@@ -661,8 +661,7 @@ for j in range(1000):
     newprice = main()
     newprice = np.array(newprice)
     
-    """using scipy.optimize"""
-    
+    """using scipy.optimize"""    
 #    # Objective function, multiply by -1 since we want to maximize
 #    def eqn7(p):
 #        return -1.0*np.sum(p*p*f*elast/prevprice - p*f*elast + p*f)
