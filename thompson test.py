@@ -6,7 +6,11 @@ import math
 import matplotlib.pyplot as plt
 
 #x=pd.read_excel("C:/Users/Samuel/Desktop/uninotes/FYP/selected-sales data_children%27s book_every 99 cut 50.xlsx")
+<<<<<<< HEAD
 x = pd.read_excel("C:/Uninotes/FYP/data/selected-sales data_children%27s book_every 99 cut 50.xlsx")
+=======
+x=pd.read_excel("C:/Users/Samuel/Desktop/uninotes/FYP/selected-sales data_children%27s book_every 99 cut 50.xlsx")
+>>>>>>> bd0db23227847dc3c4df1c4457642ce3b1c94a59
 
 # removed brand_id, agio_cut_price and free_cut_price
 dataoriginalprice = x.iloc[:,[1,17]]
@@ -509,9 +513,12 @@ dataall = dataall.drop(['date_time'], axis=1) # remove datetime from column
 #dataall.dtypes # to check if date_time is datetime64[ns]
 
 # Making data stationary
-datadiff = np.log(dataall).diff().dropna() # with diff and log
-#datadiff = dataall.diff().dropna() # with diff
+#datadiff = np.log(dataall).diff().dropna() # diff(log)
+#datadiff = dataall.diff().dropna() # diff()
 #datadiff = dataall # without diff and log
+
+datadifforg = dataall.diff().dropna() # log(abs(diff))
+datadiff = np.log(abs(datadifforg))
 
 # Time series model for forecasting
 from statsmodels.tsa.api import VAR
@@ -530,18 +537,18 @@ prevprice = np.reshape(prevprice, (66,1))
 
 realrevenue_two = 0
 
-f = results.forecast(datadiff.values[-lag_order:], 1)
-f = np.reshape(f, (66,1))
-f = np.e**(f + np.log(np.reshape(np.array(dataall.iloc[149,:]), (66,1))))
+#f = results.forecast(datadiff.values[-lag_order:], 1) # with diff and log
+#f = np.reshape(f, (66,1))
+#f = np.e**(f + np.log(np.reshape(np.array(dataall.iloc[149,:]), (66,1))))
+
+#f = results.forecast(datadiff.values[-lag_order:], 1) # with abs(diff) THEN log
+#f = np.reshape(f, (66,1))
+#f = np.e**(f) + np.reshape(np.array(dataall.iloc[149,:]), (66,1))
 
 # testing for cointegration
 #from statsmodels.tsa.vector_ar.vecm import coint_johansen
 #haha = dataall.iloc[:,range(60,66)]
 #coint_johansen(haha,-1,1).eig
-
-oof=[]
-for i in range(66):
-    oof.append((productpricelower.iloc[i,1],productpricehigher.iloc[i,1]))
 
 import cplex
 from scipy.optimize import minimize
@@ -551,7 +558,12 @@ bounds = Bounds(np.array(productpricelower.iloc[:,1]), np.array(productpricehigh
 from scipy.optimize import differential_evolution
 import sys, os, mosek
 
-for j in range(1000):
+
+
+
+
+
+for j in range(100):
     print(j)
     # Random sample for elasticities
     elast = np.random.multivariate_normal(elastmean.flatten(), elastcov,1)    
@@ -567,14 +579,18 @@ for j in range(1000):
     """without diff and log"""
 #    f = results.forecast(datadiff.values[-lag_order:], 1)
 #    f = np.reshape(f, (66,1))
-    """with diff"""
+    """diff()"""
 #    f = results.forecast(datadiff.values[-lag_order:], 1)
 #    f = np.reshape(f, (66,1))
 #    f = f + np.reshape(np.array(dataall.iloc[-lag_order,:]), (66,1)) 
-    """with diff and log"""
+    """diff(log)"""
+#    f = results.forecast(datadiff.values[-lag_order:], 1)
+#    f = np.reshape(f, (66,1))
+#    f = np.e**(f + np.log(np.reshape(np.array(dataall.iloc[-lag_order,:]), (66,1))))  
+    """log(abs(diff))"""
     f = results.forecast(datadiff.values[-lag_order:], 1)
     f = np.reshape(f, (66,1))
-    f = np.e**(f + np.log(np.reshape(np.array(dataall.iloc[-lag_order,:]), (66,1))))  
+    f = np.e**(f) + np.reshape(np.array(dataall.iloc[-lag_order,:]), (66,1))
     
     # Checking for valid f
     if (f>=0).all() == False:
@@ -606,16 +622,21 @@ for j in range(1000):
                 bkx = [mosek.boundkey.ra] * numvar
                 
                 # Bound values for variables
-                blx = list(productpricelower.iloc[:,1])
-                bux = list(productpricehigher.iloc[:,1])
+                temppricelow = prevprice*0.9
+                temppricehigh = prevprice*1.1
+                blx = []
+                bux = []
+                for i in range(66):
+                    blx.append(temppricelow[i][0])
+                    bux.append(temppricehigh[i][0])
                 
                 # Objective linear coefficients
                 temp = f - (f * elast)
                 c = []
                 for i in range(numvar):
                     c.append(temp[i][0])
-                print(c)
-                
+#                print(c)
+                print()
                 # Append 'numvar' variables.
                 # The variables will initially be fixed at zero (x=0).
                 task.appendvars(numvar)
@@ -637,7 +658,7 @@ for j in range(1000):
                 qval = []
                 for i in range(numvar):
                     qval.append(temp[i][0])
-                print(qval)
+#                print(qval)
     
                 task.putqobj(qsubi, qsubj, qval)
     
@@ -649,7 +670,7 @@ for j in range(1000):
                 
                 # Print a summary containing information
                 # about the solution for debugging purposes
-                task.solutionsummary(mosek.streamtype.msg)
+#                task.solutionsummary(mosek.streamtype.msg)
     
                 # Output a solution
                 xx = [0.] * numvar
@@ -661,7 +682,11 @@ for j in range(1000):
     newprice = main()
     newprice = np.array(newprice)
     
+<<<<<<< HEAD
     """using scipy.optimize"""    
+=======
+    """using scipy.optimize"""
+>>>>>>> bd0db23227847dc3c4df1c4457642ce3b1c94a59
 #    # Objective function, multiply by -1 since we want to maximize
 #    def eqn7(p):
 #        return -1.0*np.sum(p*p*f*elast/prevprice - p*f*elast + p*f)
@@ -690,11 +715,11 @@ for j in range(1000):
 #    
 #    # Sets the lower bound for a variable or set of variables
 #    for i in range(66):
-#        problem.variables.set_lower_bounds(i, productpricelower.iloc[i,1])
+#        problem.variables.set_lower_bounds(i, prevprice[i][0]*0.9)
 #    
 #    # Sets the upper bound for a variable or set of variables
 #    for i in range(66):
-#        problem.variables.set_upper_bounds(i, productpricehigher.iloc[i,1])
+#        problem.variables.set_upper_bounds(i, prevprice[i][0]*1.1)
 #    
 #    problem.solve()
 #    newprice=problem.solution.get_values()
@@ -722,14 +747,17 @@ for j in range(1000):
     dataall.index = dataall.date_time # change index to datetime
     dataall = dataall.drop(['date_time'], axis=1) # remove datetime from column
     
-    datadiff = np.log(dataall).diff().dropna() # with diff and log
-#    datadiff = dataall.diff().dropna() # with diff
+#    datadiff = np.log(dataall).diff().dropna() # diff(log)
+#    datadiff = dataall.diff().dropna() # diff()
 #    datadiff = dataall # without diff and log
+
+    datadifforg = dataall.diff().dropna() # log(abs(diff))
+    datadiff = np.log(abs(datadifforg))
     print("add demand ok")
     
     # Re-estimate VAR model
     model = VAR(datadiff)
-    results = model.fit() 
+    results = model.fit()
     lag_order = results.k_ar
     print("re-estimate var model ok")
     
@@ -737,7 +765,6 @@ for j in range(1000):
     thet = np.multiply(np.reshape(newprice**2,(66,1)),f)
     thet = np.divide(thet, prevprice)
     thet = thet - np.multiply(np.reshape(newprice,(66,1)),f)
-#    minv = (thet*np.transpose(thet))/sighat**2 + 0.01*np.mean(thet*np.transpose(thet))*np.identity(66)
     minv = (thet*np.transpose(thet))/sighat**2 + 1e-5*np.identity(66) # fix lambda = 1e-5
     print("minv ok")
     
