@@ -386,6 +386,7 @@ for i in range(1000):
     revhigher = np.multiply(rdmhigher, productpricehigher.iloc[:,1].values.reshape((66,1)))
     
     # Choose the arm with the highest revenue based on SAMPLED demand.
+    # Middle arm is best
     if np.sum(rev)>np.sum(revhigher) and np.sum(rev)>np.sum(revlower):
         counter += 1
         
@@ -405,6 +406,7 @@ for i in range(1000):
             productcov += np.matmul(test1, test2)
         productcov = productcov/(i+1)
 
+    # Lower arm is best
     elif np.sum(revlower)>np.sum(rev) and np.sum(revlower)>np.sum(revhigher):
         counterlower += 1
         
@@ -424,6 +426,7 @@ for i in range(1000):
             productcovlower += np.matmul(test1, test2)
         productcovlower = productcovlower/(i+1)
 
+    # Higher arm is best
     else:
         counterhigher += 1
         
