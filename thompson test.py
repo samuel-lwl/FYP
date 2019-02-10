@@ -5,8 +5,8 @@ import numpy as np
 import math
 import matplotlib.pyplot as plt
 
-#x = pd.read_excel("C:/Uninotes/FYP/data/selected-sales data_children%27s book_every 99 cut 50.xlsx") # desktop
-x = pd.read_excel("C:/Users/Samuel/Desktop/uninotes/FYP/selected-sales data_children%27s book_every 99 cut 50.xlsx") # laptop
+x = pd.read_excel("C:/Uninotes/FYP/data/selected-sales data_children%27s book_every 99 cut 50.xlsx") # desktop
+#x = pd.read_excel("C:/Users/Samuel/Desktop/uninotes/FYP/selected-sales data_children%27s book_every 99 cut 50.xlsx") # laptop
 
 # removed brand_id, agio_cut_price and free_cut_price
 dataoriginalprice = x.iloc[:,[1,17]]
@@ -625,7 +625,7 @@ for j in range(100):
                 temppricehigh = prevprice*1.1
                 blx = []
                 bux = []
-                for i in range(66):
+                for i in range(numvar):
                     blx.append(temppricelow[i][0])
                     bux.append(temppricehigh[i][0])
                 
@@ -653,7 +653,7 @@ for j in range(100):
                 for i in range(numvar):
                     qsubi.append(i)
                 qsubj = qsubi
-                temp = f * elast / prevprice
+                temp = 2 * f * elast / prevprice # Must remember to *2, see mosek documentation
                 qval = []
                 for i in range(numvar):
                     qval.append(temp[i][0])
