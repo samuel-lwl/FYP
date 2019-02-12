@@ -10,6 +10,7 @@ numvars = 100
 import numpy as np
 np.random.seed(10)
 gammastar = np.random.uniform(-3,-1,numvars)
+gammastar = np.reshape(gammastar, (numvars,1))
 
 beta = 0.5
 price0 = [12]*numvars
@@ -37,8 +38,8 @@ np.random.seed(100)
 gammaprior = np.random.uniform(-5,-1,numvars)
 # constant c
 c = 0.1 * np.mean(gammaprior)
-elastmean = np.reshape(np.array(gammaprior),(numvars,1))
-elastcov = c*np.identity(numvars)
+#elastmean = np.reshape(np.array(gammaprior),(numvars,1))
+#elastcov = c*np.identity(numvars)
 
 # For d(i,0)
 data = (f1 - c0)/beta 
@@ -54,8 +55,7 @@ import sys, mosek
 from scipy.optimize import minimize
 from scipy.optimize import Bounds
 
-revenue = 0
-
+# Data generating
 for i in range(1,10):
     # Demand forecast
     if i == 1:
@@ -67,14 +67,14 @@ for i in range(1,10):
             f += (beta**j)*np.reshape(data[i-j], (numvars,1))
     f = np.reshape(f, (numvars,1))
     
-    # Elasticity estimate
-    elast = np.random.multivariate_normal(elastmean.flatten(), elastcov, 1)
-    # Ensures that all components are negative 
-    while (elast<0).all() == False: 
-        print("elast is positive")
-        print(i)
-        elast = np.random.multivariate_normal(elastmean.flatten(), elastcov, 1)
-    elast = np.reshape(elast, (numvars,1))
+#    # Elasticity estimate
+#    elast = np.random.multivariate_normal(elastmean.flatten(), elastcov, 1)
+#    # Ensures that all components are negative 
+#    while (elast<0).all() == False: 
+#        print("elast is positive")
+#        print(i)
+#        elast = np.random.multivariate_normal(elastmean.flatten(), elastcov, 1)
+#    elast = np.reshape(elast, (numvars,1))
     
     # Generate price
     """using mosek"""
@@ -110,7 +110,7 @@ for i in range(1,10):
                     bux.append(temppricehigh[i][0])
                 
                 # Objective linear coefficients
-                temp = f - (f * elast)
+                temp = f - (f * gammastar)
                 c = []
                 for i in range(numvar):
                     c.append(temp[i][0])
@@ -137,7 +137,7 @@ for i in range(1,10):
                 for i in range(numvar):
                     qsubi.append(i)
                 qsubj = qsubi
-                temp = 2 * f * elast / prevprice # Must remember to *2, see mosek documentation
+                temp = 2 * f * gammastar / prevprice # Must remember to *2, see mosek documentation
                 qval = []
                 for i in range(numvar):
                     qval.append(temp[i][0])
@@ -161,7 +161,7 @@ for i in range(1,10):
                            xx)
     
                 return xx
-     # call the main function
+    # call the main function
     newprice = main()
     newprice = np.array(newprice)
     newprice = np.reshape(newprice, (numvars,1))
@@ -186,31 +186,28 @@ for i in range(1,10):
     
     
     # Observed demand
-    observedx = f * (newprice / prevprice)**elast
+    observedx = f * (newprice / prevprice)**gammastar + np.reshape(np.random.multivariate_normal(noisemean, noisecov, 1), (numvars,1))
     for k in range(len(observedx)):
         if observedx[k][0] < 0:
             observedx[k][0] = 0
     data = np.append(data, np.transpose(observedx), axis=0)
 
-    # Accumulate revenue
-    revenue += np.sum(observedx * newprice)
-
-    # For M inverse matrix
-    thet = (newprice * newprice * f / prevprice) - (newprice * f)
-    minv = (thet * np.transpose(thet)) / (sighat**2) + 1e-5 * np.identity(numvars) # fix lambda = 1e-5
-
-    # For M inverse beta matrix
-    rbar = np.sum(newprice * f)
-    rt = np.sum(newprice * observedx)
-    minvb = (rt - rbar)/(sighat**2) * thet
-
-    # Update mean of elasticity
-    pt1 = np.linalg.inv(np.linalg.inv(elastcov) + minv)
-    pt2 = np.matmul(np.linalg.inv(elastcov), elastmean) + minvb
-    elastmean = np.matmul(pt1, pt2)
-    
-    # Update cov of elasticity
-    elastcov = pt1
+#    # For M inverse matrix
+#    thet = (newprice * newprice * f / prevprice) - (newprice * f)
+#    minv = (thet * np.transpose(thet)) / (sighat**2) + 1e-5 * np.identity(numvars) # fix lambda = 1e-5
+#
+#    # For M inverse beta matrix
+#    rbar = np.sum(newprice * f)
+#    rt = np.sum(newprice * observedx)
+#    minvb = (rt - rbar)/(sighat**2) * thet
+#
+#    # Update mean of elasticity
+#    pt1 = np.linalg.inv(np.linalg.inv(elastcov) + minv)
+#    pt2 = np.matmul(np.linalg.inv(elastcov), elastmean) + minvb
+#    elastmean = np.matmul(pt1, pt2)
+#    
+#    # Update cov of elasticity
+#    elastcov = pt1
     
     # Update prevprice to new price
     prevprice = newprice
