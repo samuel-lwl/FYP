@@ -20,7 +20,7 @@ price0 = np.reshape(price0, (numvars,1))
 np.random.seed(10)
 f1 = np.random.uniform(0.5,5,numvars)
 
-c0 = 0.05
+c0 = 0.005
 #np.random.seed(1)
 #data = np.random.uniform(0.5,5,100)
 ## each row is 1 observation, each column is 1 product
@@ -37,26 +37,30 @@ c0 = 0.05
 np.random.seed(100)
 gammaprior = np.random.uniform(-5,-1,numvars)
 # constant c
-c = 0.1 * np.mean(gammaprior)
+#c = 0.1 * np.mean(gammaprior)
 #elastmean = np.reshape(np.array(gammaprior),(numvars,1))
 #elastcov = c*np.identity(numvars)
 
-# For d(i,0)
-data = (f1 - c0)/beta 
-data = np.reshape(data, (1,numvars))
-sighat = np.std(data)
-
-prevprice = price0
-
 noisemean = np.zeros(numvars)
 noisecov = np.identity(numvars)
+
+# For d(i,0)
+np.random.seed(10)
+data = (f1 - c0 - np.random.multivariate_normal(noisemean, noisecov, 1))/beta 
+data = np.reshape(data, (1,numvars))
+#sighat = np.std(data)
+
+prevprice = price0
 
 import sys, mosek
 from scipy.optimize import minimize
 from scipy.optimize import Bounds
 
+# Triple data storage
+tripledata = []
+
 # Data generating
-for i in range(1,10):
+for i in range(1,100):
     # Demand forecast
     if i == 1:
         f = f1
@@ -78,105 +82,105 @@ for i in range(1,10):
     
     # Generate price
     """using mosek"""
-    # Since the actual value of Infinity is ignored, we define it solely for symbolic purposes:
-    inf = 0.0
-
-    # Define a stream printer to grab output from MOSEK
-    def streamprinter(text):
-        sys.stdout.write(text)
-        sys.stdout.flush()
-    
-    def main():
-    # Open MOSEK and create an environment and task
-    # Make a MOSEK environment
-        with mosek.Env() as env:
-            # Attach a printer to the environment
-            env.set_Stream(mosek.streamtype.log, streamprinter)
-            # Create a task
-            with env.Task() as task:
-                task.set_Stream(mosek.streamtype.log, streamprinter)
-                
-                # Bound keys for variables
-                numvar = 100
-                bkx = [mosek.boundkey.ra] * numvar
-                
-                # Bound values for variables
-                temppricelow = prevprice*0.9
-                temppricehigh = prevprice*1.1
-                blx = []
-                bux = []
-                for i in range(numvar):
-                    blx.append(temppricelow[i][0])
-                    bux.append(temppricehigh[i][0])
-                
-                # Objective linear coefficients
-                temp = f - (f * gammastar)
-                c = []
-                for i in range(numvar):
-                    c.append(temp[i][0])
-#                print(c)
-                
-                # Append 'numcon' empty constraints.
-                # The constraints will initially have no bounds.
-                task.appendcons(0)
-            
-                # Append 'numvar' variables.
-                # The variables will initially be fixed at zero (x=0).
-                task.appendvars(numvar)
-    
-                for j in range(numvar):
-                    # Set the linear term c_j in the objective.
-                    task.putcj(j, c[j])
-                    
-                    # Set the bounds on variable j
-                    # blx[j] <= x_j <= bux[j] 
-                    task.putvarbound(j, bkx[j], blx[j], bux[j]) 
-                        
-                # Set up and input quadratic objective
-                qsubi = []
-                for i in range(numvar):
-                    qsubi.append(i)
-                qsubj = qsubi
-                temp = 2 * f * gammastar / prevprice # Must remember to *2, see mosek documentation
-                qval = []
-                for i in range(numvar):
-                    qval.append(temp[i][0])
-#                print(qval)
-    
-                task.putqobj(qsubi, qsubj, qval)
-    
-                # Input the objective sense (minimize/maximize)
-                task.putobjsense(mosek.objsense.maximize)
-    
-                # Optimize
-                task.optimize()
-                
-                # Print a summary containing information
-                # about the solution for debugging purposes
-#                task.solutionsummary(mosek.streamtype.msg)
-    
-                # Output a solution
-                xx = [0.] * numvar
-                task.getxx(mosek.soltype.itr,
-                           xx)
-    
-                return xx
-    # call the main function
-    newprice = main()
-    newprice = np.array(newprice)
-    newprice = np.reshape(newprice, (numvars,1))
+#    # Since the actual value of Infinity is ignored, we define it solely for symbolic purposes:
+#    inf = 0.0
+#
+#    # Define a stream printer to grab output from MOSEK
+#    def streamprinter(text):
+#        sys.stdout.write(text)
+#        sys.stdout.flush()
+#    
+#    def main():
+#    # Open MOSEK and create an environment and task
+#    # Make a MOSEK environment
+#        with mosek.Env() as env:
+#            # Attach a printer to the environment
+#            env.set_Stream(mosek.streamtype.log, streamprinter)
+#            # Create a task
+#            with env.Task() as task:
+#                task.set_Stream(mosek.streamtype.log, streamprinter)
+#                
+#                # Bound keys for variables
+#                numvar = 100
+#                bkx = [mosek.boundkey.ra] * numvar
+#                
+#                # Bound values for variables
+#                temppricelow = prevprice*0.9
+#                temppricehigh = prevprice*1.1
+#                blx = []
+#                bux = []
+#                for i in range(numvar):
+#                    blx.append(temppricelow[i][0])
+#                    bux.append(temppricehigh[i][0])
+#                
+#                # Objective linear coefficients
+#                temp = f - (f * gammastar)
+#                c = []
+#                for i in range(numvar):
+#                    c.append(temp[i][0])
+##                print(c)
+#                
+#                # Append 'numcon' empty constraints.
+#                # The constraints will initially have no bounds.
+#                task.appendcons(0)
+#            
+#                # Append 'numvar' variables.
+#                # The variables will initially be fixed at zero (x=0).
+#                task.appendvars(numvar)
+#    
+#                for j in range(numvar):
+#                    # Set the linear term c_j in the objective.
+#                    task.putcj(j, c[j])
+#                    
+#                    # Set the bounds on variable j
+#                    # blx[j] <= x_j <= bux[j] 
+#                    task.putvarbound(j, bkx[j], blx[j], bux[j]) 
+#
+#                # Set up and input quadratic objective
+#                qsubi = []
+#                for i in range(numvar):
+#                    qsubi.append(i)
+#                qsubj = qsubi
+#                temp = 2 * f * gammastar / prevprice # Must remember to *2, see mosek documentation
+#                qval = []
+#                for i in range(numvar):
+#                    qval.append(temp[i][0])
+##                print(qval)
+#    
+#                task.putqobj(qsubi, qsubj, qval)
+#    
+#                # Input the objective sense (minimize/maximize)
+#                task.putobjsense(mosek.objsense.maximize)
+#    
+#                # Optimize
+#                task.optimize()
+#                
+#                # Print a summary containing information
+#                # about the solution for debugging purposes
+##                task.solutionsummary(mosek.streamtype.msg)
+#    
+#                # Output a solution
+#                xx = [0.] * numvar
+#                task.getxx(mosek.soltype.itr,
+#                           xx)
+#    
+#                return xx
+#    # call the main function
+#    newprice = main()
+#    newprice = np.array(newprice)
+#    newprice = np.reshape(newprice, (numvars,1))
     
     """using scipy.optimize"""
-#    bounds = Bounds(prevprice*0.9, prevprice*1.1)
-#    
-#    # Objective function, multiply by -1 since we want to maximize
-#    def eqn7(p):
-#        return -1.0*np.sum(p*p*f*elast/prevprice - p*f*elast + p*f)
-#    
-#    # Initial guess is previous price
-#    opresult = minimize(eqn7, prevprice*1.05, bounds=bounds)
-#    newprice = opresult.x
-#    newprice = np.reshape(newprice, (numvars,1))
+    bounds = Bounds(prevprice*0.9, prevprice*1.1)
+    
+    # Objective function, multiply by -1 since we want to maximize
+    def eqn7(p):
+        return -1.0*np.sum(p*p*f*gammastar/prevprice - p*f*gammastar + p*f)
+    
+    # Initial guess is 1.05 * previous price
+    opresult = minimize(eqn7, prevprice*1.05, bounds=bounds)
+    newprice = opresult.x
+    newprice = np.reshape(newprice, (numvars,1))
     
     
     
@@ -208,6 +212,9 @@ for i in range(1,10):
 #    
 #    # Update cov of elasticity
 #    elastcov = pt1
+    
+    # Add data as triplet into tripledata
+    tripledata.append([f, prevprice, observedx])
     
     # Update prevprice to new price
     prevprice = newprice
