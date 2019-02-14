@@ -262,6 +262,7 @@ xpricelower = xpricelower/(np.sum(xpricelower)+math.exp(v0))
 # =============================================================================
 # To generate additional data by creating epsilons for each price vector
 # =============================================================================
+# Number of epsilons. Multiply by 2 to get number of data points per arm. 
 numep = 25
 # First price vector
 ep1 = np.empty([66,numep])
@@ -553,7 +554,7 @@ import cplex
 from scipy.optimize import minimize
 from scipy.optimize import Bounds
 # Set bounds to be lower prices and higher prices
-bounds = Bounds(np.array(productpricelower.iloc[:,1]), np.array(productpricehigher.iloc[:,1]))
+bounds = Bounds(prevprice*0.9, prevprice*1.1)
 from scipy.optimize import differential_evolution
 import sys, os, mosek
 
@@ -617,7 +618,7 @@ for j in range(100):
                 task.set_Stream(mosek.streamtype.log, streamprinter)
                 
                 # Bound keys for variables
-                numvar = 66
+                numvar = 100
                 bkx = [mosek.boundkey.ra] * numvar
                 
                 # Bound values for variables
@@ -635,7 +636,11 @@ for j in range(100):
                 for i in range(numvar):
                     c.append(temp[i][0])
 #                print(c)
-                print()
+                
+                # Append 'numcon' empty constraints.
+                # The constraints will initially have no bounds.
+                task.appendcons(0)
+            
                 # Append 'numvar' variables.
                 # The variables will initially be fixed at zero (x=0).
                 task.appendvars(numvar)
@@ -646,8 +651,8 @@ for j in range(100):
                     
                     # Set the bounds on variable j
                     # blx[j] <= x_j <= bux[j] 
-                    task.putbound(mosek.accmode.var, j, bkx[j], blx[j], bux[j]) 
-                        
+                    task.putvarbound(j, bkx[j], blx[j], bux[j]) 
+
                 # Set up and input quadratic objective
                 qsubi = []
                 for i in range(numvar):
@@ -677,9 +682,10 @@ for j in range(100):
                            xx)
     
                 return xx
-     # call the main function
+    # call the main function
     newprice = main()
     newprice = np.array(newprice)
+    newprice = np.reshape(newprice, (66,1))
     
     """using scipy.optimize"""
 #    # Objective function, multiply by -1 since we want to maximize
