@@ -10,6 +10,7 @@ numvars = 100
 import pandas as pd
 import numpy as np
 np.random.seed(10)
+# True parameter
 gammastar = np.random.uniform(-3,-1,numvars)
 gammastar = np.reshape(gammastar, (numvars,1))
 
@@ -19,6 +20,7 @@ price0 = np.array(price0)
 price0 = np.reshape(price0, (numvars,1))
 
 np.random.seed(10)
+# Initial demand
 f1 = np.random.uniform(0.5,5,numvars)
 
 c0 = 0.005
@@ -54,7 +56,7 @@ from scipy.optimize import Bounds
 # Triple data storage
 tripledata = []
 
-datapts = 20
+datapts = 2
 
 # Data generating
 for i in range(1,datapts):
@@ -147,19 +149,52 @@ for i in range(1,datapts):
                 
                 # Print a summary containing information
                 # about the solution for debugging purposes
-                task.solutionsummary(mosek.streamtype.msg)
-                task.analyzeproblem(mosek.streamtype.msg)
+#                task.solutionsummary(mosek.streamtype.msg)
+#                task.analyzeproblem(mosek.streamtype.msg)
     
                 # Output a solution
                 xx = [0.] * numvar
                 task.getxx(mosek.soltype.itr,
                            xx)
                 
-
+                print("===== Check here =====")
+                # To return quadratic coefficients
+                qtemp = np.empty([numvar,numvar])
+                for row in range(numvar):
+                    for col in range(numvar):
+                        qtemp[row][col] = task.getqobjij(row,col)
+                        
+                print("no. of constraints =",task.getnumcon())
+                print("no. of nonzero elements in quadratic objective terms =",task.getnumqobjnz())
+                print("no. of cones =",task.getnumcone())
+                print("no. of variables =",task.getnumvar())
+                print("Objective sense =",task.getobjsense())
+                print("Problem type =",task.getprobtype())
+                print("Problem status =",task.getprosta(mosek.soltype.itr)) # feasible
+                print("var bound =",task.getvarbound(0))
+                print("===== End of check =====")
                 
-                return xx
+                # Linear constraint
+#                for index in range(numvar):
+#                    print("no. of nonzero elements in {}-th column of A = {}".format(index,task.getacolnumnz(index)))
+                      
+                # To return linear coefficients
+                lineartemp = np.empty([numvar,1])
+                for index in range(numvar):
+                    lineartemp[index] = task.getcj(index)
+
+                return (xx, qtemp, lineartemp)
+            
     # call the main function
-    newprice = main()
+    result_mosek = main()
+    linear_coeff = result_mosek[2]
+    linear_check = f - (f * gammastar)
+    quad_coeff = result_mosek[1]
+    quad_check = 2 * f * gammastar / prevprice
+    
+    
+    
+    newprice = result_mosek[0]
     newprice = np.array(newprice)
     newprice = np.reshape(newprice, (numvars,1))
 
@@ -182,9 +217,6 @@ for i in range(1,datapts):
             observedx[k][0] = 0
     data = np.append(data, np.transpose(observedx), axis=0)
 
-#    # For M inverse matrix
-#    thet = (newprice * newprice * f / prevprice) - (newprice * f)
-#    minv = (thet * np.transpose(thet)) / (sighat**2) + 1e-5 * np.identity(numvars) # fix lambda = 1e-5
 #    
     # Add data as triplet into tripledata
     tripledata.append([f, prevprice, observedx])
@@ -201,35 +233,9 @@ fhistory = []
 for i in range(len(tripledata)):
     fhistory.append(tripledata[i][0])
 
-data
-
-#############################################################################
-
-
 haha
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#############################################################################
 
 
 
@@ -254,31 +260,39 @@ dataall = dataall.drop(['date_time'], axis=1) # remove datetime from column
 
 
 
+
 # Making data stationary
 #datadiff = np.log(dataall).diff().dropna() # diff(log)
-datadiff = dataall.diff().dropna() # diff()
+#datadiff = dataall.diff().dropna() # diff()
 #datadiff = dataall # without diff and log
-
-#datadifforg = dataall.diff().dropna() # log(abs(diff))
-#datadiff = np.log(abs(datadifforg))
+datadifforg = dataall.diff().dropna() # log(abs(diff))
+datadiff = np.log(abs(datadifforg)) # log(abs(diff))
 
 # Time series model for forecasting
 from statsmodels.tsa.api import VAR
+from statsmodels.tsa.api import AR
+
 # Run a VAR model on DIFFERENCED data
 model = VAR(datadiff) 
+#model = AR(datadiff.iloc[:,0])
+
 # Estimate the coefficients of the VAR model
 # select_order should show the information criterion for each number of lag
 #model.select_order() # >1 lag then matrix is not positive definite. w/o diff and log, cant even do lag 1.
-results = model.fit() 
+results = model.fit()
+#results = model.fit(maxlag=(len(datadiff)-1), ic='aic')
+
 # lag_order is the best lag chosen by model.fit()
 lag_order = results.k_ar
 
-
+#oof=results.predict(start=len(datadiff), end=len(datadiff))
+#oof=results.forecast(datadiff.values[-lag_order:], steps=1)
+haha
 
 realrevenue = 0
 
 # Implementing TS
-for j in range(50):
+for j in range(1):
     print(j)
     # Random sample for elasticities
     elast = np.random.multivariate_normal(elastmean.flatten(), elastcov,1)    
@@ -289,23 +303,36 @@ for j in range(50):
         elast = np.random.multivariate_normal(elastmean.flatten(), elastcov,1)
     elast = np.reshape(elast, (numvars,1))
     print("random sample ok")
-
+    
+#    f = np.zeros((1,100))
+#    for var in range(numvars):
+#        if var == 0:
+#            model = AR(datadiff.iloc[:,0])
+#        else:
+#            datadiff.iloc[:,0] = datadiff.iloc[:,var]
+#            model = AR(datadiff.iloc[:,0])
+#        results = model.fit(maxlag=(len(datadiff)-1), ic='aic')
+#        temp = results.predict(start=len(datadiff), end=len(datadiff))
+#        f[0][var] = temp[0]
+#        
+#    f = np.reshape(f, (numvars,1)) 
+    
     # Demand forecast
     """without diff and log"""
 #    f = results.forecast(datadiff.values[-lag_order:], 1)
 #    f = np.reshape(f, (numvars,1))
     """diff()"""
-    f = results.forecast(datadiff.values[-lag_order:], 1)
-    f = np.reshape(f, (numvars,1))
-    f = f + np.reshape(np.array(dataall.iloc[-lag_order,:]), (numvars,1)) 
+#    f = results.forecast(datadiff.values[-lag_order:], 1)
+#    f = np.reshape(f, (numvars,1))
+#    f = f + np.reshape(np.array(dataall.iloc[-lag_order,:]), (numvars,1)) 
     """diff(log)"""
 #    f = results.forecast(datadiff.values[-lag_order:], 1)
 #    f = np.reshape(f, (numvars,1))
 #    f = np.e**(f + np.log(np.reshape(np.array(dataall.iloc[-lag_order,:]), (numvars,1))))  
     """log(abs(diff))"""
-#    f = results.forecast(datadiff.values[-lag_order:], 1)
-#    f = np.reshape(f, (numvars,1))
-#    f = np.e**(f) + np.reshape(np.array(dataall.iloc[-lag_order,:]), (numvars,1))
+    f = results.forecast(datadiff.values[-lag_order:], 1)
+    f = np.reshape(f, (numvars,1))
+    f = np.e**(f) + np.reshape(np.array(dataall.iloc[-lag_order,:]), (numvars,1))
 
     # Checking for valid f
     if (f>=0).all() == False:
@@ -439,15 +466,13 @@ for j in range(50):
     dataall = dataall.drop(['date_time'], axis=1) # remove datetime from column
         
 #    datadiff = np.log(dataall).diff().dropna() # diff(log)
-    datadiff = dataall.diff().dropna() # diff()
+#    datadiff = dataall.diff().dropna() # diff()
 #    datadiff = dataall # without diff and log
 #
-#    datadifforg = dataall.diff().dropna() # log(abs(diff))
-#    datadiff = np.log(abs(datadifforg))
+    datadifforg = dataall.diff().dropna() # log(abs(diff))
+    datadiff = np.log(abs(datadifforg)) # log(abs(diff))
     print("add demand ok")
-    
-    print("add demand ok")
-        
+            
     # Re-estimate VAR model
     model = VAR(datadiff)
     results = model.fit()
