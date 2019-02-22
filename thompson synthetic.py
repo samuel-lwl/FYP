@@ -174,6 +174,11 @@ for i in range(1,datapts):
                 print("var bound =",task.getvarbound(0))
                 print("===== End of check =====")
                 
+                # Get variable bounds
+                varbound = []
+                for b in range(numvar):
+                    varbound.append(task.getvarbound(b))
+                    
                 # Linear constraint
 #                for index in range(numvar):
 #                    print("no. of nonzero elements in {}-th column of A = {}".format(index,task.getacolnumnz(index)))
@@ -183,7 +188,7 @@ for i in range(1,datapts):
                 for index in range(numvar):
                     lineartemp[index] = task.getcj(index)
 
-                return (xx, qtemp, lineartemp)
+                return (xx, qtemp, lineartemp, varbound)
             
     # call the main function
     result_mosek = main()
@@ -191,7 +196,7 @@ for i in range(1,datapts):
     linear_check = f - (f * gammastar)
     quad_coeff = result_mosek[1]
     quad_check = 2 * f * gammastar / prevprice
-    
+    var_bounds = result_mosek[3]
     
     
     newprice = result_mosek[0]
