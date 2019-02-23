@@ -56,7 +56,19 @@ from scipy.optimize import Bounds
 # Triple data storage
 tripledata = []
 
-datapts = 2
+datapts = 20
+
+# NEW ATTEMPT
+# Prior estimate of gamma, use as mean of distribution
+np.random.seed(100)
+gammaprior = np.random.uniform(-5,-1,numvars)
+# constant c
+c = 0.1 * np.mean(gammaprior)
+elastmean = np.reshape(np.array(gammaprior),(numvars,1))
+elastcov = c*np.identity(numvars)
+
+sighat = np.std(data)
+# NEW ATTEMPT
 
 # Data generating
 for i in range(1,datapts):
@@ -70,6 +82,19 @@ for i in range(1,datapts):
             f += (beta**j)*np.reshape(data[i-j], (numvars,1))
     f = np.reshape(f, (numvars,1))
     
+    """
+    # Random sample for elasticities
+    np.random.seed(10)
+    elast = np.random.multivariate_normal(elastmean.flatten(), elastcov,1)    
+    # Ensures that all components are negative 
+    np.random.seed(10)
+    while (elast<0).all() == False: 
+        print("elast is positive")
+        print(j)
+        elast = np.random.multivariate_normal(elastmean.flatten(), elastcov,1)
+    elast = np.reshape(elast, (66,1))
+    print("random sample ok")
+    """
     
     # Generate price
     """using mosek"""
@@ -238,8 +263,8 @@ fhistory = []
 for i in range(len(tripledata)):
     fhistory.append(tripledata[i][0])
 
-haha
 
+haha
 #############################################################################
 
 

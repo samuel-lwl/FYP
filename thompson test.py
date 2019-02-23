@@ -723,7 +723,6 @@ for j in range(10):
     quad_check = 2 * f * elast / prevprice
     var_bounds = result_mosek[3]
     
-    
     newprice = result_mosek[0]
     newprice = np.array(newprice)
     newprice = np.reshape(newprice, (66,1))
