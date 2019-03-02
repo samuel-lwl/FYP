@@ -52,6 +52,7 @@ prevprice = price0
 import sys, mosek
 from scipy.optimize import minimize
 from scipy.optimize import Bounds
+import cplex
 
 # Triple data storage
 tripledata = []
@@ -204,17 +205,47 @@ for i in range(1,datapts):
     newprice = np.reshape(newprice, (numvars,1))
 
     """using scipy.optimize"""
-#    bounds = Bounds(prevprice*0.9, prevprice*1.1)
-#    
 #    # Objective function, multiply by -1 since we want to maximize
 #    def eqn7(p):
-#        return -1.0*np.sum(p*p*f*gammastar/prevprice - p*f*gammastar + p*f)
+#        return -1.0*np.sum(p*p*f.flatten()*gammastar.flatten()/prevprice.flatten() - p*f.flatten()*gammastar.flatten() + p*f.flatten())
 #    
 #    # Initial guess is 1.05 * previous price
-#    opresult = minimize(eqn7, prevprice*1.05, bounds=bounds)
+#    bounds = Bounds(prevprice.flatten()*0.9, prevprice.flatten()*1.1)
+#    opresult = minimize(eqn7, prevprice.flatten()*1.05, bounds=bounds)
 #    newprice = opresult.x
-#    newprice = np.reshape(newprice, (numvars,1))    
+#    newprice = np.reshape(newprice, (numvars,1))   
     
+    """using cplex"""
+#    # create an instance
+#    problem = cplex.Cplex()
+#    
+#    # set the function to maximise instead of minimise
+#    problem.objective.set_sense(problem.objective.sense.maximize)
+#    
+#    # Adds variables
+#    indices = problem.variables.add(names = [str(i) for i in range(numvars)])
+#    
+#    # Changes the linear part of the objective function.
+#    for i in range(numvars):
+#        problem.objective.set_linear(i, float(f[i]-f[i]*gammastar[i])) # form is objective.set_linear(var, value)
+#        
+#    # Sets the quadratic part of the objective function.
+#    quad = (f*gammastar/prevprice) # need to *2, see optimisation_test.py
+#    problem.objective.set_quadratic([2*float(i) for i in quad])
+#    
+#    # Sets the lower bound for a variable or set of variables
+#    for i in range(numvars):
+#        problem.variables.set_lower_bounds(i, prevprice[i][0]*0.9)
+#    
+#    # Sets the upper bound for a variable or set of variables
+#    for i in range(numvars):
+#        problem.variables.set_upper_bounds(i, prevprice[i][0]*1.1)
+#    
+#    problem.solve()
+#    newprice = problem.solution.get_values()
+#    newprice = np.array(newprice)
+#    newprice = np.reshape(newprice, (numvars,1))
+        
     # Observed demand
     observedx = f * (newprice / prevprice)**gammastar + np.reshape(np.random.multivariate_normal(noisemean, noisecov, 1), (numvars,1))
     for k in range(len(observedx)):
@@ -237,7 +268,6 @@ for i in range(len(tripledata)):
 fhistory = []
 for i in range(len(tripledata)):
     fhistory.append(tripledata[i][0])
-
 
 
 #############################################################################
@@ -295,20 +325,21 @@ lag_order = results.k_ar
 #oof=results.predict(start=len(datadiff), end=len(datadiff))
 #oof=results.forecast(datadiff.values[-lag_order:], steps=1)
 
-import cplex
 from cvxopt import matrix, solvers
 
 revenue_basket = []
 
 # Implementing TS
-for j in range(1):
+for j in range(40):
     print(j)
     # Random sample for elasticities
+    np.random.seed(40)
     elast = np.random.multivariate_normal(elastmean.flatten(), elastcov,1)    
     # Ensures that all components are negative 
     while (elast<0).all() == False: 
         print("elast is positive")
         print(j)
+        np.random.seed(50)
         elast = np.random.multivariate_normal(elastmean.flatten(), elastcov,1)
     elast = np.reshape(elast, (numvars,1))
     print("random sample ok")
@@ -372,9 +403,9 @@ for j in range(1):
                 task.set_Stream(mosek.streamtype.log, streamprinter)
                 
                 # Bound keys for variables
-                numvar = 10
-#                bkx = [mosek.boundkey.ra] * numvar
-                bkx = [mosek.boundkey.lo] * numvar
+                numvar = numvars
+                bkx = [mosek.boundkey.ra] * numvar
+#                bkx = [mosek.boundkey.lo] * numvar
                 
                 # Bound values for variables
                 temppricelow = prevprice*0.9
@@ -455,11 +486,11 @@ for j in range(1):
     """using scipy.optimize"""
 #    # Objective function, multiply by -1 since we want to maximize
 #    def eqn7(p):
-#        return -1.0*np.sum(p*p*f*gammastar/prevprice - p*f*gammastar + p*f)
+#        return -1.0*np.sum(p*p*f.flatten()*elast.flatten()/prevprice.flatten() - p*f.flatten()*elast.flatten() + p*f.flatten())
 #    
 #    # Initial guess is 1.05 * previous price
-#    bounds = Bounds(prevprice*0.9, prevprice*1.1)
-#    opresult = minimize(eqn7, prevprice*1.05, bounds=bounds)
+#    bounds = Bounds(prevprice.flatten()*0.9, prevprice.flatten()*1.1)
+#    opresult = minimize(eqn7, prevprice.flatten()*1.05, bounds=bounds)
 #    newprice = opresult.x
 #    newprice = np.reshape(newprice, (numvars,1))   
     
@@ -479,7 +510,7 @@ for j in range(1):
 #        
 #    # Sets the quadratic part of the objective function.
 #    quad = (f*elast/prevprice) # need to *2, see optimisation_test.py
-#    problem.objective.set_quadratic([float(i) for i in quad])
+#    problem.objective.set_quadratic([2*float(i) for i in quad])
 #    
 #    # Sets the lower bound for a variable or set of variables
 #    for i in range(numvars):
@@ -495,7 +526,7 @@ for j in range(1):
 #    newprice = np.reshape(newprice, (numvars,1))
     
     print("optimization ok")
-    haha
+    
     # Observed demand
     observedx = f * (newprice / prevprice)**gammastar + np.reshape(np.random.multivariate_normal(noisemean, noisecov, 1), (numvars,1))
     for k in range(len(observedx)):
@@ -562,23 +593,48 @@ for j in range(1):
         
         
         
-#mosek_basket = revenue_basket
-#cplex_basket = revenue_basket
-scipy_basket = revenue_basket
+basket_mosek = revenue_basket
 
-priceshistory = []
+priceshistory_mosek = []
 for i in range(len(tripledata)):
-    priceshistory.append(tripledata[i][1])
+    priceshistory_mosek.append(tripledata[i][1])
 
-fhistory = []
+fhistory_mosek = []
 for i in range(len(tripledata)):
-    fhistory.append(tripledata[i][0])
-        
-        
-        
-        
-        
-        
+    fhistory_mosek.append(tripledata[i][0])
+
+dataall_mosek = dataall
+
+
+
+#basket_scipy = revenue_basket
+#
+#priceshistory_scipy = []
+#for i in range(len(tripledata)):
+#    priceshistory_scipy.append(tripledata[i][1])
+#
+#fhistory_scipy= []
+#for i in range(len(tripledata)):
+#    fhistory_scipy.append(tripledata[i][0])
+#
+#dataall_scipy = dataall
+    
+    
+    
+    
+#basket_cplex = revenue_basket
+#
+#priceshistory_cplex = []
+#for i in range(len(tripledata)):
+#    priceshistory_cplex.append(tripledata[i][1])
+#
+#fhistory_cplex = []
+#for i in range(len(tripledata)):
+#    fhistory_cplex.append(tripledata[i][0])
+#
+#dataall_cplex = dataall
+    
+
         
         
         
