@@ -4,7 +4,7 @@ Created on Fri Feb  8 17:20:03 2019
 
 @author: Samuel
 """
-numvars = 100
+numvars = 10
 
 # Initialisation
 import pandas as pd
@@ -14,7 +14,7 @@ np.random.seed(10)
 gammastar = np.random.uniform(-3,-1,numvars)
 gammastar = np.reshape(gammastar, (numvars,1))
 
-beta = 0.5
+beta = 0.0005
 price0 = [12]*numvars
 price0 = np.array(price0)
 price0 = np.reshape(price0, (numvars,1))
@@ -58,18 +58,6 @@ tripledata = []
 
 datapts = 20
 
-# NEW ATTEMPT
-# Prior estimate of gamma, use as mean of distribution
-np.random.seed(100)
-gammaprior = np.random.uniform(-5,-1,numvars)
-# constant c
-c = 0.1 * np.mean(gammaprior)
-elastmean = np.reshape(np.array(gammaprior),(numvars,1))
-elastcov = c*np.identity(numvars)
-
-sighat = np.std(data)
-# NEW ATTEMPT
-
 # Data generating
 for i in range(1,datapts):
     # Demand forecast
@@ -82,19 +70,6 @@ for i in range(1,datapts):
             f += (beta**j)*np.reshape(data[i-j], (numvars,1))
     f = np.reshape(f, (numvars,1))
     
-    """
-    # Random sample for elasticities
-    np.random.seed(10)
-    elast = np.random.multivariate_normal(elastmean.flatten(), elastcov,1)    
-    # Ensures that all components are negative 
-    np.random.seed(10)
-    while (elast<0).all() == False: 
-        print("elast is positive")
-        print(j)
-        elast = np.random.multivariate_normal(elastmean.flatten(), elastcov,1)
-    elast = np.reshape(elast, (66,1))
-    print("random sample ok")
-    """
     
     # Generate price
     """using mosek"""
@@ -118,7 +93,7 @@ for i in range(1,datapts):
                 task.set_Stream(mosek.streamtype.log, streamprinter)
                 
                 # Bound keys for variables
-                numvar = 100
+                numvar = 10
                 bkx = [mosek.boundkey.ra] * numvar
                 
                 # Bound values for variables
@@ -264,7 +239,7 @@ for i in range(len(tripledata)):
     fhistory.append(tripledata[i][0])
 
 
-haha
+
 #############################################################################
 
 
@@ -298,6 +273,8 @@ dataall = dataall.drop(['date_time'], axis=1) # remove datetime from column
 datadifforg = dataall.diff().dropna() # log(abs(diff))
 datadiff = np.log(abs(datadifforg)) # log(abs(diff))
 
+datadiff = datadiff.replace([np.inf, -np.inf], 0) # replace inf with 0
+
 # Time series model for forecasting
 from statsmodels.tsa.api import VAR
 from statsmodels.tsa.api import AR
@@ -317,9 +294,11 @@ lag_order = results.k_ar
 
 #oof=results.predict(start=len(datadiff), end=len(datadiff))
 #oof=results.forecast(datadiff.values[-lag_order:], steps=1)
-haha
 
-realrevenue = 0
+import cplex
+from cvxopt import matrix, solvers
+
+revenue_basket = []
 
 # Implementing TS
 for j in range(1):
@@ -393,13 +372,15 @@ for j in range(1):
                 task.set_Stream(mosek.streamtype.log, streamprinter)
                 
                 # Bound keys for variables
-                numvar = 100
-                bkx = [mosek.boundkey.ra] * numvar
+                numvar = 10
+#                bkx = [mosek.boundkey.ra] * numvar
+                bkx = [mosek.boundkey.lo] * numvar
                 
                 # Bound values for variables
                 temppricelow = prevprice*0.9
                 temppricehigh = prevprice*1.1
                 blx = []
+#                bux = [inf] * numvar
                 bux = []
                 for i in range(numvar):
                     blx.append(temppricelow[i][0])
@@ -461,20 +442,60 @@ for j in range(1):
     newprice = main()
     newprice = np.array(newprice)
     newprice = np.reshape(newprice, (numvars,1))
-
+    
+    """using cvxopt"""
+#    temp = -2 * f * elast / prevprice
+#    P = np.diagflat(np.array([x[0] for x in temp]))
+#    q = f - (f * elast)
+#    temp = np.array([-1] * numvars)
+#    g = np.diagflat(temp)
+#    h = prevprice*0.9
+#    sol = solvers.qp(P=matrix(P), q=matrix(q), G=matrix(g, size=(10,10), tc='i'), h=matrix(h), solver='mosek')
+#    
     """using scipy.optimize"""
 #    # Objective function, multiply by -1 since we want to maximize
 #    def eqn7(p):
 #        return -1.0*np.sum(p*p*f*gammastar/prevprice - p*f*gammastar + p*f)
 #    
 #    # Initial guess is 1.05 * previous price
+#    bounds = Bounds(prevprice*0.9, prevprice*1.1)
 #    opresult = minimize(eqn7, prevprice*1.05, bounds=bounds)
 #    newprice = opresult.x
 #    newprice = np.reshape(newprice, (numvars,1))   
     
+    """using cplex"""
+#    # create an instance
+#    problem = cplex.Cplex()
+#    
+#    # set the function to maximise instead of minimise
+#    problem.objective.set_sense(problem.objective.sense.maximize)
+#    
+#    # Adds variables
+#    indices = problem.variables.add(names = [str(i) for i in range(numvars)])
+#    
+#    # Changes the linear part of the objective function.
+#    for i in range(numvars):
+#        problem.objective.set_linear(i, float(f[i]-f[i]*elast[i])) # form is objective.set_linear(var, value)
+#        
+#    # Sets the quadratic part of the objective function.
+#    quad = (f*elast/prevprice) # need to *2, see optimisation_test.py
+#    problem.objective.set_quadratic([float(i) for i in quad])
+#    
+#    # Sets the lower bound for a variable or set of variables
+#    for i in range(numvars):
+#        problem.variables.set_lower_bounds(i, prevprice[i][0]*0.9)
+#    
+#    # Sets the upper bound for a variable or set of variables
+#    for i in range(numvars):
+#        problem.variables.set_upper_bounds(i, prevprice[i][0]*1.1)
+#    
+#    problem.solve()
+#    newprice = problem.solution.get_values()
+#    newprice = np.array(newprice)
+#    newprice = np.reshape(newprice, (numvars,1))
+    
     print("optimization ok")
-        
-
+    haha
     # Observed demand
     observedx = f * (newprice / prevprice)**gammastar + np.reshape(np.random.multivariate_normal(noisemean, noisecov, 1), (numvars,1))
     for k in range(len(observedx)):
@@ -484,7 +505,7 @@ for j in range(1):
     print("observed demand ok")
         
     # Accumulate revenue
-    realrevenue += np.sum(np.multiply(observedx, newprice))
+    revenue_basket.append(np.sum(np.multiply(observedx, newprice)))
     
     # Append new data    
     observedx = pd.DataFrame(observedx)
@@ -501,11 +522,12 @@ for j in range(1):
 #
     datadifforg = dataall.diff().dropna() # log(abs(diff))
     datadiff = np.log(abs(datadifforg)) # log(abs(diff))
+    datadiff = datadiff.replace([np.inf, -np.inf], 0) # replace inf with 0
     print("add demand ok")
             
     # Re-estimate VAR model
     model = VAR(datadiff)
-    results = model.fit()
+    results = model.fit(10)
     lag_order = results.k_ar
     print("re-estimate var model ok")
     
@@ -532,15 +554,25 @@ for j in range(1):
     
     # Update cov of elasticity
     elastcov = pt1
-       
+    
+    tripledata.append([f, prevprice, observedx])
+    
     # Update prevprice to new price
     prevprice = newprice
         
         
         
-        
-        
-        
+#mosek_basket = revenue_basket
+#cplex_basket = revenue_basket
+scipy_basket = revenue_basket
+
+priceshistory = []
+for i in range(len(tripledata)):
+    priceshistory.append(tripledata[i][1])
+
+fhistory = []
+for i in range(len(tripledata)):
+    fhistory.append(tripledata[i][0])
         
         
         
