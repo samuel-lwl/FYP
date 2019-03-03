@@ -10,6 +10,9 @@ numvars = 100
 import pandas as pd
 import numpy as np
 import sys, mosek
+from scipy.optimize import minimize
+from scipy.optimize import Bounds
+import cplex
 
 np.random.seed(10)
 # True parameter
@@ -62,6 +65,7 @@ for i in range(1,datapts):
     if i == 1:
         f = f1
     else:
+        np.random.seed(40)
         noise = np.random.multivariate_normal(noisemean, noisecov, 1)
         noise = np.reshape(noise, (numvars,1))
         f = c0 + noise
@@ -78,153 +82,198 @@ for i in range(1,datapts):
     f = np.reshape(f, (numvars,1))
     
     # Random sample for elasticities
+    np.random.seed(40)
     elast = np.random.multivariate_normal(elastmean.flatten(), elastcov,1)    
     # Ensures that all components are negative 
     while (elast<0).all() == False: 
         print("elast is positive")
         print(i)
+        np.random.seed(50)
         elast = np.random.multivariate_normal(elastmean.flatten(), elastcov,1)
     elast = np.reshape(elast, (numvars,1))
     print("random sample ok")
     
     # Generate price
     """using mosek"""
-    # Since the actual value of Infinity is ignored, we define it solely for symbolic purposes:
-    inf = 0.0
-
-    # Define a stream printer to grab output from MOSEK
-    def streamprinter(text):
-        sys.stdout.write(text)
-        sys.stdout.flush()
-    
-    def main():
-    # Open MOSEK and create an environment and task
-    # Make a MOSEK environment
-        
-        with mosek.Env() as env:
-            # Attach a printer to the environment
-            env.set_Stream(mosek.streamtype.log, streamprinter)
-            # Create a task
-            with env.Task() as task:
-                task.set_Stream(mosek.streamtype.log, streamprinter)
-                
-                # Bound keys for variables
-                numvar = 100
-                bkx = [mosek.boundkey.ra] * numvar
-                
-                # Bound values for variables
-                temppricelow = prevprice*0.9
-                temppricehigh = prevprice*1.1
-                blx = []
-                bux = []
-                for i in range(numvar):
-                    blx.append(temppricelow[i][0])
-                    bux.append(temppricehigh[i][0])
-                
-                # Objective linear coefficients
-                temp = f - (f * elast)
-                c = []
-                for i in range(numvar):
-                    c.append(temp[i][0])
-#                print(c)
-                
-                # Append 'numcon' empty constraints.
-                # The constraints will initially have no bounds.
-                task.appendcons(0)
-            
-                # Append 'numvar' variables.
-                # The variables will initially be fixed at zero (x=0).
-                task.appendvars(numvar)
-    
-                for j in range(numvar):
-                    # Set the linear term c_j in the objective.
-                    task.putcj(j, c[j])
-                    
-                    # Set the bounds on variable j
-                    # blx[j] <= x_j <= bux[j] 
-                    task.putvarbound(j, bkx[j], blx[j], bux[j]) 
-
-                # Set up and input quadratic objective
-                qsubi = []
-                for i in range(numvar):
-                    qsubi.append(i)
-                qsubj = qsubi
-                temp = 2 * f * elast / prevprice # Must remember to *2, see mosek documentation
-                qval = []
-                for i in range(numvar):
-                    qval.append(temp[i][0])
-#                print(qval)
-    
-                task.putqobj(qsubi, qsubj, qval)
-    
-                # Input the objective sense (minimize/maximize)
-                task.putobjsense(mosek.objsense.maximize)
-                task.analyzeproblem(mosek.streamtype.log)
-                # Optimize
-                task.optimize()
-                
-                # Print a summary containing information
-                # about the solution for debugging purposes
-#                task.solutionsummary(mosek.streamtype.msg)
-#                task.analyzeproblem(mosek.streamtype.msg)
-    
-                # Output a solution
-                xx = [0.] * numvar
-                task.getxx(mosek.soltype.itr,
-                           xx)
-                
-#                print("===== Check here =====")
-#                # To return quadratic coefficients
-#                qtemp = np.empty([numvar,numvar])
-#                for row in range(numvar):
-#                    for col in range(numvar):
-#                        qtemp[row][col] = task.getqobjij(row,col)
-#                        
-#                print("no. of constraints =",task.getnumcon())
-#                print("no. of nonzero elements in quadratic objective terms =",task.getnumqobjnz())
-#                print("no. of cones =",task.getnumcone())
-#                print("no. of variables =",task.getnumvar())
-#                print("Objective sense =",task.getobjsense())
-#                print("Problem type =",task.getprobtype())
-#                print("Problem status =",task.getprosta(mosek.soltype.itr)) # feasible
-#                print("var bound =",task.getvarbound(0))
-#                print("===== End of check =====")
+#    # Since the actual value of Infinity is ignored, we define it solely for symbolic purposes:
+#    inf = 0.0
+#
+#    # Define a stream printer to grab output from MOSEK
+#    def streamprinter(text):
+#        sys.stdout.write(text)
+#        sys.stdout.flush()
+#    
+#    def main():
+#    # Open MOSEK and create an environment and task
+#    # Make a MOSEK environment
+#        
+#        with mosek.Env() as env:
+#            # Attach a printer to the environment
+#            env.set_Stream(mosek.streamtype.log, streamprinter)
+#            # Create a task
+#            with env.Task() as task:
+#                task.set_Stream(mosek.streamtype.log, streamprinter)
 #                
-#                # Get variable bounds
-#                varbound = []
-#                for b in range(numvar):
-#                    varbound.append(task.getvarbound(b))
+#                # Bound keys for variables
+#                numvar = numvars
+#                bkx = [mosek.boundkey.ra] * numvar
+#                
+#                # Bound values for variables
+#                temppricelow = prevprice*0.9
+#                temppricehigh = prevprice*1.1
+#                blx = []
+#                bux = []
+#                for i in range(numvar):
+#                    blx.append(temppricelow[i][0])
+#                    bux.append(temppricehigh[i][0])
+#                
+#                # Objective linear coefficients
+#                temp = f - (f * elast)
+#                c = []
+#                for i in range(numvar):
+#                    c.append(temp[i][0])
+##                print(c)
+#                
+#                # Append 'numcon' empty constraints.
+#                # The constraints will initially have no bounds.
+#                task.appendcons(0)
+#            
+#                # Append 'numvar' variables.
+#                # The variables will initially be fixed at zero (x=0).
+#                task.appendvars(numvar)
+#    
+#                for j in range(numvar):
+#                    # Set the linear term c_j in the objective.
+#                    task.putcj(j, c[j])
 #                    
-#                # Linear constraint
+#                    # Set the bounds on variable j
+#                    # blx[j] <= x_j <= bux[j] 
+#                    task.putvarbound(j, bkx[j], blx[j], bux[j]) 
+#
+#                # Set up and input quadratic objective
+#                qsubi = []
+#                for i in range(numvar):
+#                    qsubi.append(i)
+#                qsubj = qsubi
+#                temp = 2 * f * elast / prevprice # Must remember to *2, see mosek documentation
+#                qval = []
+#                for i in range(numvar):
+#                    qval.append(temp[i][0])
+##                print(qval)
+#    
+#                task.putqobj(qsubi, qsubj, qval)
+#    
+#                # Input the objective sense (minimize/maximize)
+#                task.putobjsense(mosek.objsense.maximize)
+#                task.analyzeproblem(mosek.streamtype.log)
+#                # Optimize
+#                task.optimize()
+#                
+#                # Print a summary containing information
+#                # about the solution for debugging purposes
+##                task.solutionsummary(mosek.streamtype.msg)
+##                task.analyzeproblem(mosek.streamtype.msg)
+#    
+#                # Output a solution
+#                xx = [0.] * numvar
+#                task.getxx(mosek.soltype.itr,
+#                           xx)
+#                
+##                print("===== Check here =====")
+##                # To return quadratic coefficients
+##                qtemp = np.empty([numvar,numvar])
+##                for row in range(numvar):
+##                    for col in range(numvar):
+##                        qtemp[row][col] = task.getqobjij(row,col)
+##                        
+##                print("no. of constraints =",task.getnumcon())
+##                print("no. of nonzero elements in quadratic objective terms =",task.getnumqobjnz())
+##                print("no. of cones =",task.getnumcone())
+##                print("no. of variables =",task.getnumvar())
+##                print("Objective sense =",task.getobjsense())
+##                print("Problem type =",task.getprobtype())
+##                print("Problem status =",task.getprosta(mosek.soltype.itr)) # feasible
+##                print("var bound =",task.getvarbound(0))
+##                print("===== End of check =====")
+##                
+##                # Get variable bounds
+##                varbound = []
+##                for b in range(numvar):
+##                    varbound.append(task.getvarbound(b))
+##                    
+##                # Linear constraint
+###                for index in range(numvar):
+###                    print("no. of nonzero elements in {}-th column of A = {}".format(index,task.getacolnumnz(index)))
+##                      
+##                # To return linear coefficients
+##                lineartemp = np.empty([numvar,1])
 ##                for index in range(numvar):
-##                    print("no. of nonzero elements in {}-th column of A = {}".format(index,task.getacolnumnz(index)))
-#                      
-#                # To return linear coefficients
-#                lineartemp = np.empty([numvar,1])
-#                for index in range(numvar):
-#                    lineartemp[index] = task.getcj(index)
-
-#                return (xx, qtemp, lineartemp, varbound)
-                return xx
-    
-    # call the main function
-#    result_mosek = main()
-#    linear_coeff = result_mosek[2]
-#    linear_check = f - (f * gammastar)
-#    quad_coeff = result_mosek[1]
-#    quad_check = 2 * f * gammastar / prevprice
-#    var_bounds = result_mosek[3]
-#    newprice = result_mosek[0]
+##                    lineartemp[index] = task.getcj(index)
+#
+##                return (xx, qtemp, lineartemp, varbound)
+#                return xx
+#    
+#    # call the main function
+##    result_mosek = main()
+##    linear_coeff = result_mosek[2]
+##    linear_check = f - (f * gammastar)
+##    quad_coeff = result_mosek[1]
+##    quad_check = 2 * f * gammastar / prevprice
+##    var_bounds = result_mosek[3]
+##    newprice = result_mosek[0]
+##    newprice = np.array(newprice)
+##    newprice = np.reshape(newprice, (numvars,1))
+#    
+#    newprice = main()
 #    newprice = np.array(newprice)
 #    newprice = np.reshape(newprice, (numvars,1))
     
-    newprice = main()
-    newprice = np.array(newprice)
-    newprice = np.reshape(newprice, (numvars,1))
+    """using scipy.optimize"""
+    # Objective function, multiply by -1 since we want to maximize
+    def eqn7(p):
+        return -1.0*np.sum(p*p*f.flatten()*elast.flatten()/prevprice.flatten() - p*f.flatten()*elast.flatten() + p*f.flatten())
+    
+    # Initial guess is 1.05 * previous price
+    bounds = Bounds(prevprice.flatten()*0.9, prevprice.flatten()*1.1)
+    opresult = minimize(eqn7, prevprice.flatten()*1.05, bounds=bounds)
+    newprice = opresult.x
+    newprice = np.reshape(newprice, (numvars,1))   
+    
+    """using cplex"""
+#    # create an instance
+#    problem = cplex.Cplex()
+#    
+#    # set the function to maximise instead of minimise
+#    problem.objective.set_sense(problem.objective.sense.maximize)
+#    
+#    # Adds variables
+#    indices = problem.variables.add(names = [str(i) for i in range(numvars)])
+#    
+#    # Changes the linear part of the objective function.
+#    for i in range(numvars):
+#        problem.objective.set_linear(i, float(f[i]-f[i]*elast[i])) # form is objective.set_linear(var, value)
+#        
+#    # Sets the quadratic part of the objective function.
+#    quad = (f*elast/prevprice) # need to *2, see optimisation_test.py
+#    problem.objective.set_quadratic([2*float(i) for i in quad])
+#    
+#    # Sets the lower bound for a variable or set of variables
+#    for i in range(numvars):
+#        problem.variables.set_lower_bounds(i, prevprice[i][0]*0.9)
+#    
+#    # Sets the upper bound for a variable or set of variables
+#    for i in range(numvars):
+#        problem.variables.set_upper_bounds(i, prevprice[i][0]*1.1)
+#    
+#    problem.solve()
+#    newprice = problem.solution.get_values()
+#    newprice = np.array(newprice)
+#    newprice = np.reshape(newprice, (numvars,1))
     
     print("optimization ok")    
 
     # Observed demand
+    np.random.seed(40)
     observedx = f * (newprice / prevprice)**gammastar + np.reshape(np.random.multivariate_normal(noisemean, noisecov, 1), (numvars,1))
     for k in range(len(observedx)):
         if observedx[k][0] < 0:
@@ -273,7 +322,13 @@ for i in range(1,datapts):
 
 
 
+priceshistory = []
+for i in range(len(tripledata)):
+    priceshistory.append(tripledata[i][1])
 
+fhistory = []
+for i in range(len(tripledata)):
+    fhistory.append(tripledata[i][0])
 
 
 

@@ -328,19 +328,22 @@ lag_order = results.k_ar
 from cvxopt import matrix, solvers
 
 revenue_basket = []
+elast_data = []
 
 # Implementing TS
 for j in range(40):
     print(j)
     # Random sample for elasticities
     np.random.seed(40)
-    elast = np.random.multivariate_normal(elastmean.flatten(), elastcov,1)    
+#    elast = np.random.multivariate_normal(elastmean.flatten(), elastcov,1)    
+    elast = gammastar
     # Ensures that all components are negative 
     while (elast<0).all() == False: 
         print("elast is positive")
         print(j)
         np.random.seed(50)
-        elast = np.random.multivariate_normal(elastmean.flatten(), elastcov,1)
+#        elast = np.random.multivariate_normal(elastmean.flatten(), elastcov,1)
+        elast = gammastar
     elast = np.reshape(elast, (numvars,1))
     print("random sample ok")
     
@@ -384,95 +387,95 @@ for j in range(40):
     print("demand forecast ok")
 
     """using mosek"""
-    # Since the actual value of Infinity is ignored, we define it solely for symbolic purposes:
-    inf = 0.0
-
-    # Define a stream printer to grab output from MOSEK
-    def streamprinter(text):
-        sys.stdout.write(text)
-        sys.stdout.flush()
-    
-    def main():
-    # Open MOSEK and create an environment and task
-    # Make a MOSEK environment
-        with mosek.Env() as env:
-            # Attach a printer to the environment
-            env.set_Stream(mosek.streamtype.log, streamprinter)
-            # Create a task
-            with env.Task() as task:
-                task.set_Stream(mosek.streamtype.log, streamprinter)
-                
-                # Bound keys for variables
-                numvar = numvars
-                bkx = [mosek.boundkey.ra] * numvar
-#                bkx = [mosek.boundkey.lo] * numvar
-                
-                # Bound values for variables
-                temppricelow = prevprice*0.9
-                temppricehigh = prevprice*1.1
-                blx = []
-#                bux = [inf] * numvar
-                bux = []
-                for i in range(numvar):
-                    blx.append(temppricelow[i][0])
-                    bux.append(temppricehigh[i][0])
-                
-                # Objective linear coefficients
-                temp = f - (f * elast)
-                c = []
-                for i in range(numvar):
-                    c.append(temp[i][0])
-#                print(c)
-                
-                # Append 'numcon' empty constraints.
-                # The constraints will initially have no bounds.
-                task.appendcons(0)
-            
-                # Append 'numvar' variables.
-                # The variables will initially be fixed at zero (x=0).
-                task.appendvars(numvar)
-    
-                for j in range(numvar):
-                    # Set the linear term c_j in the objective.
-                    task.putcj(j, c[j])
-                    
-                    # Set the bounds on variable j
-                    # blx[j] <= x_j <= bux[j] 
-                    task.putvarbound(j, bkx[j], blx[j], bux[j]) 
-
-                # Set up and input quadratic objective
-                qsubi = []
-                for i in range(numvar):
-                    qsubi.append(i)
-                qsubj = qsubi
-                temp = 2 * f * elast / prevprice # Must remember to *2, see mosek documentation
-                qval = []
-                for i in range(numvar):
-                    qval.append(temp[i][0])
-#                print(qval)
-    
-                task.putqobj(qsubi, qsubj, qval)
-    
-                # Input the objective sense (minimize/maximize)
-                task.putobjsense(mosek.objsense.maximize)
-    
-                # Optimize
-                task.optimize()
-                
-                # Print a summary containing information
-                # about the solution for debugging purposes
-#                task.solutionsummary(mosek.streamtype.msg)
-    
-                # Output a solution
-                xx = [0.] * numvar
-                task.getxx(mosek.soltype.itr,
-                           xx)
-    
-                return xx
-    # call the main function
-    newprice = main()
-    newprice = np.array(newprice)
-    newprice = np.reshape(newprice, (numvars,1))
+#    # Since the actual value of Infinity is ignored, we define it solely for symbolic purposes:
+#    inf = 0.0
+#
+#    # Define a stream printer to grab output from MOSEK
+#    def streamprinter(text):
+#        sys.stdout.write(text)
+#        sys.stdout.flush()
+#    
+#    def main():
+#    # Open MOSEK and create an environment and task
+#    # Make a MOSEK environment
+#        with mosek.Env() as env:
+#            # Attach a printer to the environment
+#            env.set_Stream(mosek.streamtype.log, streamprinter)
+#            # Create a task
+#            with env.Task() as task:
+#                task.set_Stream(mosek.streamtype.log, streamprinter)
+#                
+#                # Bound keys for variables
+#                numvar = numvars
+#                bkx = [mosek.boundkey.ra] * numvar
+##                bkx = [mosek.boundkey.lo] * numvar
+#                
+#                # Bound values for variables
+#                temppricelow = prevprice*0.9
+#                temppricehigh = prevprice*1.1
+#                blx = []
+##                bux = [inf] * numvar
+#                bux = []
+#                for i in range(numvar):
+#                    blx.append(temppricelow[i][0])
+#                    bux.append(temppricehigh[i][0])
+#                
+#                # Objective linear coefficients
+#                temp = f - (f * elast)
+#                c = []
+#                for i in range(numvar):
+#                    c.append(temp[i][0])
+##                print(c)
+#                
+#                # Append 'numcon' empty constraints.
+#                # The constraints will initially have no bounds.
+#                task.appendcons(0)
+#            
+#                # Append 'numvar' variables.
+#                # The variables will initially be fixed at zero (x=0).
+#                task.appendvars(numvar)
+#    
+#                for j in range(numvar):
+#                    # Set the linear term c_j in the objective.
+#                    task.putcj(j, c[j])
+#                    
+#                    # Set the bounds on variable j
+#                    # blx[j] <= x_j <= bux[j] 
+#                    task.putvarbound(j, bkx[j], blx[j], bux[j]) 
+#
+#                # Set up and input quadratic objective
+#                qsubi = []
+#                for i in range(numvar):
+#                    qsubi.append(i)
+#                qsubj = qsubi
+#                temp = 2 * f * elast / prevprice # Must remember to *2, see mosek documentation
+#                qval = []
+#                for i in range(numvar):
+#                    qval.append(temp[i][0])
+##                print(qval)
+#    
+#                task.putqobj(qsubi, qsubj, qval)
+#    
+#                # Input the objective sense (minimize/maximize)
+#                task.putobjsense(mosek.objsense.maximize)
+#    
+#                # Optimize
+#                task.optimize()
+#                
+#                # Print a summary containing information
+#                # about the solution for debugging purposes
+##                task.solutionsummary(mosek.streamtype.msg)
+#    
+#                # Output a solution
+#                xx = [0.] * numvar
+#                task.getxx(mosek.soltype.itr,
+#                           xx)
+#    
+#                return xx
+#    # call the main function
+#    newprice = main()
+#    newprice = np.array(newprice)
+#    newprice = np.reshape(newprice, (numvars,1))
     
     """using cvxopt"""
 #    temp = -2 * f * elast / prevprice
@@ -495,40 +498,42 @@ for j in range(40):
 #    newprice = np.reshape(newprice, (numvars,1))   
     
     """using cplex"""
-#    # create an instance
-#    problem = cplex.Cplex()
-#    
-#    # set the function to maximise instead of minimise
-#    problem.objective.set_sense(problem.objective.sense.maximize)
-#    
-#    # Adds variables
-#    indices = problem.variables.add(names = [str(i) for i in range(numvars)])
-#    
-#    # Changes the linear part of the objective function.
-#    for i in range(numvars):
-#        problem.objective.set_linear(i, float(f[i]-f[i]*elast[i])) # form is objective.set_linear(var, value)
-#        
-#    # Sets the quadratic part of the objective function.
-#    quad = (f*elast/prevprice) # need to *2, see optimisation_test.py
-#    problem.objective.set_quadratic([2*float(i) for i in quad])
-#    
-#    # Sets the lower bound for a variable or set of variables
-#    for i in range(numvars):
-#        problem.variables.set_lower_bounds(i, prevprice[i][0]*0.9)
-#    
-#    # Sets the upper bound for a variable or set of variables
-#    for i in range(numvars):
-#        problem.variables.set_upper_bounds(i, prevprice[i][0]*1.1)
-#    
-#    problem.solve()
-#    newprice = problem.solution.get_values()
-#    newprice = np.array(newprice)
-#    newprice = np.reshape(newprice, (numvars,1))
+    # create an instance
+    problem = cplex.Cplex()
+    
+    # set the function to maximise instead of minimise
+    problem.objective.set_sense(problem.objective.sense.maximize)
+    
+    # Adds variables
+    indices = problem.variables.add(names = [str(i) for i in range(numvars)])
+    
+    # Changes the linear part of the objective function.
+    for i in range(numvars):
+        problem.objective.set_linear(i, float(f[i]-f[i]*elast[i])) # form is objective.set_linear(var, value)
+        
+    # Sets the quadratic part of the objective function.
+    quad = (f*elast/prevprice) # need to *2, see optimisation_test.py
+    problem.objective.set_quadratic([2*float(i) for i in quad])
+    
+    # Sets the lower bound for a variable or set of variables
+    for i in range(numvars):
+        problem.variables.set_lower_bounds(i, prevprice[i][0]*0.9)
+    
+    # Sets the upper bound for a variable or set of variables
+    for i in range(numvars):
+        problem.variables.set_upper_bounds(i, prevprice[i][0]*1.1)
+    
+    problem.solve()
+    newprice = problem.solution.get_values()
+    newprice = np.array(newprice)
+    newprice = np.reshape(newprice, (numvars,1))
     
     print("optimization ok")
     
     # Observed demand
-    observedx = f * (newprice / prevprice)**gammastar + np.reshape(np.random.multivariate_normal(noisemean, noisecov, 1), (numvars,1))
+    np.random.seed(40)
+#    observedx = f * (newprice / prevprice)**gammastar + np.reshape(np.random.multivariate_normal(noisemean, noisecov, 1), (numvars,1))
+    observedx = f * (newprice / prevprice)**gammastar 
     for k in range(len(observedx)):
         if observedx[k][0] < 0:
             observedx[k][0] = 0
@@ -587,53 +592,47 @@ for j in range(40):
     elastcov = pt1
     
     tripledata.append([f, prevprice, observedx])
+    elast_data.append([elast, elastmean])
     
     # Update prevprice to new price
     prevprice = newprice
         
         
         
-basket_mosek = revenue_basket
-
-priceshistory_mosek = []
-for i in range(len(tripledata)):
-    priceshistory_mosek.append(tripledata[i][1])
-
-fhistory_mosek = []
-for i in range(len(tripledata)):
-    fhistory_mosek.append(tripledata[i][0])
-
-dataall_mosek = dataall
-
+#basket_mosek = revenue_basket
+#elast_mosek = elast_data
+#priceshistory_mosek = []
+#for i in range(len(tripledata)):
+#    priceshistory_mosek.append(tripledata[i][1])
+#fhistory_mosek = []
+#for i in range(len(tripledata)):
+#    fhistory_mosek.append(tripledata[i][0])
+#dataall_mosek = dataall
+#lastprice_mosek = newprice
 
 
 #basket_scipy = revenue_basket
-#
+#elast_scipy = elast_data
 #priceshistory_scipy = []
 #for i in range(len(tripledata)):
 #    priceshistory_scipy.append(tripledata[i][1])
-#
 #fhistory_scipy= []
 #for i in range(len(tripledata)):
 #    fhistory_scipy.append(tripledata[i][0])
-#
 #dataall_scipy = dataall
+#lastprice_scipy = newprice
+       
     
-    
-    
-    
-#basket_cplex = revenue_basket
-#
-#priceshistory_cplex = []
-#for i in range(len(tripledata)):
-#    priceshistory_cplex.append(tripledata[i][1])
-#
-#fhistory_cplex = []
-#for i in range(len(tripledata)):
-#    fhistory_cplex.append(tripledata[i][0])
-#
-#dataall_cplex = dataall
-    
+basket_cplex = revenue_basket
+elast_cplex = elast_data
+priceshistory_cplex = []
+for i in range(len(tripledata)):
+    priceshistory_cplex.append(tripledata[i][1])
+fhistory_cplex = []
+for i in range(len(tripledata)):
+    fhistory_cplex.append(tripledata[i][0])
+dataall_cplex = dataall
+lastprice_cplex = newprice
 
         
         
