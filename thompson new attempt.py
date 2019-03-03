@@ -3,6 +3,9 @@
 Created on Sun Feb 24 04:39:06 2019
 
 @author: Samuel
+
+In this script, I try to use the data generating mechanism as a start point,
+instead of using it to generate prior data.
 """
 numvars = 100
 
@@ -47,7 +50,7 @@ prevprice = price0
 tripledata = []
 revenue_basket = []
 
-datapts = 100
+datapts = 50
 
 # Prior estimate of gamma, use as mean of distribution
 np.random.seed(100)
@@ -229,46 +232,46 @@ for i in range(1,datapts):
 #    newprice = np.reshape(newprice, (numvars,1))
     
     """using scipy.optimize"""
-    # Objective function, multiply by -1 since we want to maximize
-    def eqn7(p):
-        return -1.0*np.sum(p*p*f.flatten()*elast.flatten()/prevprice.flatten() - p*f.flatten()*elast.flatten() + p*f.flatten())
-    
-    # Initial guess is 1.05 * previous price
-    bounds = Bounds(prevprice.flatten()*0.9, prevprice.flatten()*1.1)
-    opresult = minimize(eqn7, prevprice.flatten()*1.05, bounds=bounds)
-    newprice = opresult.x
-    newprice = np.reshape(newprice, (numvars,1))   
+#    # Objective function, multiply by -1 since we want to maximize
+#    def eqn7(p):
+#        return -1.0*np.sum(p*p*f.flatten()*elast.flatten()/prevprice.flatten() - p*f.flatten()*elast.flatten() + p*f.flatten())
+#    
+#    # Initial guess is 1.05 * previous price
+#    bounds = Bounds(prevprice.flatten()*0.9, prevprice.flatten()*1.1)
+#    opresult = minimize(eqn7, prevprice.flatten()*1.05, bounds=bounds)
+#    newprice = opresult.x
+#    newprice = np.reshape(newprice, (numvars,1))   
     
     """using cplex"""
-#    # create an instance
-#    problem = cplex.Cplex()
-#    
-#    # set the function to maximise instead of minimise
-#    problem.objective.set_sense(problem.objective.sense.maximize)
-#    
-#    # Adds variables
-#    indices = problem.variables.add(names = [str(i) for i in range(numvars)])
-#    
-#    # Changes the linear part of the objective function.
-#    for i in range(numvars):
-#        problem.objective.set_linear(i, float(f[i]-f[i]*elast[i])) # form is objective.set_linear(var, value)
-#        
-#    # Sets the quadratic part of the objective function.
-#    quad = (f*elast/prevprice) # need to *2, see optimisation_test.py
-#    problem.objective.set_quadratic([2*float(i) for i in quad])
-#    
-#    # Sets the lower bound for a variable or set of variables
-#    for i in range(numvars):
-#        problem.variables.set_lower_bounds(i, prevprice[i][0]*0.9)
-#    
-#    # Sets the upper bound for a variable or set of variables
-#    for i in range(numvars):
-#        problem.variables.set_upper_bounds(i, prevprice[i][0]*1.1)
-#    
-#    problem.solve()
-#    newprice = problem.solution.get_values()
-#    newprice = np.array(newprice)
-#    newprice = np.reshape(newprice, (numvars,1))
+    # create an instance
+    problem = cplex.Cplex()
+    
+    # set the function to maximise instead of minimise
+    problem.objective.set_sense(problem.objective.sense.maximize)
+    
+    # Adds variables
+    indices = problem.variables.add(names = [str(i) for i in range(numvars)])
+    
+    # Changes the linear part of the objective function.
+    for i in range(numvars):
+        problem.objective.set_linear(i, float(f[i]-f[i]*elast[i])) # form is objective.set_linear(var, value)
+        
+    # Sets the quadratic part of the objective function.
+    quad = (f*elast/prevprice) # need to *2, see optimisation_test.py
+    problem.objective.set_quadratic([2*float(i) for i in quad])
+    
+    # Sets the lower bound for a variable or set of variables
+    for i in range(numvars):
+        problem.variables.set_lower_bounds(i, prevprice[i][0]*0.9)
+    
+    # Sets the upper bound for a variable or set of variables
+    for i in range(numvars):
+        problem.variables.set_upper_bounds(i, prevprice[i][0]*1.1)
+    
+    problem.solve()
+    newprice = problem.solution.get_values()
+    newprice = np.array(newprice)
+    newprice = np.reshape(newprice, (numvars,1))
     
     print("optimization ok")    
 
