@@ -91,6 +91,7 @@ for i, row in productprice.iterrows():
 #remove goods_amount 
 productprice=productprice.iloc[:,[0,1]]
 
+numvars = x.nunique()[5]
 # x.nunique() tells us there are 66 unique goods   
 # obtain price for these 66 goods     
 productprice.drop_duplicates(subset="goods_id", keep='first', inplace=True)
@@ -207,8 +208,8 @@ productpricehigher = productprice+5
 #productmean = np.mean(product,axis=0)
 #productcov=0
 #for i in range(11):
-#    test1 = np.reshape((np.transpose(product[i,:])-productmean), (66,1))
-#    test2 = np.reshape((np.transpose(product[i,:])-productmean), (1,66))
+#    test1 = np.reshape((np.transpose(product[i,:])-productmean), (numvars,1))
+#    test2 = np.reshape((np.transpose(product[i,:])-productmean), (1,numvars))
 #    productcov += np.matmul(test1,test2)
 #productcov = productcov/(i+1)
 ## divide by i+1 since MLE estimate of cov matrix is divide by N not N-1
@@ -225,36 +226,36 @@ productpricehigher = productprice+5
 
 # First we generate V. one V for all price vectors. V = +- 5% of Pbar
 # Build V around the default price vector which is equivalent to the average of all 3 price vectors
-v = np.empty([66,1])
+v = np.empty([numvars,1])
 #np.random.seed(10)
-for i in range(66):
+for i in range(numvars):
     v[i] = np.random.randint(productprice.iloc[i,1]-0.05*productprice.iloc[i,1], productprice.iloc[i,1]+0.05*productprice.iloc[i,1])
 #np.random.seed(10)
 v0=np.random.randint(0, 5)
 """np.random.randint got size arg. can we use array operations instead of looping?"""
 # Theoretical X, where X is the demand
-xprice = np.empty([66,1])
-xpricehigher = np.empty([66,1])
-xpricelower = np.empty([66,1])
+xprice = np.empty([numvars,1])
+xpricehigher = np.empty([numvars,1])
+xpricelower = np.empty([numvars,1])
 
-for i in range(66):
+for i in range(numvars):
     xprice[i] = math.exp(v[i]-(productprice.iloc[:,1])[i])
 # x0 is the choice where they dont buy anything
 x0 = math.exp(v0)/(sum(xprice)+math.exp(v0))
 xprice = xprice/(np.sum(xprice)+math.exp(v0))
 
-#jaja = np.empty([66,1])
+#jaja = np.empty([numvars,1])
 #jaja = math.exp(v-productprice.iloc[:,1])
 #jaja = jaja/(np.sum(jaja)+math.exp(v0))
 
 
 
-for i in range(66):
+for i in range(numvars):
     xpricehigher[i] = math.exp(v[i]-(productpricehigher.iloc[:,1])[i])
 x0higher = math.exp(v0)/(sum(xpricehigher)+math.exp(v0))
 xpricehigher = xpricehigher/(np.sum(xpricehigher)+math.exp(v0))
 
-for i in range(66):
+for i in range(numvars):
     xpricelower[i] = math.exp(v[i]-(productpricelower.iloc[:,1])[i])
 x0lower = math.exp(v0)/(sum(xpricelower)+math.exp(v0))
 xpricelower = xpricelower/(np.sum(xpricelower)+math.exp(v0))
@@ -265,41 +266,41 @@ xpricelower = xpricelower/(np.sum(xpricelower)+math.exp(v0))
 # Number of epsilons. Multiply by 2 to get number of data points per arm. 
 numep = 25
 # First price vector
-ep1 = np.empty([66,numep])
+ep1 = np.empty([numvars,numep])
 #np.random.seed(10)
-for i in range(66):
+for i in range(numvars):
     ep1[i] = np.random.uniform(low=0.0, high=xprice[i]/5, size=numep)
 
 # create data via +epsilon and -epsilon so that the mean is still the theoretical mean
-temp1 = np.empty([66,numep])
-temp2 = np.empty([66,numep])
-for i in range(66):
+temp1 = np.empty([numvars,numep])
+temp2 = np.empty([numvars,numep])
+for i in range(numvars):
     temp1[i] = xprice[i]+ep1[i]
     temp2[i] = xprice[i]-ep1[i]
 datax = np.append(temp1, temp2, axis=1)
 
 # Second price vector
-ep2 = np.empty([66,numep])
+ep2 = np.empty([numvars,numep])
 #np.random.seed(10)
-for i in range(66):
+for i in range(numvars):
     ep2[i] = np.random.uniform(low=0.0, high=xpricelower[i]/5, size=numep)
 
-temp1 = np.empty([66,numep])
-temp2 = np.empty([66,numep])
-for i in range(66):
+temp1 = np.empty([numvars,numep])
+temp2 = np.empty([numvars,numep])
+for i in range(numvars):
     temp1[i] = xpricelower[i]+ep2[i]
     temp2[i] = xpricelower[i]-ep2[i]
 dataxlower = np.append(temp1, temp2, axis=1)
 
 # Third price vector
-ep3 = np.empty([66,numep])
+ep3 = np.empty([numvars,numep])
 #np.random.seed(10)
-for i in range(66):
+for i in range(numvars):
     ep3[i] = np.random.uniform(low=0.0, high=xpricehigher[i]/5, size=numep)
 
-temp1 = np.empty([66,numep])
-temp2 = np.empty([66,numep])
-for i in range(66):
+temp1 = np.empty([numvars,numep])
+temp2 = np.empty([numvars,numep])
+for i in range(numvars):
     temp1[i] = xpricehigher[i]+ep3[i]
     temp2[i] = xpricehigher[i]-ep3[i]
 dataxhigher=np.append(temp1, temp2, axis=1)
@@ -327,164 +328,241 @@ sighat = np.std(revall)
 # Thompson sampling done here (classical approach)
 # =============================================================================
 # 329 to 486 
-## Assume each price vector has normal distribution. Use MLE to estimate parameters from data created.
-## First price vector
-#productmean = np.mean(datax, axis=1)
-#productcov = 0
-#for i in range(datax.shape[1]):
-#    test1 = np.reshape((datax[:,i]-productmean), (66,1))
-#    test2 = np.reshape((datax[:,i]-productmean), (1,66))
-#    productcov += np.matmul(test1, test2)
-#productcov = productcov/(i+1)
-## divide by i+1 since MLE estimate of cov matrix is divide by N not N-1
-#
-## Second price vector
-#productmeanlower = np.mean(dataxlower, axis=1)
-#productcovlower = 0
-#for i in range(dataxlower.shape[1]):
-#    test1 = np.reshape((dataxlower[:,i]-productmeanlower), (66,1))
-#    test2 = np.reshape((dataxlower[:,i]-productmeanlower), (1,66))
-#    productcovlower += np.matmul(test1, test2)
-#productcovlower = productcovlower/(i+1)
-#
-## Third price vector
-#productmeanhigher = np.mean(dataxhigher, axis=1)
-#productcovhigher = 0
-#for i in range(dataxhigher.shape[1]):
-#    test1 = np.reshape((dataxhigher[:,i]-productmeanhigher), (66,1))
-#    test2 = np.reshape((dataxhigher[:,i]-productmeanhigher), (1,66))
-#    productcovhigher += np.matmul(test1, test2)
-#productcovhigher = productcovhigher/(i+1)
-#
-## Initialise counter for the number of times each arm is selected
-#counter = 0
-#counterlower = 0
-#counterhigher = 0
-#realrevenue_one = 0
-#realrevenuearr = np.zeros(1000)
-#
-#"""Idea is to estimate the true underlying demand distribution using historical data.
-#Using our estimated demand distribution, produce an estimate of the demand by sampling.
-#Optimise/choose the price that will maximise revenue BASED ON the SAMPLED demand.
-#OBSERVE the ACTUAL demand that comes from the true underlying demand distribution.
-#Calculate the revenue that we obtain. Add this new information (price and demand)
-#to our historical data and repeat.
-#
-#Since we dont have a distribution to sample from that represents the true demand, we shall replace that
-#with the theoretical X since in the long run, random samples from the true demand distribution
-#should be very close to the theoretical X.
-#"""
-##np.random.seed(10)
-#for i in range(1000):
-#    # Randomly sample from each distribution. This is our SAMPLED demand.
-#    rdm = np.random.multivariate_normal(productmean, productcov,1).T
-#    rdmlower = np.random.multivariate_normal(productmeanlower, productcovlower,1).T
-#    rdmhigher = np.random.multivariate_normal(productmeanhigher, productcovhigher,1).T
-#    
-#    # Calculate revenue based on the SAMPLED demand
-#    rev = np.multiply(rdm, productprice.iloc[:,1].values.reshape((66,1)))
-#    revlower = np.multiply(rdmlower, productpricelower.iloc[:,1].values.reshape((66,1)))
-#    revhigher = np.multiply(rdmhigher, productpricehigher.iloc[:,1].values.reshape((66,1)))
-#    
-#    # Choose the arm with the highest revenue based on SAMPLED demand.
-#    # Middle arm is best
-#    if np.sum(rev)>np.sum(revhigher) and np.sum(rev)>np.sum(revlower):
-#        counter += 1
-#        
-#        # Pull the arm, calculate and accumulate OBSERVED revenue
-#        realrevenue_one += np.sum(np.multiply(xprice, productprice.iloc[:,1].values.reshape((66,1))))
-#        realrevenuearr[i] += np.sum(np.multiply(xprice, productprice.iloc[:,1].values.reshape((66,1))))
-#        
-#        # Adding observed/theoretical X to list of observations
-#        datax = np.append(datax, xprice, axis=1)
-#        
-#        # Recalculate parameters using MLE
-#        productmean = np.mean(datax, axis=1)
-#        productcov = 0
-#        for i in range(datax.shape[1]):
-#            test1 = np.reshape((datax[:,i]-productmean), (66,1))
-#            test2 = np.reshape((datax[:,i]-productmean), (1,66))
-#            productcov += np.matmul(test1, test2)
-#        productcov = productcov/(i+1)
-#
-#    # Lower arm is best
-#    elif np.sum(revlower)>np.sum(rev) and np.sum(revlower)>np.sum(revhigher):
-#        counterlower += 1
-#        
-#        # Pull the arm, calculate and accumulate OBSERVED revenue
-#        realrevenue_one += np.sum(np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((66,1))))
-#        realrevenuearr[i] += np.sum(np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((66,1))))
-#        
-#        # Adding observed/theoretical X to list of observations
-#        dataxlower = np.append(dataxlower, xpricelower, axis=1)
-#        
-#        # Recalculate parameters using MLE
-#        productmeanlower = np.mean(dataxlower, axis=1)
-#        productcovlower = 0
-#        for i in range(dataxlower.shape[1]):
-#            test1 = np.reshape((dataxlower[:,i]-productmeanlower), (66,1))
-#            test2 = np.reshape((dataxlower[:,i]-productmeanlower), (1,66))
-#            productcovlower += np.matmul(test1, test2)
-#        productcovlower = productcovlower/(i+1)
-#
-#    # Higher arm is best
-#    else:
-#        counterhigher += 1
-#        
-#        # Pull the arm, calculate and accumulate OBSERVED revenue
-#        realrevenue_one += np.sum(np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((66,1))))
-#        realrevenuearr[i] += np.sum(np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((66,1))))
-#        
-#        # Adding observed/theoretical X to list of observations
-#        dataxhigher = np.append(dataxhigher, xpricehigher, axis=1)
-#        
-#        # Recalculate parameters using MLE
-#        productmeanhigher = np.mean(dataxhigher, axis=1)
-#        productcovhigher = 0
-#        for i in range(dataxhigher.shape[1]):
-#            test1 = np.reshape((dataxhigher[:,i]-productmeanhigher), (66,1))
-#            test2 = np.reshape((dataxhigher[:,i]-productmeanhigher), (1,66))
-#            productcovhigher += np.matmul(test1, test2)
-#        productcovhigher = productcovhigher/(i+1)
-#
-#
-## =============================================================================
-## Validate if the chosen arm is correct (use theoretical X for each arm)
-## =============================================================================
-#revenue = 0
-#revenuearr = np.zeros(1000)
-#for i in range(1000):
-#    rev = np.multiply(xprice, productprice.iloc[:,1].values.reshape((66,1)))
-#    revenue += np.sum(rev)
-#    revenuearr[i] += np.sum(rev)
-#
-#revenuelower = 0
-#revenuelowerarr = np.zeros(1000)
-#for i in range(1000):
-#    rev = np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((66,1)))
-#    revenuelower += np.sum(rev)
-#    revenuelowerarr[i] += np.sum(rev)
-#
-#revenuehigher = 0
-#revenuehigherarr = np.zeros(1000)
-#for i in range(1000):
-#    rev = np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((66,1)))
-#    revenuehigher += np.sum(rev)
-#    revenuehigherarr[i] += np.sum(rev)
-#
-## Graphical comparison of results
-##plt.plot(np.cumsum(realrevenuearr),'r')
-##plt.plot(np.cumsum(revenuelowerarr),'b')
-##plt.plot(np.cumsum(revenuearr),'y')
-##plt.plot(np.cumsum(revenuehigherarr),'m')
-##plt.ylabel('Cumulated revenue',fontsize=15)
-##plt.xlabel('Time period',fontsize=15)
-##plt.legend(['Real revenue','Lower arm','Middle arm','Higher arm'],fontsize=20)
-##plt.show()
-#
-#
+# Assume each price vector has normal distribution. Use MLE to estimate parameters from data created.
+# First price vector
+productmean = np.mean(datax, axis=1)
+productcov = 0
+for i in range(datax.shape[1]):
+    test1 = np.reshape((datax[:,i]-productmean), (numvars,1))
+    test2 = np.reshape((datax[:,i]-productmean), (1,numvars))
+    productcov += np.matmul(test1, test2)
+productcov = productcov/(i+1)
+# divide by i+1 since MLE estimate of cov matrix is divide by N not N-1
+
+# Second price vector
+productmeanlower = np.mean(dataxlower, axis=1)
+productcovlower = 0
+for i in range(dataxlower.shape[1]):
+    test1 = np.reshape((dataxlower[:,i]-productmeanlower), (numvars,1))
+    test2 = np.reshape((dataxlower[:,i]-productmeanlower), (1,numvars))
+    productcovlower += np.matmul(test1, test2)
+productcovlower = productcovlower/(i+1)
+
+# Third price vector
+productmeanhigher = np.mean(dataxhigher, axis=1)
+productcovhigher = 0
+for i in range(dataxhigher.shape[1]):
+    test1 = np.reshape((dataxhigher[:,i]-productmeanhigher), (numvars,1))
+    test2 = np.reshape((dataxhigher[:,i]-productmeanhigher), (1,numvars))
+    productcovhigher += np.matmul(test1, test2)
+productcovhigher = productcovhigher/(i+1)
+
+# Initialise counter for the number of times each arm is selected
+counter = 0
+counterlower = 0
+counterhigher = 0
+realrevenue_TS_one = 0
+basket_TS_one = np.zeros(1000)
+
+"""Idea is to estimate the true underlying demand distribution using historical data.
+Using our estimated demand distribution, produce an estimate of the demand by sampling.
+Optimise/choose the price that will maximise revenue BASED ON the SAMPLED demand.
+OBSERVE the ACTUAL demand that comes from the true underlying demand distribution.
+Calculate the revenue that we obtain. Add this new information (price and demand)
+to our historical data and repeat.
+
+Since we dont have a distribution to sample from that represents the true demand, we shall replace that
+with the theoretical X since in the long run, random samples from the true demand distribution
+should be very close to the theoretical X.
+"""
+#np.random.seed(10)
+for j in range(1000):
+    # Randomly sample from each distribution. This is our SAMPLED demand.
+    rdm = np.random.multivariate_normal(productmean, productcov,1).T
+    rdmlower = np.random.multivariate_normal(productmeanlower, productcovlower,1).T
+    rdmhigher = np.random.multivariate_normal(productmeanhigher, productcovhigher,1).T
+    
+    # Calculate revenue based on the SAMPLED demand
+    rev = np.multiply(rdm, productprice.iloc[:,1].values.reshape((numvars,1)))
+    revlower = np.multiply(rdmlower, productpricelower.iloc[:,1].values.reshape((numvars,1)))
+    revhigher = np.multiply(rdmhigher, productpricehigher.iloc[:,1].values.reshape((numvars,1)))
+    
+    # Choose the arm with the highest revenue based on SAMPLED demand.
+    # Middle arm is best
+    if np.sum(rev)>np.sum(revhigher) and np.sum(rev)>np.sum(revlower):
+        counter += 1
+        
+        # Pull the arm, calculate and accumulate OBSERVED revenue
+        realrevenue_TS_one += np.sum(np.multiply(xprice, productprice.iloc[:,1].values.reshape((numvars,1))))
+        basket_TS_one[i] += np.sum(np.multiply(xprice, productprice.iloc[:,1].values.reshape((numvars,1))))
+        
+        # Adding observed/theoretical X to list of observations
+        datax = np.append(datax, xprice, axis=1)
+        
+        # Recalculate parameters using MLE
+        productmean = np.mean(datax, axis=1)
+        productcov = 0
+        for i in range(datax.shape[1]):
+            test1 = np.reshape((datax[:,i]-productmean), (numvars,1))
+            test2 = np.reshape((datax[:,i]-productmean), (1,numvars))
+            productcov += np.matmul(test1, test2)
+        productcov = productcov/(i+1)
+
+    # Lower arm is best
+    elif np.sum(revlower)>np.sum(rev) and np.sum(revlower)>np.sum(revhigher):
+        counterlower += 1
+        
+        # Pull the arm, calculate and accumulate OBSERVED revenue
+        realrevenue_TS_one += np.sum(np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((numvars,1))))
+        basket_TS_one[i] += np.sum(np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((numvars,1))))
+        
+        # Adding observed/theoretical X to list of observations
+        dataxlower = np.append(dataxlower, xpricelower, axis=1)
+        
+        # Recalculate parameters using MLE
+        productmeanlower = np.mean(dataxlower, axis=1)
+        productcovlower = 0
+        for i in range(dataxlower.shape[1]):
+            test1 = np.reshape((dataxlower[:,i]-productmeanlower), (numvars,1))
+            test2 = np.reshape((dataxlower[:,i]-productmeanlower), (1,numvars))
+            productcovlower += np.matmul(test1, test2)
+        productcovlower = productcovlower/(i+1)
+
+    # Higher arm is best
+    else:
+        counterhigher += 1
+        
+        # Pull the arm, calculate and accumulate OBSERVED revenue
+        realrevenue_TS_one += np.sum(np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((numvars,1))))
+        basket_TS_one[i] += np.sum(np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((numvars,1))))
+        
+        # Adding observed/theoretical X to list of observations
+        dataxhigher = np.append(dataxhigher, xpricehigher, axis=1)
+        
+        # Recalculate parameters using MLE
+        productmeanhigher = np.mean(dataxhigher, axis=1)
+        productcovhigher = 0
+        for i in range(dataxhigher.shape[1]):
+            test1 = np.reshape((dataxhigher[:,i]-productmeanhigher), (numvars,1))
+            test2 = np.reshape((dataxhigher[:,i]-productmeanhigher), (1,numvars))
+            productcovhigher += np.matmul(test1, test2)
+        productcovhigher = productcovhigher/(i+1)
+
+# =============================================================================
+# Validate if the chosen arm is correct (use theoretical X for each arm)
+# =============================================================================
+revenue = 0
+basket = np.zeros(1000)
+for i in range(1000):
+    rev = np.multiply(xprice, productprice.iloc[:,1].values.reshape((numvars,1)))
+    revenue += np.sum(rev)
+    basket[i] = np.sum(rev)
+
+revenuelower = 0
+basket_lower = np.zeros(1000)
+for i in range(1000):
+    rev = np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((numvars,1)))
+    revenuelower += np.sum(rev)
+    basket_lower[i] = np.sum(rev)
+
+revenuehigher = 0
+basket_higher = np.zeros(1000)
+for i in range(1000):
+    rev = np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((numvars,1)))
+    revenuehigher += np.sum(rev)
+    basket_higher[i] = np.sum(rev)
+
+# Graphical comparison of results
+#plt.plot(np.cumsum(realrevenuearr),'r')
+#plt.plot(np.cumsum(basket_lower),'b')
+#plt.plot(np.cumsum(basket),'y')
+#plt.plot(np.cumsum(basket_higher),'m')
+#plt.ylabel('Cumulated revenue',fontsize=15)
+#plt.xlabel('Time period',fontsize=15)
+#plt.legend(['Real revenue','Lower arm','Middle arm','Higher arm'],fontsize=20)
+#plt.show()
+
+
 # 329 to 486
 
+# =============================================================================
+# Upper confidence bound (UCB1 method)
+# =============================================================================
+# Initialise counter for each arm and overall counter
+ucb_counter_lower = 1
+ucb_counter_higher = 1
+ucb_counter_middle = 1
+ucb_counter = 3
+
+# Initialise mean for each arm
+lower_cumulated = np.sum(np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((numvars,1))))
+middle_cumulated = np.sum(np.multiply(xprice, productprice.iloc[:,1].values.reshape((numvars,1))))
+higher_cumulated = np.sum(np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((numvars,1))))
+lower_mean = lower_cumulated/ucb_counter_lower
+middle_mean = middle_cumulated/ucb_counter_middle
+higher_mean = higher_cumulated/ucb_counter_higher
+
+# Cumulative revenue
+realrevenue_ucb = lower_cumulated + middle_cumulated + higher_cumulated
+basket_ucb = [lower_cumulated, middle_cumulated, higher_cumulated]
+
+from math import sqrt
+from math import log
+
+# Initialise ucb scores for each arm
+ucbs_lower = lower_mean + sqrt(2*log(ucb_counter)/ucb_counter_lower)
+ucbs_higher = higher_mean + sqrt(2*log(ucb_counter)/ucb_counter_higher)
+ucbs_middle = middle_mean + sqrt(2*log(ucb_counter)/ucb_counter_middle)
+
+for i in range(3,1000):
+    if ucbs_middle>ucbs_higher and ucbs_middle>ucbs_lower:
+        middle_cumulated += np.sum(np.multiply(xprice, productprice.iloc[:,1].values.reshape((numvars,1))))
+        ucb_counter_middle += 1
+        middle_mean = middle_cumulated/ucb_counter_middle
+        basket_ucb.append(np.sum(np.multiply(xprice, productprice.iloc[:,1].values.reshape((numvars,1)))))
+
+    elif ucbs_lower>ucbs_middle and ucbs_lower>ucbs_higher:
+        lower_cumulated += np.sum(np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((numvars,1))))
+        ucb_counter_lower += 1
+        lower_mean = lower_cumulated/ucb_counter_lower
+        basket_ucb.append(np.sum(np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((numvars,1)))))
+
+    else:
+        higher_cumulated = np.sum(np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((numvars,1))))
+        ucb_counter_higher += 1
+        higher_mean = higher_cumulated/ucb_counter_higher
+        basket_ucb.append(np.sum(np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((numvars,1)))))
+
+    ucb_counter += 1
+    realrevenue_ucb = lower_cumulated + middle_cumulated + higher_cumulated
+    
+    # Update of UCB scores
+    ucbs_lower = lower_mean + sqrt(2*log(ucb_counter)/ucb_counter_lower)
+    ucbs_higher = higher_mean + sqrt(2*log(ucb_counter)/ucb_counter_higher)
+    ucbs_middle = middle_mean + sqrt(2*log(ucb_counter)/ucb_counter_middle)
+
+    
+
+
+        
+
+haha
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+haha
 # =============================================================================
 # Thomson sampling (Dynamic pricing approach)
 # =============================================================================
@@ -500,8 +578,8 @@ temp2 = (((xpricehigher-xprice)/xprice)/((productpricehigher-productprice)/produ
 elastmean = (temp1+temp2)/2
 # constant c
 c = 0.1 * np.mean(elastmean)
-elastmean = np.reshape(np.array(elastmean),(66,1))
-elastcov = c*np.identity(66)
+elastmean = np.reshape(np.array(elastmean),(numvars,1))
+elastcov = c*np.identity(numvars)
 
 # Preparing data for var model, need to insert date-time 
 dataall = np.transpose(dataall)
@@ -533,17 +611,17 @@ lag_order = results.k_ar
 
 prevprice = productpricehigher.iloc[:,1]
 prevprice = np.array(prevprice)
-prevprice = np.reshape(prevprice, (66,1))
+prevprice = np.reshape(prevprice, (numvars,1))
 
 revenue_dynamic = 0
 
 #f = results.forecast(datadiff.values[-lag_order:], 1) # with diff and log
-#f = np.reshape(f, (66,1))
-#f = np.e**(f + np.log(np.reshape(np.array(dataall.iloc[149,:]), (66,1))))
+#f = np.reshape(f, (numvars,1))
+#f = np.e**(f + np.log(np.reshape(np.array(dataall.iloc[149,:]), (numvars,1))))
 
 #f = results.forecast(datadiff.values[-lag_order:], 1) # with abs(diff) THEN log
-#f = np.reshape(f, (66,1))
-#f = np.e**(f) + np.reshape(np.array(dataall.iloc[149,:]), (66,1))
+#f = np.reshape(f, (numvars,1))
+#f = np.e**(f) + np.reshape(np.array(dataall.iloc[149,:]), (numvars,1))
 
 # testing for cointegration
 #from statsmodels.tsa.vector_ar.vecm import coint_johansen
@@ -574,25 +652,25 @@ for j in range(10):
         print("elast is positive")
         print(j)
         elast = np.random.multivariate_normal(elastmean.flatten(), elastcov,1)
-    elast = np.reshape(elast, (66,1))
+    elast = np.reshape(elast, (numvars,1))
     print("random sample ok")
     
     # Obtain demand forecast f and reshape
     """without diff and log"""
 #    f = results.forecast(datadiff.values[-lag_order:], 1)
-#    f = np.reshape(f, (66,1))
+#    f = np.reshape(f, (numvars,1))
     """diff()"""
 #    f = results.forecast(datadiff.values[-lag_order:], 1)
-#    f = np.reshape(f, (66,1))
-#    f = f + np.reshape(np.array(dataall.iloc[-lag_order,:]), (66,1)) 
+#    f = np.reshape(f, (numvars,1))
+#    f = f + np.reshape(np.array(dataall.iloc[-lag_order,:]), (numvars,1)) 
     """diff(log)"""
 #    f = results.forecast(datadiff.values[-lag_order:], 1)
-#    f = np.reshape(f, (66,1))
-#    f = np.e**(f + np.log(np.reshape(np.array(dataall.iloc[-lag_order,:]), (66,1))))  
+#    f = np.reshape(f, (numvars,1))
+#    f = np.e**(f + np.log(np.reshape(np.array(dataall.iloc[-lag_order,:]), (numvars,1))))  
     """log(abs(diff))"""
     f = results.forecast(datadiff.values[-lag_order:], 1)
-    f = np.reshape(f, (66,1))
-    f = np.e**(f) + np.reshape(np.array(dataall.iloc[-lag_order,:]), (66,1))
+    f = np.reshape(f, (numvars,1))
+    f = np.e**(f) + np.reshape(np.array(dataall.iloc[-lag_order,:]), (numvars,1))
 
     # Checking for valid f
     if (f>=0).all() == False:
@@ -620,7 +698,7 @@ for j in range(10):
                 task.set_Stream(mosek.streamtype.log, streamprinter)
                 
                 # Bound keys for variables
-                numvar = 66
+                numvar = numvars
                 bkx = [mosek.boundkey.ra] * numvar
                 
                 # Bound values for variables
@@ -725,7 +803,7 @@ for j in range(10):
     
     newprice = result_mosek[0]
     newprice = np.array(newprice)
-    newprice = np.reshape(newprice, (66,1))
+    newprice = np.reshape(newprice, (numvars,1))
     
     """using scipy.optimize"""
 #    # Objective function, multiply by -1 since we want to maximize
@@ -733,7 +811,7 @@ for j in range(10):
 #        return -1.0*np.sum(p*p*f*elast/prevprice - p*f*elast + p*f)
 #    
 #    # Initial guess is previous price
-#    opresult = minimize(eqn7, np.reshape(np.array(productpricehigher.iloc[:,1]), (66,1)), bounds=bounds)
+#    opresult = minimize(eqn7, np.reshape(np.array(productpricehigher.iloc[:,1]), (numvars,1)), bounds=bounds)
 #    newprice = opresult.x
     
     """using cplex"""
@@ -744,10 +822,10 @@ for j in range(10):
 #    problem.objective.set_sense(problem.objective.sense.maximize)
 #    
 #    # Adds variables
-#    indices = problem.variables.add(names = [str(i) for i in range(66)])
+#    indices = problem.variables.add(names = [str(i) for i in range(numvars)])
 #    
 #    # Changes the linear part of the objective function.
-#    for i in range(66):
+#    for i in range(numvars):
 #        problem.objective.set_linear(i, float(f[i]-f[i]*elast[i])) # form is objective.set_linear(var, value)
 #        
 #    # Sets the quadratic part of the objective function.
@@ -755,11 +833,11 @@ for j in range(10):
 #    problem.objective.set_quadratic([float(i) for i in quad])
 #    
 #    # Sets the lower bound for a variable or set of variables
-#    for i in range(66):
+#    for i in range(numvars):
 #        problem.variables.set_lower_bounds(i, prevprice[i][0]*0.9)
 #    
 #    # Sets the upper bound for a variable or set of variables
-#    for i in range(66):
+#    for i in range(numvars):
 #        problem.variables.set_upper_bounds(i, prevprice[i][0]*1.1)
 #    
 #    problem.solve()
@@ -771,14 +849,14 @@ for j in range(10):
     
     
     # Apply newprice to obtain observed demand
-    observedx = np.empty([66,1])
-    for i in range(66):
+    observedx = np.empty([numvars,1])
+    for i in range(numvars):
         observedx[i] = math.exp(v[i]-newprice[i])
     observedx = observedx/(np.sum(observedx)+math.exp(v0))
     print("observed demand ok")
     
     # Accumulate revenue
-    revenue_dynamic += np.sum(np.multiply(observedx, np.reshape(newprice,(66,1))))
+    revenue_dynamic += np.sum(np.multiply(observedx, np.reshape(newprice,(numvars,1))))
     
     # Add observed demand to observations
     observedx = pd.DataFrame(observedx)
@@ -803,15 +881,15 @@ for j in range(10):
     print("re-estimate var model ok")
     
     # For M inverse matrix
-    thet = np.multiply(np.reshape(newprice**2,(66,1)),f)
+    thet = np.multiply(np.reshape(newprice**2,(numvars,1)),f)
     thet = np.divide(thet, prevprice)
-    thet = thet - np.multiply(np.reshape(newprice,(66,1)),f)
-    minv = (thet*np.transpose(thet))/sighat**2 + 1e-5*np.identity(66) # fix lambda = 1e-5
+    thet = thet - np.multiply(np.reshape(newprice,(numvars,1)),f)
+    minv = (thet*np.transpose(thet))/sighat**2 + 1e-5*np.identity(numvars) # fix lambda = 1e-5
     print("minv ok")
     
     # For M inverse beta matrix
-    rbar = np.sum(np.multiply(np.reshape(newprice,(66,1)),f))
-    rt = float(np.sum(np.multiply(observedx, np.reshape(newprice,(66,1)))))
+    rbar = np.sum(np.multiply(np.reshape(newprice,(numvars,1)),f))
+    rt = float(np.sum(np.multiply(observedx, np.reshape(newprice,(numvars,1)))))
     minvb = (rt - rbar)/(sighat**2)*thet
     print("minvb ok")
     
@@ -825,7 +903,7 @@ for j in range(10):
     elastcov = pt1
     
     # Update prevprice to new price
-    prevprice = np.reshape(newprice, (66,1))
+    prevprice = np.reshape(newprice, (numvars,1))
     
 
 
