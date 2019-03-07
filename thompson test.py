@@ -98,8 +98,10 @@ productprice.drop_duplicates(subset="goods_id", keep='first', inplace=True)
 productprice.reset_index(level=None, drop=True, inplace=True)
 
 # create 2 other price vectors
-productpricelower = productprice-5
-productpricehigher = productprice+5
+productpricelower = productprice*0.9
+productpricehigher = productprice*1.1
+#productpricelower = productprice-5
+#productpricehigher = productprice+5
 
 ###########################################################################################
 ########################################## now trying to use mle for first price vector
@@ -305,11 +307,11 @@ for i in range(numvars):
     temp2[i] = xpricehigher[i]-ep3[i]
 dataxhigher=np.append(temp1, temp2, axis=1)
 
-# Appending all data points together for second approach
+# Appending all data points together for dynamic_TS approach
 dataall = np.append(dataxlower, datax, axis=1)
 dataall = np.append(dataall, dataxhigher, axis=1)
 
-# Obtain revenue of each day, find SD to estimate sigma in second approach
+# Obtain revenue of each day, find SD to estimate sigma in dynamic_TS approach
 rev1 = np.empty(numep*2)
 for i in range(numep*2):
     rev1[i] = sum(np.multiply(dataxlower[:,i], productpricelower.iloc[:,1]))
@@ -375,6 +377,10 @@ Since we dont have a distribution to sample from that represents the true demand
 with the theoretical X since in the long run, random samples from the true demand distribution
 should be very close to the theoretical X.
 """
+mid = productcov
+low = productcovlower
+high = productcovhigher
+
 #np.random.seed(10)
 for j in range(1000):
     # Randomly sample from each distribution. This is our SAMPLED demand.
@@ -393,12 +399,16 @@ for j in range(1000):
         counter += 1
         
         # Pull the arm, calculate and accumulate OBSERVED revenue
+#        truerdm = np.random.multivariate_normal(xprice.flatten(),mid,1).T
+#        realrevenue_TS_one += np.sum(np.multiply(truerdm,productprice.iloc[:,1].values.reshape((numvars,1))))
+        
         realrevenue_TS_one += np.sum(np.multiply(xprice, productprice.iloc[:,1].values.reshape((numvars,1))))
-        basket_TS_one[i] += np.sum(np.multiply(xprice, productprice.iloc[:,1].values.reshape((numvars,1))))
+        basket_TS_one[j] = np.sum(np.multiply(xprice, productprice.iloc[:,1].values.reshape((numvars,1))))
         
         # Adding observed/theoretical X to list of observations
+#        datax = np.append(datax, truerdm, axis=1)
         datax = np.append(datax, xprice, axis=1)
-        
+      
         # Recalculate parameters using MLE
         productmean = np.mean(datax, axis=1)
         productcov = 0
@@ -413,10 +423,14 @@ for j in range(1000):
         counterlower += 1
         
         # Pull the arm, calculate and accumulate OBSERVED revenue
+#        truerdmlower = np.random.multivariate_normal(xpricelower.flatten(),low,1).T
+#        realrevenue_TS_one += np.sum(np.multiply(truerdmlower,productpricelower.iloc[:,1].values.reshape((numvars,1))))
+
         realrevenue_TS_one += np.sum(np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((numvars,1))))
-        basket_TS_one[i] += np.sum(np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((numvars,1))))
+        basket_TS_one[j] = np.sum(np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((numvars,1))))
         
         # Adding observed/theoretical X to list of observations
+#        dataxlower = np.append(dataxlower, truerdmlower, axis=1)
         dataxlower = np.append(dataxlower, xpricelower, axis=1)
         
         # Recalculate parameters using MLE
@@ -433,10 +447,14 @@ for j in range(1000):
         counterhigher += 1
         
         # Pull the arm, calculate and accumulate OBSERVED revenue
+#        truerdmhigher = np.random.multivariate_normal(xpricehigher.flatten(),low,1).T
+#        realrevenue_TS_one += np.sum(np.multiply(truerdmhigher,productpricehigher.iloc[:,1].values.reshape((numvars,1))))
+
         realrevenue_TS_one += np.sum(np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((numvars,1))))
-        basket_TS_one[i] += np.sum(np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((numvars,1))))
+        basket_TS_one[j] = np.sum(np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((numvars,1))))
         
         # Adding observed/theoretical X to list of observations
+#        dataxhigher = np.append(dataxhigher, truerdmhigher, axis=1)
         dataxhigher = np.append(dataxhigher, xpricehigher, axis=1)
         
         # Recalculate parameters using MLE
@@ -495,12 +513,22 @@ ucb_counter_middle = 1
 ucb_counter = 3
 
 # Initialise mean for each arm
+#truerdm = np.random.multivariate_normal(xprice.flatten(),mid,1).T
+#middle_cumulated = np.sum(np.multiply(truerdm,productprice.iloc[:,1].values.reshape((numvars,1))))
+#
+#truerdmhigher = np.random.multivariate_normal(xpricehigher.flatten(),low,1).T
+#higher_cumulated = np.sum(np.multiply(truerdmhigher,productpricehigher.iloc[:,1].values.reshape((numvars,1))))
+#
+#truerdmlower = np.random.multivariate_normal(xpricelower.flatten(),low,1).T
+#lower_cumulated = np.sum(np.multiply(truerdmlower,productpricelower.iloc[:,1].values.reshape((numvars,1))))
+
+
 lower_cumulated = np.sum(np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((numvars,1))))
 middle_cumulated = np.sum(np.multiply(xprice, productprice.iloc[:,1].values.reshape((numvars,1))))
 higher_cumulated = np.sum(np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((numvars,1))))
-lower_mean = lower_cumulated/ucb_counter_lower
-middle_mean = middle_cumulated/ucb_counter_middle
-higher_mean = higher_cumulated/ucb_counter_higher
+mean_lower = lower_cumulated/ucb_counter_lower
+mean_middle = middle_cumulated/ucb_counter_middle
+mean_higher = higher_cumulated/ucb_counter_higher
 
 # Cumulative revenue
 realrevenue_ucb = lower_cumulated + middle_cumulated + higher_cumulated
@@ -510,47 +538,52 @@ from math import sqrt
 from math import log
 
 # Initialise ucb scores for each arm
-ucbs_lower = lower_mean + sqrt(2*log(ucb_counter)/ucb_counter_lower)
-ucbs_higher = higher_mean + sqrt(2*log(ucb_counter)/ucb_counter_higher)
-ucbs_middle = middle_mean + sqrt(2*log(ucb_counter)/ucb_counter_middle)
+ucbs_lower = mean_lower + sqrt(2*log(ucb_counter)/ucb_counter_lower)
+ucbs_higher = mean_higher + sqrt(2*log(ucb_counter)/ucb_counter_higher)
+ucbs_middle = mean_middle + sqrt(2*log(ucb_counter)/ucb_counter_middle)
 
 for i in range(3,1000):
+    ucb_counter += 1
+    
     if ucbs_middle>ucbs_higher and ucbs_middle>ucbs_lower:
+#        truerdm = np.random.multivariate_normal(xprice.flatten(),mid,1).T
+#        middle_cumulated += np.sum(np.multiply(truerdm,productprice.iloc[:,1].values.reshape((numvars,1))))
+
         middle_cumulated += np.sum(np.multiply(xprice, productprice.iloc[:,1].values.reshape((numvars,1))))
         ucb_counter_middle += 1
-        middle_mean = middle_cumulated/ucb_counter_middle
+        mean_middle = middle_cumulated/ucb_counter_middle
         basket_ucb.append(np.sum(np.multiply(xprice, productprice.iloc[:,1].values.reshape((numvars,1)))))
 
     elif ucbs_lower>ucbs_middle and ucbs_lower>ucbs_higher:
+#        truerdmlower = np.random.multivariate_normal(xpricelower.flatten(),low,1).T
+#        lower_cumulated += np.sum(np.multiply(truerdmlower,productpricelower.iloc[:,1].values.reshape((numvars,1))))
+
         lower_cumulated += np.sum(np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((numvars,1))))
         ucb_counter_lower += 1
-        lower_mean = lower_cumulated/ucb_counter_lower
+        mean_lower = lower_cumulated/ucb_counter_lower
         basket_ucb.append(np.sum(np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((numvars,1)))))
 
     else:
+#        truerdmhigher = np.random.multivariate_normal(xpricehigher.flatten(),low,1).T
+#        higher_cumulated += np.sum(np.multiply(truerdmhigher,productpricehigher.iloc[:,1].values.reshape((numvars,1))))
+
         higher_cumulated = np.sum(np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((numvars,1))))
         ucb_counter_higher += 1
-        higher_mean = higher_cumulated/ucb_counter_higher
+        mean_higher = higher_cumulated/ucb_counter_higher
         basket_ucb.append(np.sum(np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((numvars,1)))))
 
-    ucb_counter += 1
+    
     realrevenue_ucb = lower_cumulated + middle_cumulated + higher_cumulated
     
     # Update of UCB scores
-    ucbs_lower = lower_mean + sqrt(2*log(ucb_counter)/ucb_counter_lower)
-    ucbs_higher = higher_mean + sqrt(2*log(ucb_counter)/ucb_counter_higher)
-    ucbs_middle = middle_mean + sqrt(2*log(ucb_counter)/ucb_counter_middle)
+    ucbs_lower = mean_lower + sqrt(2*log(ucb_counter)/ucb_counter_lower)
+    ucbs_higher = mean_higher + sqrt(2*log(ucb_counter)/ucb_counter_higher)
+    ucbs_middle = mean_middle + sqrt(2*log(ucb_counter)/ucb_counter_middle)
 
     
 
 
         
-
-haha
-
-
-
-
 
 
 
@@ -613,7 +646,7 @@ prevprice = productpricehigher.iloc[:,1]
 prevprice = np.array(prevprice)
 prevprice = np.reshape(prevprice, (numvars,1))
 
-revenue_dynamic = 0
+realrevenue_dynamic_TS = 0
 
 #f = results.forecast(datadiff.values[-lag_order:], 1) # with diff and log
 #f = np.reshape(f, (numvars,1))
@@ -679,140 +712,142 @@ for j in range(10):
     print("demand forecast ok")
 
     """using mosek"""
-    # Since the actual value of Infinity is ignored, we define it solely for symbolic purposes:
-    inf = 0.0
-
-    # Define a stream printer to grab output from MOSEK
-    def streamprinter(text):
-        sys.stdout.write(text)
-        sys.stdout.flush()
-    
-    def main():
-    # Open MOSEK and create an environment and task
-    # Make a MOSEK environment
-        with mosek.Env() as env:
-            # Attach a printer to the environment
-            env.set_Stream(mosek.streamtype.log, streamprinter)
-            # Create a task
-            with env.Task() as task:
-                task.set_Stream(mosek.streamtype.log, streamprinter)
-                
-                # Bound keys for variables
-                numvar = numvars
-                bkx = [mosek.boundkey.ra] * numvar
-                
-                # Bound values for variables
-                temppricelow = prevprice*0.9
-                temppricehigh = prevprice*1.1
-                blx = []
-                bux = []
-                for i in range(numvar):
-                    blx.append(temppricelow[i][0])
-                    bux.append(temppricehigh[i][0])
-                
-                # Objective linear coefficients
-                temp = f - (f * elast)
-                c = []
-                for i in range(numvar):
-                    c.append(temp[i][0])
-#                print(c)
-                
-                # Append 'numcon' empty constraints.
-                # The constraints will initially have no bounds.
-                task.appendcons(0)
-            
-                # Append 'numvar' variables.
-                # The variables will initially be fixed at zero (x=0).
-                task.appendvars(numvar)
-    
-                for j in range(numvar):
-                    # Set the linear term c_j in the objective.
-                    task.putcj(j, c[j])
-                    
-                    # Set the bounds on variable j
-                    # blx[j] <= x_j <= bux[j] 
-                    task.putvarbound(j, bkx[j], blx[j], bux[j]) 
-
-                # Set up and input quadratic objective
-                qsubi = []
-                for i in range(numvar):
-                    qsubi.append(i)
-                qsubj = qsubi
-                temp = 2 * f * elast / prevprice # Must remember to *2, see mosek documentation
-                qval = []
-                for i in range(numvar):
-                    qval.append(temp[i][0])
-#                print(qval)
-    
-                task.putqobj(qsubi, qsubj, qval)
-    
-                # Input the objective sense (minimize/maximize)
-                task.putobjsense(mosek.objsense.maximize)
-                task.analyzeproblem(mosek.streamtype.log)
-    
-                # Optimize
-                task.optimize()
-                
-                # Print a summary containing information
-                # about the solution for debugging purposes
-#                task.solutionsummary(mosek.streamtype.msg)
-    
-                # Output a solution
-                xx = [0.] * numvar
-                task.getxx(mosek.soltype.itr, xx)
-                
-                print("===== Check here =====")
-                # To return quadratic coefficients
-                qtemp = np.empty([numvar,numvar])
-                for row in range(numvar):
-                    for col in range(numvar):
-                        qtemp[row][col] = task.getqobjij(row,col)
-                        
-                print("no. of constraints =",task.getnumcon())
-                print("no. of nonzero elements in quadratic objective terms =",task.getnumqobjnz())
-                print("no. of cones =",task.getnumcone())
-                print("no. of variables =",task.getnumvar())
-                print("Objective sense =",task.getobjsense())
-                print("Problem type =",task.getprobtype())
-                print("Problem status =",task.getprosta(mosek.soltype.itr)) # feasible
-                
-                # Get variable bounds
-                varbound = []
-                for b in range(numvar):
-                    varbound.append(task.getvarbound(b))
-                print("===== End of check =====")
-                
-                # Linear constraint
-#                for index in range(numvar):
-#                    print("no. of nonzero elements in {}-th column of A = {}".format(index,task.getacolnumnz(index)))
-                      
-                # To return linear coefficients
-                lineartemp = np.empty([numvar,1])
-                for index in range(numvar):
-                    lineartemp[index] = task.getcj(index)
-                    
-                return (xx, qtemp, lineartemp, varbound)
-            
-    # call the main function
-    result_mosek = main()
-    linear_coeff = result_mosek[2]
-    linear_check = f - (f * elast)
-    quad_coeff = result_mosek[1]
-    quad_check = 2 * f * elast / prevprice
-    var_bounds = result_mosek[3]
-    
-    newprice = result_mosek[0]
-    newprice = np.array(newprice)
-    newprice = np.reshape(newprice, (numvars,1))
-    
-    """using scipy.optimize"""
-#    # Objective function, multiply by -1 since we want to maximize
-#    def eqn7(p):
-#        return -1.0*np.sum(p*p*f*elast/prevprice - p*f*elast + p*f)
+#    # Since the actual value of Infinity is ignored, we define it solely for symbolic purposes:
+#    inf = 0.0
+#
+#    # Define a stream printer to grab output from MOSEK
+#    def streamprinter(text):
+#        sys.stdout.write(text)
+#        sys.stdout.flush()
 #    
-#    # Initial guess is previous price
-#    opresult = minimize(eqn7, np.reshape(np.array(productpricehigher.iloc[:,1]), (numvars,1)), bounds=bounds)
-#    newprice = opresult.x
+#    def main():
+#    # Open MOSEK and create an environment and task
+#    # Make a MOSEK environment
+#        with mosek.Env() as env:
+#            # Attach a printer to the environment
+#            env.set_Stream(mosek.streamtype.log, streamprinter)
+#            # Create a task
+#            with env.Task() as task:
+#                task.set_Stream(mosek.streamtype.log, streamprinter)
+#                
+#                # Bound keys for variables
+#                numvar = numvars
+#                bkx = [mosek.boundkey.ra] * numvar
+#                
+#                # Bound values for variables
+#                temppricelow = prevprice*0.9
+#                temppricehigh = prevprice*1.1
+#                blx = []
+#                bux = []
+#                for i in range(numvar):
+#                    blx.append(temppricelow[i][0])
+#                    bux.append(temppricehigh[i][0])
+#                
+#                # Objective linear coefficients
+#                temp = f - (f * elast)
+#                c = []
+#                for i in range(numvar):
+#                    c.append(temp[i][0])
+##                print(c)
+#                
+#                # Append 'numcon' empty constraints.
+#                # The constraints will initially have no bounds.
+#                task.appendcons(0)
+#            
+#                # Append 'numvar' variables.
+#                # The variables will initially be fixed at zero (x=0).
+#                task.appendvars(numvar)
+#    
+#                for j in range(numvar):
+#                    # Set the linear term c_j in the objective.
+#                    task.putcj(j, c[j])
+#                    
+#                    # Set the bounds on variable j
+#                    # blx[j] <= x_j <= bux[j] 
+#                    task.putvarbound(j, bkx[j], blx[j], bux[j]) 
+#
+#                # Set up and input quadratic objective
+#                qsubi = []
+#                for i in range(numvar):
+#                    qsubi.append(i)
+#                qsubj = qsubi
+#                temp = 2 * f * elast / prevprice # Must remember to *2, see mosek documentation
+#                qval = []
+#                for i in range(numvar):
+#                    qval.append(temp[i][0])
+##                print(qval)
+#    
+#                task.putqobj(qsubi, qsubj, qval)
+#    
+#                # Input the objective sense (minimize/maximize)
+#                task.putobjsense(mosek.objsense.maximize)
+#                task.analyzeproblem(mosek.streamtype.log)
+#    
+#                # Optimize
+#                task.optimize()
+#                
+#                # Print a summary containing information
+#                # about the solution for debugging purposes
+##                task.solutionsummary(mosek.streamtype.msg)
+#    
+#                # Output a solution
+#                xx = [0.] * numvar
+#                task.getxx(mosek.soltype.itr, xx)
+#                
+#                print("===== Check here =====")
+#                # To return quadratic coefficients
+#                qtemp = np.empty([numvar,numvar])
+#                for row in range(numvar):
+#                    for col in range(numvar):
+#                        qtemp[row][col] = task.getqobjij(row,col)
+#                        
+#                print("no. of constraints =",task.getnumcon())
+#                print("no. of nonzero elements in quadratic objective terms =",task.getnumqobjnz())
+#                print("no. of cones =",task.getnumcone())
+#                print("no. of variables =",task.getnumvar())
+#                print("Objective sense =",task.getobjsense())
+#                print("Problem type =",task.getprobtype())
+#                print("Problem status =",task.getprosta(mosek.soltype.itr)) # feasible
+#                
+#                # Get variable bounds
+#                varbound = []
+#                for b in range(numvar):
+#                    varbound.append(task.getvarbound(b))
+#                print("===== End of check =====")
+#                
+#                # Linear constraint
+##                for index in range(numvar):
+##                    print("no. of nonzero elements in {}-th column of A = {}".format(index,task.getacolnumnz(index)))
+#                      
+#                # To return linear coefficients
+#                lineartemp = np.empty([numvar,1])
+#                for index in range(numvar):
+#                    lineartemp[index] = task.getcj(index)
+#                    
+#                return (xx, qtemp, lineartemp, varbound)
+#            
+#    # call the main function
+#    result_mosek = main()
+#    linear_coeff = result_mosek[2]
+#    linear_check = f - (f * elast)
+#    quad_coeff = result_mosek[1]
+#    quad_check = 2 * f * elast / prevprice
+#    var_bounds = result_mosek[3]
+#    
+#    newprice = result_mosek[0]
+#    newprice = np.array(newprice)
+#    newprice = np.reshape(newprice, (numvars,1))
+    
+    """using scipy.optimize"""   
+    # Objective function, multiply by -1 since we want to maximize
+    def eqn7(p):
+        return -1.0*np.sum(p*p*f.flatten()*elast.flatten()/prevprice.flatten() - p*f.flatten()*elast.flatten() + p*f.flatten())
+    
+    # Initial guess is 1.05 * previous price
+    bounds = Bounds(prevprice.flatten()*0.9, prevprice.flatten()*1.1)
+    opresult = minimize(eqn7, prevprice.flatten()*1.05, bounds=bounds)
+    newprice = opresult.x
+    newprice = np.reshape(newprice, (numvars,1))  
     
     """using cplex"""
 #    # create an instance
@@ -856,7 +891,7 @@ for j in range(10):
     print("observed demand ok")
     
     # Accumulate revenue
-    revenue_dynamic += np.sum(np.multiply(observedx, np.reshape(newprice,(numvars,1))))
+    realrevenue_dynamic_TS += np.sum(np.multiply(observedx, np.reshape(newprice,(numvars,1))))
     
     # Add observed demand to observations
     observedx = pd.DataFrame(observedx)
