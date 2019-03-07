@@ -5,8 +5,8 @@ import numpy as np
 import math
 import matplotlib.pyplot as plt
 
-#x = pd.read_excel("C:/Uninotes/FYP/data/selected-sales data_children%27s book_every 99 cut 50.xlsx") # desktop
-x = pd.read_excel("C:/Users/Samuel/Desktop/uninotes/FYP/selected-sales data_children%27s book_every 99 cut 50.xlsx") # laptop
+x = pd.read_excel("C:/Uninotes/FYP/data/selected-sales data_children%27s book_every 99 cut 50.xlsx") # desktop
+#x = pd.read_excel("C:/Users/Samuel/Desktop/uninotes/FYP/selected-sales data_children%27s book_every 99 cut 50.xlsx") # laptop
 
 # removed brand_id, agio_cut_price and free_cut_price
 dataoriginalprice = x.iloc[:,[1,17]]
@@ -360,11 +360,11 @@ for i in range(dataxhigher.shape[1]):
 productcovhigher = productcovhigher/(i+1)
 
 # Initialise counter for the number of times each arm is selected
-counter = 0
-counterlower = 0
-counterhigher = 0
-realrevenue_TS_one = 0
-basket_TS_one = np.zeros(1000)
+cTS_counter_middle = 0
+cTS_counter_lower = 0
+cTS_counter_higher = 0
+revenue_cTS = 0
+basket_cTS = np.zeros(1000)
 
 """Idea is to estimate the true underlying demand distribution using historical data.
 Using our estimated demand distribution, produce an estimate of the demand by sampling.
@@ -384,26 +384,26 @@ high = productcovhigher
 #np.random.seed(10)
 for j in range(1000):
     # Randomly sample from each distribution. This is our SAMPLED demand.
-    rdm = np.random.multivariate_normal(productmean, productcov,1).T
-    rdmlower = np.random.multivariate_normal(productmeanlower, productcovlower,1).T
-    rdmhigher = np.random.multivariate_normal(productmeanhigher, productcovhigher,1).T
+    forecastdemand_middle = np.random.multivariate_normal(productmean, productcov,1).T
+    forecastdemand_lower = np.random.multivariate_normal(productmeanlower, productcovlower,1).T
+    forecastdemand_higher = np.random.multivariate_normal(productmeanhigher, productcovhigher,1).T
     
     # Calculate revenue based on the SAMPLED demand
-    rev = np.multiply(rdm, productprice.iloc[:,1].values.reshape((numvars,1)))
-    revlower = np.multiply(rdmlower, productpricelower.iloc[:,1].values.reshape((numvars,1)))
-    revhigher = np.multiply(rdmhigher, productpricehigher.iloc[:,1].values.reshape((numvars,1)))
+    forecastrevenue_middle = np.multiply(forecastdemand_middle, productprice.iloc[:,1].values.reshape((numvars,1)))
+    forecastrevenue_lower = np.multiply(forecastdemand_lower, productpricelower.iloc[:,1].values.reshape((numvars,1)))
+    forecastrevenue_higher = np.multiply(forecastdemand_higher, productpricehigher.iloc[:,1].values.reshape((numvars,1)))
     
     # Choose the arm with the highest revenue based on SAMPLED demand.
     # Middle arm is best
-    if np.sum(rev)>np.sum(revhigher) and np.sum(rev)>np.sum(revlower):
-        counter += 1
+    if np.sum(forecastrevenue_middle)>np.sum(forecastrevenue_higher) and np.sum(forecastrevenue_middle)>np.sum(forecastrevenue_lower):
+        cTS_counter_middle += 1
         
         # Pull the arm, calculate and accumulate OBSERVED revenue
 #        truerdm = np.random.multivariate_normal(xprice.flatten(),mid,1).T
-#        realrevenue_TS_one += np.sum(np.multiply(truerdm,productprice.iloc[:,1].values.reshape((numvars,1))))
+#        realrevenue_classical_TS += np.sum(np.multiply(truerdm,productprice.iloc[:,1].values.reshape((numvars,1))))
         
-        realrevenue_TS_one += np.sum(np.multiply(xprice, productprice.iloc[:,1].values.reshape((numvars,1))))
-        basket_TS_one[j] = np.sum(np.multiply(xprice, productprice.iloc[:,1].values.reshape((numvars,1))))
+        revenue_cTS += np.sum(np.multiply(xprice, productprice.iloc[:,1].values.reshape((numvars,1))))
+        basket_cTS[j] = np.sum(np.multiply(xprice, productprice.iloc[:,1].values.reshape((numvars,1))))
         
         # Adding observed/theoretical X to list of observations
 #        datax = np.append(datax, truerdm, axis=1)
@@ -419,15 +419,15 @@ for j in range(1000):
         productcov = productcov/(i+1)
 
     # Lower arm is best
-    elif np.sum(revlower)>np.sum(rev) and np.sum(revlower)>np.sum(revhigher):
-        counterlower += 1
+    elif np.sum(forecastrevenue_lower)>np.sum(forecastrevenue_middle) and np.sum(forecastrevenue_lower)>np.sum(forecastrevenue_higher):
+        cTS_counter_lower += 1
         
         # Pull the arm, calculate and accumulate OBSERVED revenue
 #        truerdmlower = np.random.multivariate_normal(xpricelower.flatten(),low,1).T
-#        realrevenue_TS_one += np.sum(np.multiply(truerdmlower,productpricelower.iloc[:,1].values.reshape((numvars,1))))
+#        realrevenue_classical_TS += np.sum(np.multiply(truerdmlower,productpricelower.iloc[:,1].values.reshape((numvars,1))))
 
-        realrevenue_TS_one += np.sum(np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((numvars,1))))
-        basket_TS_one[j] = np.sum(np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((numvars,1))))
+        revenue_cTS += np.sum(np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((numvars,1))))
+        basket_cTS[j] = np.sum(np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((numvars,1))))
         
         # Adding observed/theoretical X to list of observations
 #        dataxlower = np.append(dataxlower, truerdmlower, axis=1)
@@ -444,14 +444,14 @@ for j in range(1000):
 
     # Higher arm is best
     else:
-        counterhigher += 1
+        cTS_counter_higher += 1
         
         # Pull the arm, calculate and accumulate OBSERVED revenue
 #        truerdmhigher = np.random.multivariate_normal(xpricehigher.flatten(),low,1).T
-#        realrevenue_TS_one += np.sum(np.multiply(truerdmhigher,productpricehigher.iloc[:,1].values.reshape((numvars,1))))
+#        realrevenue_classical_TS += np.sum(np.multiply(truerdmhigher,productpricehigher.iloc[:,1].values.reshape((numvars,1))))
 
-        realrevenue_TS_one += np.sum(np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((numvars,1))))
-        basket_TS_one[j] = np.sum(np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((numvars,1))))
+        revenue_cTS += np.sum(np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((numvars,1))))
+        basket_cTS[j] = np.sum(np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((numvars,1))))
         
         # Adding observed/theoretical X to list of observations
 #        dataxhigher = np.append(dataxhigher, truerdmhigher, axis=1)
@@ -469,25 +469,25 @@ for j in range(1000):
 # =============================================================================
 # Validate if the chosen arm is correct (use theoretical X for each arm)
 # =============================================================================
-revenue = 0
-basket = np.zeros(1000)
+realrevenue_middle = 0
+basket_middle = np.zeros(1000)
 for i in range(1000):
     rev = np.multiply(xprice, productprice.iloc[:,1].values.reshape((numvars,1)))
-    revenue += np.sum(rev)
-    basket[i] = np.sum(rev)
+    realrevenue_middle += np.sum(rev)
+    basket_middle[i] = np.sum(rev)
 
-revenuelower = 0
+realrevenue_lower = 0
 basket_lower = np.zeros(1000)
 for i in range(1000):
     rev = np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((numvars,1)))
-    revenuelower += np.sum(rev)
+    realrevenue_lower += np.sum(rev)
     basket_lower[i] = np.sum(rev)
 
-revenuehigher = 0
+realrevenue_higher = 0
 basket_higher = np.zeros(1000)
 for i in range(1000):
     rev = np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((numvars,1)))
-    revenuehigher += np.sum(rev)
+    realrevenue_higher += np.sum(rev)
     basket_higher[i] = np.sum(rev)
 
 # Graphical comparison of results
@@ -531,21 +531,21 @@ mean_middle = middle_cumulated/ucb_counter_middle
 mean_higher = higher_cumulated/ucb_counter_higher
 
 # Cumulative revenue
-realrevenue_ucb = lower_cumulated + middle_cumulated + higher_cumulated
+revenue_ucb = lower_cumulated + middle_cumulated + higher_cumulated
 basket_ucb = [lower_cumulated, middle_cumulated, higher_cumulated]
 
 from math import sqrt
 from math import log
 
 # Initialise ucb scores for each arm
-ucbs_lower = mean_lower + sqrt(2*log(ucb_counter)/ucb_counter_lower)
-ucbs_higher = mean_higher + sqrt(2*log(ucb_counter)/ucb_counter_higher)
-ucbs_middle = mean_middle + sqrt(2*log(ucb_counter)/ucb_counter_middle)
+ucbscore_lower = mean_lower + sqrt(2*log(ucb_counter)/ucb_counter_lower)
+ucbscore_higher = mean_higher + sqrt(2*log(ucb_counter)/ucb_counter_higher)
+ucbscore_middle = mean_middle + sqrt(2*log(ucb_counter)/ucb_counter_middle)
 
 for i in range(3,1000):
     ucb_counter += 1
     
-    if ucbs_middle>ucbs_higher and ucbs_middle>ucbs_lower:
+    if ucbscore_middle>ucbscore_higher and ucbscore_middle>ucbscore_lower:
 #        truerdm = np.random.multivariate_normal(xprice.flatten(),mid,1).T
 #        middle_cumulated += np.sum(np.multiply(truerdm,productprice.iloc[:,1].values.reshape((numvars,1))))
 
@@ -554,7 +554,7 @@ for i in range(3,1000):
         mean_middle = middle_cumulated/ucb_counter_middle
         basket_ucb.append(np.sum(np.multiply(xprice, productprice.iloc[:,1].values.reshape((numvars,1)))))
 
-    elif ucbs_lower>ucbs_middle and ucbs_lower>ucbs_higher:
+    elif ucbscore_lower>ucbscore_middle and ucbscore_lower>ucbscore_higher:
 #        truerdmlower = np.random.multivariate_normal(xpricelower.flatten(),low,1).T
 #        lower_cumulated += np.sum(np.multiply(truerdmlower,productpricelower.iloc[:,1].values.reshape((numvars,1))))
 
@@ -573,12 +573,12 @@ for i in range(3,1000):
         basket_ucb.append(np.sum(np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((numvars,1)))))
 
     
-    realrevenue_ucb = lower_cumulated + middle_cumulated + higher_cumulated
+    revenue_ucb = lower_cumulated + middle_cumulated + higher_cumulated
     
     # Update of UCB scores
-    ucbs_lower = mean_lower + sqrt(2*log(ucb_counter)/ucb_counter_lower)
-    ucbs_higher = mean_higher + sqrt(2*log(ucb_counter)/ucb_counter_higher)
-    ucbs_middle = mean_middle + sqrt(2*log(ucb_counter)/ucb_counter_middle)
+    ucbscore_lower = mean_lower + sqrt(2*log(ucb_counter)/ucb_counter_lower)
+    ucbscore_higher = mean_higher + sqrt(2*log(ucb_counter)/ucb_counter_higher)
+    ucbscore_middle = mean_middle + sqrt(2*log(ucb_counter)/ucb_counter_middle)
 
     
 
