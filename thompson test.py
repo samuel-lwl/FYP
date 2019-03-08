@@ -401,9 +401,9 @@ for j in range(1000):
         # Pull the arm, calculate and accumulate OBSERVED revenue
 #        truerdm = np.random.multivariate_normal(xprice.flatten(),mid,1).T
 #        realrevenue_classical_TS += np.sum(np.multiply(truerdm,productprice.iloc[:,1].values.reshape((numvars,1))))
-        
-        revenue_cTS += np.sum(np.multiply(xprice, productprice.iloc[:,1].values.reshape((numvars,1))))
-        basket_cTS[j] = np.sum(np.multiply(xprice, productprice.iloc[:,1].values.reshape((numvars,1))))
+        rev = np.sum(np.multiply(xprice, productprice.iloc[:,1].values.reshape((numvars,1))))
+        revenue_cTS += rev
+        basket_cTS[j] = rev
         
         # Adding observed/theoretical X to list of observations
 #        datax = np.append(datax, truerdm, axis=1)
@@ -425,9 +425,9 @@ for j in range(1000):
         # Pull the arm, calculate and accumulate OBSERVED revenue
 #        truerdmlower = np.random.multivariate_normal(xpricelower.flatten(),low,1).T
 #        realrevenue_classical_TS += np.sum(np.multiply(truerdmlower,productpricelower.iloc[:,1].values.reshape((numvars,1))))
-
-        revenue_cTS += np.sum(np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((numvars,1))))
-        basket_cTS[j] = np.sum(np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((numvars,1))))
+        rev = np.sum(np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((numvars,1))))
+        revenue_cTS += rev
+        basket_cTS[j] = rev
         
         # Adding observed/theoretical X to list of observations
 #        dataxlower = np.append(dataxlower, truerdmlower, axis=1)
@@ -449,9 +449,9 @@ for j in range(1000):
         # Pull the arm, calculate and accumulate OBSERVED revenue
 #        truerdmhigher = np.random.multivariate_normal(xpricehigher.flatten(),low,1).T
 #        realrevenue_classical_TS += np.sum(np.multiply(truerdmhigher,productpricehigher.iloc[:,1].values.reshape((numvars,1))))
-
-        revenue_cTS += np.sum(np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((numvars,1))))
-        basket_cTS[j] = np.sum(np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((numvars,1))))
+        rev = np.sum(np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((numvars,1))))
+        revenue_cTS += rev
+        basket_cTS[j] = rev
         
         # Adding observed/theoretical X to list of observations
 #        dataxhigher = np.append(dataxhigher, truerdmhigher, axis=1)
@@ -512,7 +512,7 @@ ucb_counter_higher = 1
 ucb_counter_middle = 1
 ucb_counter = 3
 
-# Initialise mean for each arm
+# Initialise mean for each arm by pulling each arm once
 #truerdm = np.random.multivariate_normal(xprice.flatten(),mid,1).T
 #middle_cumulated = np.sum(np.multiply(truerdm,productprice.iloc[:,1].values.reshape((numvars,1))))
 #
@@ -521,81 +521,156 @@ ucb_counter = 3
 #
 #truerdmlower = np.random.multivariate_normal(xpricelower.flatten(),low,1).T
 #lower_cumulated = np.sum(np.multiply(truerdmlower,productpricelower.iloc[:,1].values.reshape((numvars,1))))
-
-
-lower_cumulated = np.sum(np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((numvars,1))))
-middle_cumulated = np.sum(np.multiply(xprice, productprice.iloc[:,1].values.reshape((numvars,1))))
-higher_cumulated = np.sum(np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((numvars,1))))
-mean_lower = lower_cumulated/ucb_counter_lower
-mean_middle = middle_cumulated/ucb_counter_middle
-mean_higher = higher_cumulated/ucb_counter_higher
+ucb_mean_lower = np.sum(np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((numvars,1))))
+ucb_mean_middle = np.sum(np.multiply(xprice, productprice.iloc[:,1].values.reshape((numvars,1))))
+ucb_mean_higher = np.sum(np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((numvars,1))))
 
 # Cumulative revenue
-revenue_ucb = lower_cumulated + middle_cumulated + higher_cumulated
-basket_ucb = [lower_cumulated, middle_cumulated, higher_cumulated]
+revenue_ucb = ucb_mean_lower + ucb_mean_middle + ucb_mean_higher
+basket_ucb = [ucb_mean_lower, ucb_mean_middle, ucb_mean_higher]
 
 from math import sqrt
 from math import log
 
 # Initialise ucb scores for each arm
-ucbscore_lower = mean_lower + sqrt(2*log(ucb_counter)/ucb_counter_lower)
-ucbscore_higher = mean_higher + sqrt(2*log(ucb_counter)/ucb_counter_higher)
-ucbscore_middle = mean_middle + sqrt(2*log(ucb_counter)/ucb_counter_middle)
+ucbscore_lower = ucb_mean_lower + sqrt(2*log(ucb_counter)/ucb_counter_lower)
+ucbscore_higher = ucb_mean_higher + sqrt(2*log(ucb_counter)/ucb_counter_higher)
+ucbscore_middle = ucb_mean_middle + sqrt(2*log(ucb_counter)/ucb_counter_middle)
 
 for i in range(3,1000):
     ucb_counter += 1
     
     if ucbscore_middle>ucbscore_higher and ucbscore_middle>ucbscore_lower:
+        # Pull the arm, calculate and accumulate OBSERVED revenue
 #        truerdm = np.random.multivariate_normal(xprice.flatten(),mid,1).T
 #        middle_cumulated += np.sum(np.multiply(truerdm,productprice.iloc[:,1].values.reshape((numvars,1))))
-
-        middle_cumulated += np.sum(np.multiply(xprice, productprice.iloc[:,1].values.reshape((numvars,1))))
+        rev = np.sum(np.multiply(xprice, productprice.iloc[:,1].values.reshape((numvars,1))))
+        revenue_ucb += rev
+        
+        # Increase the counter for this arm and recalculate mean
         ucb_counter_middle += 1
-        mean_middle = middle_cumulated/ucb_counter_middle
-        basket_ucb.append(np.sum(np.multiply(xprice, productprice.iloc[:,1].values.reshape((numvars,1)))))
+        ucb_mean_middle += (rev - ucb_mean_middle)/ucb_counter_middle
+        basket_ucb.append(rev)
 
     elif ucbscore_lower>ucbscore_middle and ucbscore_lower>ucbscore_higher:
+        # Pull the arm, calculate and accumulate OBSERVED revenue
 #        truerdmlower = np.random.multivariate_normal(xpricelower.flatten(),low,1).T
 #        lower_cumulated += np.sum(np.multiply(truerdmlower,productpricelower.iloc[:,1].values.reshape((numvars,1))))
-
-        lower_cumulated += np.sum(np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((numvars,1))))
+        rev = np.sum(np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((numvars,1))))
+        revenue_ucb += rev
+        
+        # Increase the counter for this arm and recalculate mean
         ucb_counter_lower += 1
-        mean_lower = lower_cumulated/ucb_counter_lower
-        basket_ucb.append(np.sum(np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((numvars,1)))))
+        ucb_mean_lower += (rev - ucb_mean_lower)/ucb_counter_lower
+        basket_ucb.append(rev)
 
     else:
+        # Pull the arm, calculate and accumulate OBSERVED revenue
 #        truerdmhigher = np.random.multivariate_normal(xpricehigher.flatten(),low,1).T
 #        higher_cumulated += np.sum(np.multiply(truerdmhigher,productpricehigher.iloc[:,1].values.reshape((numvars,1))))
-
-        higher_cumulated = np.sum(np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((numvars,1))))
+        rev = np.sum(np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((numvars,1))))
+        revenue_ucb += rev
+        
+        # Increase the counter for this arm and recalculate mean
         ucb_counter_higher += 1
-        mean_higher = higher_cumulated/ucb_counter_higher
-        basket_ucb.append(np.sum(np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((numvars,1)))))
-
-    
-    revenue_ucb = lower_cumulated + middle_cumulated + higher_cumulated
+        ucb_mean_higher += (rev - ucb_mean_higher)/ucb_counter_higher
+        basket_ucb.append(rev)
     
     # Update of UCB scores
-    ucbscore_lower = mean_lower + sqrt(2*log(ucb_counter)/ucb_counter_lower)
-    ucbscore_higher = mean_higher + sqrt(2*log(ucb_counter)/ucb_counter_higher)
-    ucbscore_middle = mean_middle + sqrt(2*log(ucb_counter)/ucb_counter_middle)
+    ucbscore_lower = ucb_mean_lower + sqrt(2*log(ucb_counter)/ucb_counter_lower)
+    ucbscore_higher = ucb_mean_higher + sqrt(2*log(ucb_counter)/ucb_counter_higher)
+    ucbscore_middle = ucb_mean_middle + sqrt(2*log(ucb_counter)/ucb_counter_middle)
 
+
+# =============================================================================
+# Epsilon-greedy algorithm
+# =============================================================================
+# Initialise counters
+eg_counter_lower = 0
+eg_counter_higher = 0
+eg_counter_middle = 0
+
+# Initialise mean for each arm, put into a dict
+eg_mean_lower=0
+eg_mean_middle=0
+eg_mean_higher=0
+#eg_mean_lower = np.sum(np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((numvars,1))))
+#eg_mean_middle = np.sum(np.multiply(xprice, productprice.iloc[:,1].values.reshape((numvars,1))))
+#eg_mean_higher = np.sum(np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((numvars,1))))
+eg_mean_dict = {0:eg_mean_lower, 1:eg_mean_middle, 2:eg_mean_higher}
+
+# Set epsilon = 0.05
+e = 0.05
+
+# Overall revenue for this algorithm
+revenue_eg = 0
+
+for i in range(1000):
+    ep = np.random.uniform()
     
-
-
+    # Exploitation, run the best arm
+    if ep>0.1:
+        # Checking for the best arm.
+        arm = max(eg_mean_dict, key=eg_mean_dict.get)
         
+        if arm==0: # lower arm
+            rev = np.sum(np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((numvars,1))))
+            revenue_eg += rev
+            eg_counter_lower += 1
+            
+            # Recalculate mean
+            eg_mean_lower += (rev - eg_mean_lower)/eg_counter_lower
 
+        elif arm==1: # middle arm
+            rev = np.sum(np.multiply(xprice, productprice.iloc[:,1].values.reshape((numvars,1))))
+            revenue_eg += rev
+            eg_counter_middle += 1
+            
+            # Recalculate mean
+            eg_mean_middle += (rev - eg_mean_middle)/eg_counter_middle
+            
+        else: # highest arm
+            rev = np.sum(np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((numvars,1))))
+            revenue_eg += rev
+            eg_counter_higher += 1
+            
+            # Recalculate mean
+            eg_mean_higher += (rev - eg_mean_higher)/eg_counter_higher
+                    
+    # Exploration, randomly select an arm
+    else:
+        arm = np.random.randint(0,3)
+        
+        if arm==0: # lower arm
+            rev = np.sum(np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((numvars,1))))
+            revenue_eg += rev
+            eg_counter_lower += 1
+            
+            # Recalculate mean
+            eg_mean_lower += (rev - eg_mean_lower)/eg_counter_lower
 
-
-
-
-
-
-
-
+        elif arm==1: # middle arm
+            rev = np.sum(np.multiply(xprice, productprice.iloc[:,1].values.reshape((numvars,1))))
+            revenue_eg += rev
+            eg_counter_middle += 1
+            
+            # Recalculate mean
+            eg_mean_middle += (rev - eg_mean_middle)/eg_counter_middle
+            
+        else: # highest arm
+            rev = np.sum(np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((numvars,1))))
+            revenue_eg += rev
+            eg_counter_higher += 1
+            
+            # Recalculate mean
+            eg_mean_higher += (rev - eg_mean_higher)/eg_counter_higher
+    
+    # Re-define dictionary containing the means
+    eg_mean_dict = {0:eg_mean_lower, 1:eg_mean_middle, 2:eg_mean_higher}
 
 
 haha
+
 # =============================================================================
 # Thomson sampling (Dynamic pricing approach)
 # =============================================================================
