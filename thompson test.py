@@ -4,6 +4,8 @@ import pandas as pd
 import numpy as np
 import math
 import matplotlib.pyplot as plt
+from math import sqrt
+from math import log
 
 x = pd.read_excel("C:/Uninotes/FYP/data/selected-sales data_children%27s book_every 99 cut 50.xlsx") # desktop
 #x = pd.read_excel("C:/Users/Samuel/Desktop/uninotes/FYP/selected-sales data_children%27s book_every 99 cut 50.xlsx") # laptop
@@ -512,81 +514,48 @@ for i in range(itr):
 # =============================================================================
 # Upper confidence bound (UCB1 method, Hoeffding's inequality)
 # =============================================================================
-# Initialise counter for each arm and overall counter
-ucb_counter_lower = 1
-ucb_counter_higher = 1
-ucb_counter_middle = 1
-ucb_counter = 3
+# Initialise counters
+# 0:lower, 1:middle, 2:higher
+ucb_counter = np.ones(k)
 
-# Initialise mean for each arm by pulling each arm once
-#truerdm = np.random.multivariate_normal(xprice.flatten(),mid,1).T
-#middle_cumulated = np.sum(np.multiply(truerdm,productprice.iloc[:,1].values.reshape((numvars,1))))
-#
-#truerdmhigher = np.random.multivariate_normal(xpricehigher.flatten(),low,1).T
-#higher_cumulated = np.sum(np.multiply(truerdmhigher,productpricehigher.iloc[:,1].values.reshape((numvars,1))))
-#
-#truerdmlower = np.random.multivariate_normal(xpricelower.flatten(),low,1).T
-#lower_cumulated = np.sum(np.multiply(truerdmlower,productpricelower.iloc[:,1].values.reshape((numvars,1))))
-ucb_mean_lower = np.sum(np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((numvars,1))))
-ucb_mean_middle = np.sum(np.multiply(xprice, productprice.iloc[:,1].values.reshape((numvars,1))))
-ucb_mean_higher = np.sum(np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((numvars,1))))
+# Initialise basket
+basket_ucb = np.zeros(itr)
 
-# Cumulative revenue
-revenue_ucb = ucb_mean_lower + ucb_mean_middle + ucb_mean_higher
-basket_ucb = [ucb_mean_lower, ucb_mean_middle, ucb_mean_higher]
+# UCB scores
+ucb_scores = np.zeros(k)
 
-from math import sqrt
-from math import log
-
-# Initialise ucb scores for each arm
-ucbscore_lower = ucb_mean_lower + sqrt(2*log(ucb_counter)/ucb_counter_lower)
-ucbscore_higher = ucb_mean_higher + sqrt(2*log(ucb_counter)/ucb_counter_higher)
-ucbscore_middle = ucb_mean_middle + sqrt(2*log(ucb_counter)/ucb_counter_middle)
-
-for i in range(3,itr):
-    ucb_counter += 1
+# Initialise mean, pull each arm once
+ucb_mean = []
+basket_ucb = np.zeros(itr)
+for arm in range(k):
+    rev = np.sum(truedemand[arm] * prices[arm])
+    ucb_mean.append(rev)
+    basket_ucb[arm] = rev
     
-    if ucbscore_middle>ucbscore_higher and ucbscore_middle>ucbscore_lower:
-        # Pull the arm, calculate and accumulate OBSERVED revenue
-#        truerdm = np.random.multivariate_normal(xprice.flatten(),mid,1).T
-#        middle_cumulated += np.sum(np.multiply(truerdm,productprice.iloc[:,1].values.reshape((numvars,1))))
-        rev = np.sum(np.multiply(xprice, productprice.iloc[:,1].values.reshape((numvars,1))))
-        revenue_ucb += rev
-        
-        # Increase the counter for this arm and recalculate mean
-        ucb_counter_middle += 1
-        ucb_mean_middle += (rev - ucb_mean_middle)/ucb_counter_middle
-        basket_ucb.append(rev)
+ucb_mean = np.array(ucb_mean)
 
-    elif ucbscore_lower>ucbscore_middle and ucbscore_lower>ucbscore_higher:
-        # Pull the arm, calculate and accumulate OBSERVED revenue
-#        truerdmlower = np.random.multivariate_normal(xpricelower.flatten(),low,1).T
-#        lower_cumulated += np.sum(np.multiply(truerdmlower,productpricelower.iloc[:,1].values.reshape((numvars,1))))
-        rev = np.sum(np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((numvars,1))))
-        revenue_ucb += rev
-        
-        # Increase the counter for this arm and recalculate mean
-        ucb_counter_lower += 1
-        ucb_mean_lower += (rev - ucb_mean_lower)/ucb_counter_lower
-        basket_ucb.append(rev)
+# Update ucb scores
+for arm in range(k):
+    ucb_scores[arm] = ucb_mean[arm] + sqrt(2*(log(k)/ucb_counter[arm]))
 
-    else:
-        # Pull the arm, calculate and accumulate OBSERVED revenue
-#        truerdmhigher = np.random.multivariate_normal(xpricehigher.flatten(),low,1).T
-#        higher_cumulated += np.sum(np.multiply(truerdmhigher,productpricehigher.iloc[:,1].values.reshape((numvars,1))))
-        rev = np.sum(np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((numvars,1))))
-        revenue_ucb += rev
-        
-        # Increase the counter for this arm and recalculate mean
-        ucb_counter_higher += 1
-        ucb_mean_higher += (rev - ucb_mean_higher)/ucb_counter_higher
-        basket_ucb.append(rev)
+# Overall revenue
+revenue_ucb = np.sum(ucb_mean)
+
+for i in range(k, itr):
+    # Find the arm with highest ucb score
+    arm = np.argmax(ucb_scores)
     
-    # Update of UCB scores
-    ucbscore_lower = ucb_mean_lower + sqrt(2*log(ucb_counter)/ucb_counter_lower)
-    ucbscore_higher = ucb_mean_higher + sqrt(2*log(ucb_counter)/ucb_counter_higher)
-    ucbscore_middle = ucb_mean_middle + sqrt(2*log(ucb_counter)/ucb_counter_middle)
-
+    # Calculate revenue and add to basket
+    rev = np.sum(truedemand[arm] * prices[arm])
+    revenue_ucb += rev
+    basket_ucb[i] = rev
+    
+    # Increase counter and recalculate mean
+    ucb_counter[arm] += 1
+    ucb_mean[arm] += (rev - ucb_mean[arm])/(ucb_counter[arm])
+    
+    # Recalculate ucb score
+    ucb_scores[arm] = ucb_mean[arm] + sqrt(2*(log(i+1)/ucb_counter[arm])) # i+1 for number of iterations
 
 # =============================================================================
 # Epsilon-greedy algorithm
@@ -813,47 +782,52 @@ for i in range(itr):
 # =============================================================================
 # Initialise counters
 # 0:lower, 1:middle, 2:higher
-ucbt_counter = np.zeros(k)
+ucbt_counter = np.ones(k)
 
-# Initialise mean to be 100 for each arm
-ucbt_mean = [0.0]*k
-ucbt_mean = np.array(egd_mean)
-"""hmm"""
-# Set epsilon using this formula
-# e = 1/(1+n/k) where k is the number of arms and n is the number of iterations already passed
+# Initialise basket
+basket_ucbt = np.zeros(itr)
 
-# Overall revenue for this algorithm
-revenue_egd = 0
-basket_egd = np.zeros(itr)
+# UCB scores
+ucbt_scores = np.zeros(k)
 
-for i in range(itr):
-    ep = np.random.uniform()
+# sum of squares for ucb1-tuned
+ucbt_ss = np.zeros(k)
+
+# Initialise mean, pull each arm once
+ucbt_mean = []
+basket_ucbt = np.zeros(itr)
+for arm in range(k):
+    rev = np.sum(truedemand[arm] * prices[arm])
+    ucbt_mean.append(rev)
+    basket_ucbt[arm] = rev
+    ucbt_ss[arm] += rev**2
     
-    # Exploitation, run the best arm
-    if ep > 1/(1+i/k):
-        # Checking for the best arm.
-        arm = np.argmax(egd_mean)
-        
-        rev = np.sum(truedemand[arm] * prices[arm])
-        revenue_egd += rev
-        egd_counter[arm] += 1
-        basket_egd[i] = rev
-        
-        # Recalculate mean
-        egd_mean[arm] += (rev - egd_mean[arm])/(egd_counter[arm] + 1) # Since we have initialisation =/= 0
- 
-    # Exploration, randomly select an arm
-    else:
-        arm = np.random.randint(0,k)
-        
-        rev = np.sum(truedemand[arm] * prices[arm])
-        revenue_egd += rev
-        egd_counter[arm] += 1
-        basket_egd[i] = rev
-        
-        # Recalculate mean
-        egd_mean[arm] += (rev - egd_mean[arm])/(egd_counter[arm] + 1) # Since we have initialisation =/= 0
-        
+ucbt_mean = np.array(ucbt_mean)
+
+# Update ucb scores
+for arm in range(k):
+    ucbt_scores[arm] = ucbt_mean[arm] + sqrt((log(k)/ucbt_counter[arm]) * min(1/4, (ucbt_ss[arm] + 2*(log(k)/ucbt_counter[arm]))) )
+
+# Overall revenue
+revenue_ucbt = np.sum(ucbt_mean)
+
+for i in range(k, itr):
+    # Find the arm with highest ucb score
+    arm = np.argmax(ucbt_scores)
+    
+    # Calculate revenue and add to basket
+    rev = np.sum(truedemand[arm] * prices[arm])
+    revenue_ucbt += rev
+    basket_ucbt[i] = rev
+    
+    # Increase counter and recalculate mean, sum of squares
+    ucbt_counter[arm] += 1
+    ucbt_mean[arm] += (rev - ucbt_mean[arm])/(ucbt_counter[arm])
+    ucbt_ss[arm] += rev**2
+    
+    # Recalculate ucb score
+    ucbt_scores[arm] = ucbt_mean[arm] + sqrt((log(i+1)/ucbt_counter[arm]) * min(1/4, (ucbt_ss[arm] + 2*(log(i+1)/ucbt_counter[arm]))) ) # i+1 for number of iterations
+           
 haha
 # =============================================================================
 # Thomson sampling (Dynamic pricing approach)
