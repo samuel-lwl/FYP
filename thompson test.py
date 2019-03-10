@@ -235,7 +235,7 @@ v = np.empty([numvars,1])
 for i in range(numvars):
     v[i] = np.random.randint(productprice.iloc[i,1]-0.05*productprice.iloc[i,1], productprice.iloc[i,1]+0.05*productprice.iloc[i,1])
 #np.random.seed(10)
-v0=np.random.randint(0, 5)
+v0 = np.random.randint(0, 5)
 """np.random.randint got size arg. can we use array operations instead of looping?"""
 # Theoretical X, where X is the demand
 xprice = np.empty([numvars,1])
