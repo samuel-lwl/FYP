@@ -756,6 +756,19 @@ for i in range(k, itr):
     # Recalculate ucb score
     ucbt_scores[arm] = ucbt_mean[arm] + sqrt((log(i+1)/ucbt_counter[arm]) * min(1/4, (ucbt_ss[arm] + 2*(log(i+1)/ucbt_counter[arm]))) ) # i+1 for number of iterations
            
+# Graphical comparison of results
+plt.plot(np.cumsum(basket_cTS),'y')
+plt.plot(np.cumsum(basket_eg),'b')
+plt.plot(np.cumsum(basket_egd),'c')
+plt.plot(np.cumsum(basket_egoi),'m')
+plt.plot(np.cumsum(basket_ucb),'r')
+plt.plot(np.cumsum(basket_ucbt),'k')
+plt.ylabel('Cumulated revenue',fontsize=15)
+plt.xlabel('Time period',fontsize=15)
+plt.legend(['classical Thompson sampling','epsilon-greedy','epsilon-greedy w/ decay','epsilon-greedy w/ optimistic initialisation','ucb1','ucb1-tuned'],fontsize=20)
+plt.show()
+    
+
 haha
 # =============================================================================
 # Thomson sampling (Dynamic pricing approach)
