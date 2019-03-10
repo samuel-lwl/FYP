@@ -326,10 +326,18 @@ revall = np.append(rev1, rev2)
 revall = np.append(revall, rev3)
 sighat = np.std(revall)
 
+# Number of iterations
+itr = 1000
+# Number of arms
+k = 3
+# True demand
+truedemand = np.array([xpricelower,xprice,xpricehigher])
+# Prices for each arm
+prices = np.array([productpricelower.iloc[:,1].values.reshape((numvars,1)), productprice.iloc[:,1].values.reshape((numvars,1)), productpricehigher.iloc[:,1].values.reshape((numvars,1))])
+
 # =============================================================================
 # Thompson sampling done here (classical approach)
 # =============================================================================
-# 329 to 486 
 # Assume each price vector has normal distribution. Use MLE to estimate parameters from data created.
 # First price vector
 productmean = np.mean(datax, axis=1)
@@ -364,7 +372,7 @@ cTS_counter_middle = 0
 cTS_counter_lower = 0
 cTS_counter_higher = 0
 revenue_cTS = 0
-basket_cTS = np.zeros(1000)
+basket_cTS = np.zeros(itr)
 
 """Idea is to estimate the true underlying demand distribution using historical data.
 Using our estimated demand distribution, produce an estimate of the demand by sampling.
@@ -382,7 +390,7 @@ low = productcovlower
 high = productcovhigher
 
 #np.random.seed(10)
-for j in range(1000):
+for j in range(itr):
     # Randomly sample from each distribution. This is our SAMPLED demand.
     forecastdemand_middle = np.random.multivariate_normal(productmean, productcov,1).T
     forecastdemand_lower = np.random.multivariate_normal(productmeanlower, productcovlower,1).T
@@ -470,22 +478,22 @@ for j in range(1000):
 # Validate if the chosen arm is correct (use theoretical X for each arm)
 # =============================================================================
 realrevenue_middle = 0
-basket_middle = np.zeros(1000)
-for i in range(1000):
+basket_middle = np.zeros(itr)
+for i in range(itr):
     rev = np.multiply(xprice, productprice.iloc[:,1].values.reshape((numvars,1)))
     realrevenue_middle += np.sum(rev)
     basket_middle[i] = np.sum(rev)
 
 realrevenue_lower = 0
-basket_lower = np.zeros(1000)
-for i in range(1000):
+basket_lower = np.zeros(itr)
+for i in range(itr):
     rev = np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((numvars,1)))
     realrevenue_lower += np.sum(rev)
     basket_lower[i] = np.sum(rev)
 
 realrevenue_higher = 0
-basket_higher = np.zeros(1000)
-for i in range(1000):
+basket_higher = np.zeros(itr)
+for i in range(itr):
     rev = np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((numvars,1)))
     realrevenue_higher += np.sum(rev)
     basket_higher[i] = np.sum(rev)
@@ -501,10 +509,8 @@ for i in range(1000):
 #plt.show()
 
 
-# 329 to 486
-
 # =============================================================================
-# Upper confidence bound (UCB1 method)
+# Upper confidence bound (UCB1 method, Hoeffding's inequality)
 # =============================================================================
 # Initialise counter for each arm and overall counter
 ucb_counter_lower = 1
@@ -537,7 +543,7 @@ ucbscore_lower = ucb_mean_lower + sqrt(2*log(ucb_counter)/ucb_counter_lower)
 ucbscore_higher = ucb_mean_higher + sqrt(2*log(ucb_counter)/ucb_counter_higher)
 ucbscore_middle = ucb_mean_middle + sqrt(2*log(ucb_counter)/ucb_counter_middle)
 
-for i in range(3,1000):
+for i in range(3,itr):
     ucb_counter += 1
     
     if ucbscore_middle>ucbscore_higher and ucbscore_middle>ucbscore_lower:
@@ -591,25 +597,26 @@ eg_counter_higher = 0
 eg_counter_middle = 0
 
 # Initialise mean for each arm, put into a dict
-eg_mean_lower=0
-eg_mean_middle=0
-eg_mean_higher=0
+eg_mean_lower = 0
+eg_mean_middle = 0
+eg_mean_higher = 0
 #eg_mean_lower = np.sum(np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((numvars,1))))
 #eg_mean_middle = np.sum(np.multiply(xprice, productprice.iloc[:,1].values.reshape((numvars,1))))
 #eg_mean_higher = np.sum(np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((numvars,1))))
 eg_mean_dict = {0:eg_mean_lower, 1:eg_mean_middle, 2:eg_mean_higher}
 
-# Set epsilon = 0.05
-e = 0.05
+# Set epsilon = 0.1
+e = 0.1
 
 # Overall revenue for this algorithm
 revenue_eg = 0
+basket_eg = np.zeros(itr)
 
-for i in range(1000):
+for i in range(itr):
     ep = np.random.uniform()
     
     # Exploitation, run the best arm
-    if ep>0.1:
+    if ep>e:
         # Checking for the best arm.
         arm = max(eg_mean_dict, key=eg_mean_dict.get)
         
@@ -669,8 +676,185 @@ for i in range(1000):
     eg_mean_dict = {0:eg_mean_lower, 1:eg_mean_middle, 2:eg_mean_higher}
 
 
-haha
+# =============================================================================
+# Epsilon-greedy algorithm with optimistic initialisation
+# =============================================================================
+# Initialise counters
+egoi_counter_lower = 0
+egoi_counter_higher = 0
+egoi_counter_middle = 0
 
+# Initialise mean for each arm, put into a dict
+egoi_mean_lower = 100
+egoi_mean_middle = 100
+egoi_mean_higher = 100
+#eg_mean_lower = np.sum(np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((numvars,1))))
+#eg_mean_middle = np.sum(np.multiply(xprice, productprice.iloc[:,1].values.reshape((numvars,1))))
+#eg_mean_higher = np.sum(np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((numvars,1))))
+egoi_mean_dict = {0:egoi_mean_lower, 1:egoi_mean_middle, 2:egoi_mean_higher}
+
+# Set epsilon = 0.1
+e = 0.1
+
+# Overall revenue for this algorithm
+revenue_egoi = 0
+
+for i in range(itr):
+    ep = np.random.uniform()
+    
+    # Exploitation, run the best arm
+    if ep>e:
+        # Checking for the best arm.
+        arm = max(egoi_mean_dict, key=egoi_mean_dict.get)
+        
+        if arm==0: # lower arm
+            rev = np.sum(np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((numvars,1))))
+            revenue_egoi += rev
+            egoi_counter_lower += 1
+            
+            # Recalculate mean
+            egoi_mean_lower += (rev - egoi_mean_lower)/(egoi_counter_lower+1) # Since we have initialisation =/= 0
+
+        elif arm==1: # middle arm
+            rev = np.sum(np.multiply(xprice, productprice.iloc[:,1].values.reshape((numvars,1))))
+            revenue_egoi += rev
+            egoi_counter_middle += 1
+            
+            # Recalculate mean
+            egoi_mean_middle += (rev - egoi_mean_middle)/(egoi_counter_middle+1) # Since we have initialisation =/= 0
+            
+        else: # highest arm
+            rev = np.sum(np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((numvars,1))))
+            revenue_egoi += rev
+            egoi_counter_higher += 1
+            
+            # Recalculate mean
+            egoi_mean_higher += (rev - egoi_mean_higher)/(egoi_counter_higher+1) # Since we have initialisation =/= 0
+                    
+    # Exploration, randomly select an arm
+    else:
+        arm = np.random.randint(0,3)
+        
+        if arm==0: # lower arm
+            rev = np.sum(np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((numvars,1))))
+            revenue_egoi += rev
+            egoi_counter_lower += 1
+            
+            # Recalculate mean
+            egoi_mean_lower += (rev - egoi_mean_lower)/(egoi_counter_lower+1) # Since we have initialisation =/= 0
+
+        elif arm==1: # middle arm
+            rev = np.sum(np.multiply(xprice, productprice.iloc[:,1].values.reshape((numvars,1))))
+            revenue_egoi += rev
+            egoi_counter_middle += 1
+            
+            # Recalculate mean
+            egoi_mean_middle += (rev - egoi_mean_middle)/(egoi_counter_middle+1) # Since we have initialisation =/= 0
+            
+        else: # highest arm
+            rev = np.sum(np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((numvars,1))))
+            revenue_egoi += rev
+            egoi_counter_higher += 1
+            
+            # Recalculate mean
+            egoi_mean_higher += (rev - egoi_mean_higher)/(egoi_counter_higher+1) # Since we have initialisation =/= 0
+    
+    # Re-define dictionary containing the means
+    egoi_mean_dict = {0:egoi_mean_lower, 1:egoi_mean_middle, 2:egoi_mean_higher}
+    
+# =============================================================================
+# Epsilon-greedy algorithm with decay
+# =============================================================================
+# Initialise counters
+# 0:lower, 1:middle, 2:higher
+egd_counter = np.zeros(k)
+
+# Initialise mean to be 100 for each arm
+egd_mean = [100.0]*k
+egd_mean = np.array(egd_mean)
+
+# Set epsilon using this formula
+# e = 1/(1+n/k) where k is the number of arms and n is the number of iterations already passed
+
+# Overall revenue for this algorithm
+revenue_egd = 0
+basket_egd = np.zeros(itr)
+
+for i in range(itr):
+    ep = np.random.uniform()
+    
+    # Exploitation, run the best arm
+    if ep > 1/(1+i/k):
+        # Checking for the best arm.
+        arm = np.argmax(egd_mean)
+        
+        rev = np.sum(truedemand[arm] * prices[arm])
+        revenue_egd += rev
+        egd_counter[arm] += 1
+        basket_egd[i] = rev
+        
+        # Recalculate mean
+        egd_mean[arm] += (rev - egd_mean[arm])/(egd_counter[arm] + 1) # Since we have initialisation =/= 0
+ 
+    # Exploration, randomly select an arm
+    else:
+        arm = np.random.randint(0,k)
+        
+        rev = np.sum(truedemand[arm] * prices[arm])
+        revenue_egd += rev
+        egd_counter[arm] += 1
+        basket_egd[i] = rev
+        
+        # Recalculate mean
+        egd_mean[arm] += (rev - egd_mean[arm])/(egd_counter[arm] + 1) # Since we have initialisation =/= 0
+        
+# =============================================================================
+# UCB1-Tuned
+# =============================================================================
+# Initialise counters
+# 0:lower, 1:middle, 2:higher
+ucbt_counter = np.zeros(k)
+
+# Initialise mean to be 100 for each arm
+ucbt_mean = [0.0]*k
+ucbt_mean = np.array(egd_mean)
+"""hmm"""
+# Set epsilon using this formula
+# e = 1/(1+n/k) where k is the number of arms and n is the number of iterations already passed
+
+# Overall revenue for this algorithm
+revenue_egd = 0
+basket_egd = np.zeros(itr)
+
+for i in range(itr):
+    ep = np.random.uniform()
+    
+    # Exploitation, run the best arm
+    if ep > 1/(1+i/k):
+        # Checking for the best arm.
+        arm = np.argmax(egd_mean)
+        
+        rev = np.sum(truedemand[arm] * prices[arm])
+        revenue_egd += rev
+        egd_counter[arm] += 1
+        basket_egd[i] = rev
+        
+        # Recalculate mean
+        egd_mean[arm] += (rev - egd_mean[arm])/(egd_counter[arm] + 1) # Since we have initialisation =/= 0
+ 
+    # Exploration, randomly select an arm
+    else:
+        arm = np.random.randint(0,k)
+        
+        rev = np.sum(truedemand[arm] * prices[arm])
+        revenue_egd += rev
+        egd_counter[arm] += 1
+        basket_egd[i] = rev
+        
+        # Recalculate mean
+        egd_mean[arm] += (rev - egd_mean[arm])/(egd_counter[arm] + 1) # Since we have initialisation =/= 0
+        
+haha
 # =============================================================================
 # Thomson sampling (Dynamic pricing approach)
 # =============================================================================
