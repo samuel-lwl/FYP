@@ -479,32 +479,23 @@ for j in range(itr):
 # =============================================================================
 # Validate if the chosen arm is correct (use theoretical X for each arm)
 # =============================================================================
-realrevenue_middle = 0
-basket_middle = np.zeros(itr)
-for i in range(itr):
-    rev = np.multiply(xprice, productprice.iloc[:,1].values.reshape((numvars,1)))
-    realrevenue_middle += np.sum(rev)
-    basket_middle[i] = np.sum(rev)
+# 0:lower, 1:middle, 2:higher
+# Real revenue and basket
+realrevenue = np.zeros(k)
+basket_real = np.zeros((itr, k))
 
-realrevenue_lower = 0
-basket_lower = np.zeros(itr)
-for i in range(itr):
-    rev = np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((numvars,1)))
-    realrevenue_lower += np.sum(rev)
-    basket_lower[i] = np.sum(rev)
+for arm in range(k):
+    for i in range(itr):
+        rev = np.sum(truedemand[arm] * prices[arm])
+        realrevenue[arm] += rev
+        basket_real[i][arm] = rev
 
-realrevenue_higher = 0
-basket_higher = np.zeros(itr)
-for i in range(itr):
-    rev = np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((numvars,1)))
-    realrevenue_higher += np.sum(rev)
-    basket_higher[i] = np.sum(rev)
 
-# Graphical comparison of results
-#plt.plot(np.cumsum(realrevenuearr),'r')
-#plt.plot(np.cumsum(basket_lower),'b')
-#plt.plot(np.cumsum(basket),'y')
-#plt.plot(np.cumsum(basket_higher),'m')
+# Graphical comparison of TS vs each arm
+#plt.plot(np.cumsum(basket_cTS),'r')
+#plt.plot(np.cumsum(basket_real[:,0]),'b')
+#plt.plot(np.cumsum(basket_real[:,1]),'y')
+#plt.plot(np.cumsum(basket_real[:,2]),'m')
 #plt.ylabel('Cumulated revenue',fontsize=15)
 #plt.xlabel('Time period',fontsize=15)
 #plt.legend(['Real revenue','Lower arm','Middle arm','Higher arm'],fontsize=20)
