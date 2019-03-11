@@ -265,7 +265,7 @@ data_all = []
 
 for arm in range(k):
     ep = np.empty([numvars,numep])
-    np.random.seed(10)
+#    np.random.seed(10)
     for i in range(numvars):
         ep[i] = np.random.uniform(low=0.0, high=truedemand[arm][i]/5, size=numep)
     
@@ -651,16 +651,16 @@ for i in range(k, itr):
     ucbt_scores[arm] = ucbt_mean[arm] + sqrt((log(i+1)/ucbt_counter[arm]) * min(1/4, (ucbt_ss[arm] + 2*(log(i+1)/ucbt_counter[arm]))) ) # i+1 for number of iterations
            
 # Graphical comparison of results
-plt.plot(np.cumsum(basket_cTS),'y')
-plt.plot(np.cumsum(basket_eg),'b')
-plt.plot(np.cumsum(basket_egd),'c')
-plt.plot(np.cumsum(basket_egoi),'m')
-plt.plot(np.cumsum(basket_ucb),'r')
-plt.plot(np.cumsum(basket_ucbt),'k')
-plt.ylabel('Cumulated revenue',fontsize=15)
-plt.xlabel('Time period',fontsize=15)
-plt.legend(['classical Thompson sampling','epsilon-greedy','epsilon-greedy w/ decay','epsilon-greedy w/ optimistic initialisation','ucb1','ucb1-tuned'],fontsize=20)
-plt.show()
+#plt.plot(np.cumsum(basket_cTS),'y')
+#plt.plot(np.cumsum(basket_eg),'b')
+#plt.plot(np.cumsum(basket_egd),'c')
+#plt.plot(np.cumsum(basket_egoi),'m')
+#plt.plot(np.cumsum(basket_ucb),'r')
+#plt.plot(np.cumsum(basket_ucbt),'k')
+#plt.ylabel('Cumulated revenue',fontsize=15)
+#plt.xlabel('Time period',fontsize=15)
+#plt.legend(['classical Thompson sampling','epsilon-greedy','epsilon-greedy w/ decay','epsilon-greedy w/ optimistic initialisation','ucb1','ucb1-tuned'],fontsize=20)
+#plt.show()
     
 
 haha
