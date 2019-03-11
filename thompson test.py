@@ -105,6 +105,10 @@ productpricehigher = productprice*1.1
 #productpricelower = productprice-5
 #productpricehigher = productprice+5
 
+# Compile prices for each arm into one array
+# 0: lower, 1: middle, 2: higher
+prices = [productpricelower.iloc[:,1].values.reshape((numvars,1)), productprice.iloc[:,1].values.reshape((numvars,1)), productpricehigher.iloc[:,1].values.reshape((numvars,1))]
+
 ###########################################################################################
 ########################################## now trying to use mle for first price vector
 # 11 days, take as 11 observations for each good
@@ -228,90 +232,56 @@ productpricehigher = productprice*1.1
 # where X is generated using a multinomial logit choice model
 # X = exp(V(i)-P(i))/sum(exp(V(i)-P(i))) for i=0,1,...,N where i=0 is when customer buys nothing
 
+# Number of arms
+k = 3
+
 # First we generate V. one V for all price vectors. V = +- 5% of Pbar
 # Build V around the default price vector which is equivalent to the average of all 3 price vectors
 v = np.empty([numvars,1])
 #np.random.seed(10)
 for i in range(numvars):
-    v[i] = np.random.randint(productprice.iloc[i,1]-0.05*productprice.iloc[i,1], productprice.iloc[i,1]+0.05*productprice.iloc[i,1])
+    v[i] = np.random.randint(prices[1][i]-0.05*prices[1][i], prices[1][i]+0.05*prices[1][i]) # 1 since prices[1] is the default price vector
+
 #np.random.seed(10)
 v0 = np.random.randint(0, 5)
-"""np.random.randint got size arg. can we use array operations instead of looping?"""
-# Theoretical X, where X is the demand
-xprice = np.empty([numvars,1])
-xpricehigher = np.empty([numvars,1])
-xpricelower = np.empty([numvars,1])
+# True demand: Theoretical X, where X is the demand
+truedemand = [np.empty([numvars,1])] * k
 
-for i in range(numvars):
-    xprice[i] = math.exp(v[i]-(productprice.iloc[:,1])[i])
-# x0 is the choice where they dont buy anything
-x0 = math.exp(v0)/(sum(xprice)+math.exp(v0))
-xprice = xprice/(np.sum(xprice)+math.exp(v0))
-
-#jaja = np.empty([numvars,1])
-#jaja = math.exp(v-productprice.iloc[:,1])
-#jaja = jaja/(np.sum(jaja)+math.exp(v0))
-
-
-
-for i in range(numvars):
-    xpricehigher[i] = math.exp(v[i]-(productpricehigher.iloc[:,1])[i])
-x0higher = math.exp(v0)/(sum(xpricehigher)+math.exp(v0))
-xpricehigher = xpricehigher/(np.sum(xpricehigher)+math.exp(v0))
-
-for i in range(numvars):
-    xpricelower[i] = math.exp(v[i]-(productpricelower.iloc[:,1])[i])
-x0lower = math.exp(v0)/(sum(xpricelower)+math.exp(v0))
-xpricelower = xpricelower/(np.sum(xpricelower)+math.exp(v0))
+for arm in range(k):
+    for i in range(numvars):
+        truedemand[arm][i] = math.exp(v[i]-(prices[arm][i]))
+    # x0 is the choice where they dont buy anything
+    x0 = math.exp(v0)/(sum(truedemand[arm])+math.exp(v0))
+    truedemand[arm] = truedemand[arm]/(np.sum(truedemand[arm])+math.exp(v0))
 
 # =============================================================================
 # To generate additional data by creating epsilons for each price vector
 # =============================================================================
 # Number of epsilons. Multiply by 2 to get number of data points per arm. 
 numep = 25
-# First price vector
-ep1 = np.empty([numvars,numep])
-#np.random.seed(10)
-for i in range(numvars):
-    ep1[i] = np.random.uniform(low=0.0, high=xprice[i]/5, size=numep)
 
-# create data via +epsilon and -epsilon so that the mean is still the theoretical mean
-temp1 = np.empty([numvars,numep])
-temp2 = np.empty([numvars,numep])
-for i in range(numvars):
-    temp1[i] = xprice[i]+ep1[i]
-    temp2[i] = xprice[i]-ep1[i]
-datax = np.append(temp1, temp2, axis=1)
+# To hold data for all arms
+data_all = []
 
-# Second price vector
-ep2 = np.empty([numvars,numep])
-#np.random.seed(10)
-for i in range(numvars):
-    ep2[i] = np.random.uniform(low=0.0, high=xpricelower[i]/5, size=numep)
-
-temp1 = np.empty([numvars,numep])
-temp2 = np.empty([numvars,numep])
-for i in range(numvars):
-    temp1[i] = xpricelower[i]+ep2[i]
-    temp2[i] = xpricelower[i]-ep2[i]
-dataxlower = np.append(temp1, temp2, axis=1)
-
-# Third price vector
-ep3 = np.empty([numvars,numep])
-#np.random.seed(10)
-for i in range(numvars):
-    ep3[i] = np.random.uniform(low=0.0, high=xpricehigher[i]/5, size=numep)
-
-temp1 = np.empty([numvars,numep])
-temp2 = np.empty([numvars,numep])
-for i in range(numvars):
-    temp1[i] = xpricehigher[i]+ep3[i]
-    temp2[i] = xpricehigher[i]-ep3[i]
-dataxhigher=np.append(temp1, temp2, axis=1)
+for arm in range(k):
+    ep = np.empty([numvars,numep])
+    np.random.seed(10)
+    for i in range(numvars):
+        ep[i] = np.random.uniform(low=0.0, high=truedemand[arm][i]/5, size=numep)
+    
+    # create data via +epsilon and -epsilon so that the mean is still the theoretical mean
+    temp1 = np.empty([numvars,numep])
+    temp2 = np.empty([numvars,numep])
+    for i in range(numvars):
+        temp1[i] = truedemand[arm][i] + ep[i]
+        temp2[i] = truedemand[arm][i] - ep[i]
+    data_all.append(np.append(temp1, temp2, axis=1))
+        
 
 # Appending all data points together for dynamic_TS approach
-dataall = np.append(dataxlower, datax, axis=1)
-dataall = np.append(dataall, dataxhigher, axis=1)
+dataall = np.append(data_all[0], data_all[1], axis=1)
+for arm in range(1, k-1):
+    dataall = np.append(dataall, data_all[arm+1], axis=1)
 
 # Obtain revenue of each day, find SD to estimate sigma in dynamic_TS approach
 rev1 = np.empty(numep*2)
@@ -330,12 +300,6 @@ sighat = np.std(revall)
 
 # Number of iterations
 itr = 1000
-# Number of arms
-k = 3
-# True demand
-truedemand = np.array([xpricelower,xprice,xpricehigher])
-# Prices for each arm
-prices = np.array([productpricelower.iloc[:,1].values.reshape((numvars,1)), productprice.iloc[:,1].values.reshape((numvars,1)), productpricehigher.iloc[:,1].values.reshape((numvars,1))])
 
 # =============================================================================
 # Thompson sampling done here (classical approach)
