@@ -284,19 +284,17 @@ for arm in range(1, k-1):
     dataall = np.append(dataall, data_all[arm+1], axis=1)
 
 # Obtain revenue of each day, find SD to estimate sigma in dynamic_TS approach
-rev1 = np.empty(numep*2)
-for i in range(numep*2):
-    rev1[i] = sum(np.multiply(dataxlower[:,i], productpricelower.iloc[:,1]))
-rev2 = np.empty(numep*2)
-for i in range(numep*2):
-    rev2[i] = sum(np.multiply(datax[:,i], productprice.iloc[:,1]))
-rev3 = np.empty(numep*2)
-for i in range(numep*2):
-    rev3[i] = sum(np.multiply(dataxhigher[:,i], productpricehigher.iloc[:,1]))
+revenue_of_prior = np.empty(numep*2*k) # each arm has numep*2 points. we have k arms.
 
-revall = np.append(rev1, rev2)
-revall = np.append(revall, rev3)
-sighat = np.std(revall)
+# For each arm
+for arm in range(k):
+    # For each data point of each arm
+    for i in range(numep*2):
+        # must reshape because data_all[arm][:,i] is 1 dimension
+        revenue_of_prior[i + (arm*(numep*2))] = np.sum(np.reshape(data_all[arm][:,i],(numvars,1)) * prices[arm]) 
+
+# Estimate of variance
+sighat = np.std(revenue_of_prior)
 
 # Number of iterations
 itr = 1000
