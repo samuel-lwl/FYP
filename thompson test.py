@@ -303,38 +303,28 @@ itr = 1000
 # Thompson sampling done here (classical approach)
 # =============================================================================
 # Assume each price vector has normal distribution. Use MLE to estimate parameters from data created.
-# First price vector
-productmean = np.mean(datax, axis=1)
-productcov = 0
-for i in range(datax.shape[1]):
-    test1 = np.reshape((datax[:,i]-productmean), (numvars,1))
-    test2 = np.reshape((datax[:,i]-productmean), (1,numvars))
-    productcov += np.matmul(test1, test2)
-productcov = productcov/(i+1)
-# divide by i+1 since MLE estimate of cov matrix is divide by N not N-1
+# Mean for each arm
+cTS_mean = [0.0]*k
+for arm in range(k):
+    cTS_mean[arm] = np.mean(data_all[arm], axis=1)
 
-# Second price vector
-productmeanlower = np.mean(dataxlower, axis=1)
-productcovlower = 0
-for i in range(dataxlower.shape[1]):
-    test1 = np.reshape((dataxlower[:,i]-productmeanlower), (numvars,1))
-    test2 = np.reshape((dataxlower[:,i]-productmeanlower), (1,numvars))
-    productcovlower += np.matmul(test1, test2)
-productcovlower = productcovlower/(i+1)
-
-# Third price vector
-productmeanhigher = np.mean(dataxhigher, axis=1)
-productcovhigher = 0
-for i in range(dataxhigher.shape[1]):
-    test1 = np.reshape((dataxhigher[:,i]-productmeanhigher), (numvars,1))
-    test2 = np.reshape((dataxhigher[:,i]-productmeanhigher), (1,numvars))
-    productcovhigher += np.matmul(test1, test2)
-productcovhigher = productcovhigher/(i+1)
+# Covariance
+cTS_cov = [0.0]*k
+for arm in range(k):
+    # Must reset cov = 0 for each arm other cumulative sum will affect later arms
+    cov = 0
+    for i in range(data_all[arm].shape[1]): # For each data point of each arm
+        temp1 = np.reshape((data_all[arm][:,i] - cTS_mean[arm]), (numvars,1))
+        temp2 = np.reshape((data_all[arm][:,i] - cTS_mean[arm]), (1,numvars))
+        cov += np.matmul(temp1, temp2)
+        
+    # divide by number of data points since MLE estimate of cov matrix is divide by N not N-1
+    cTS_cov[arm] = cov/(numep*2)
 
 # Initialise counter for the number of times each arm is selected
-cTS_counter_middle = 0
-cTS_counter_lower = 0
-cTS_counter_higher = 0
+cTS_counter = np.zeros(k)
+
+# Revenue and basket
 revenue_cTS = 0
 basket_cTS = np.zeros(itr)
 
@@ -349,94 +339,46 @@ Since we dont have a distribution to sample from that represents the true demand
 with the theoretical X since in the long run, random samples from the true demand distribution
 should be very close to the theoretical X.
 """
-mid = productcov
-low = productcovlower
-high = productcovhigher
 
 #np.random.seed(10)
 for j in range(itr):
     # Randomly sample from each distribution. This is our SAMPLED demand.
-    forecastdemand_middle = np.random.multivariate_normal(productmean, productcov,1).T
-    forecastdemand_lower = np.random.multivariate_normal(productmeanlower, productcovlower,1).T
-    forecastdemand_higher = np.random.multivariate_normal(productmeanhigher, productcovhigher,1).T
+    cTS_forecast_demand = [0.0]*k
+    for arm in range(k):
+#        np.random.seed(10)
+        cTS_forecast_demand[arm] = np.random.multivariate_normal(cTS_mean[arm], cTS_cov[arm], 1).T
     
     # Calculate revenue based on the SAMPLED demand
-    forecastrevenue_middle = np.multiply(forecastdemand_middle, productprice.iloc[:,1].values.reshape((numvars,1)))
-    forecastrevenue_lower = np.multiply(forecastdemand_lower, productpricelower.iloc[:,1].values.reshape((numvars,1)))
-    forecastrevenue_higher = np.multiply(forecastdemand_higher, productpricehigher.iloc[:,1].values.reshape((numvars,1)))
-    
+    cTS_forecast_revenue = np.zeros(k)
+    for arm in range(k):
+        cTS_forecast_revenue[arm] = np.sum(np.multiply(cTS_forecast_demand[arm], prices[arm]))
+       
     # Choose the arm with the highest revenue based on SAMPLED demand.
-    # Middle arm is best
-    if np.sum(forecastrevenue_middle)>np.sum(forecastrevenue_higher) and np.sum(forecastrevenue_middle)>np.sum(forecastrevenue_lower):
-        cTS_counter_middle += 1
-        
-        # Pull the arm, calculate and accumulate OBSERVED revenue
-#        truerdm = np.random.multivariate_normal(xprice.flatten(),mid,1).T
-#        realrevenue_classical_TS += np.sum(np.multiply(truerdm,productprice.iloc[:,1].values.reshape((numvars,1))))
-        rev = np.sum(np.multiply(xprice, productprice.iloc[:,1].values.reshape((numvars,1))))
-        revenue_cTS += rev
-        basket_cTS[j] = rev
-        
-        # Adding observed/theoretical X to list of observations
-#        datax = np.append(datax, truerdm, axis=1)
-        datax = np.append(datax, xprice, axis=1)
-      
-        # Recalculate parameters using MLE
-        productmean = np.mean(datax, axis=1)
-        productcov = 0
-        for i in range(datax.shape[1]):
-            test1 = np.reshape((datax[:,i]-productmean), (numvars,1))
-            test2 = np.reshape((datax[:,i]-productmean), (1,numvars))
-            productcov += np.matmul(test1, test2)
-        productcov = productcov/(i+1)
-
-    # Lower arm is best
-    elif np.sum(forecastrevenue_lower)>np.sum(forecastrevenue_middle) and np.sum(forecastrevenue_lower)>np.sum(forecastrevenue_higher):
-        cTS_counter_lower += 1
-        
-        # Pull the arm, calculate and accumulate OBSERVED revenue
-#        truerdmlower = np.random.multivariate_normal(xpricelower.flatten(),low,1).T
-#        realrevenue_classical_TS += np.sum(np.multiply(truerdmlower,productpricelower.iloc[:,1].values.reshape((numvars,1))))
-        rev = np.sum(np.multiply(xpricelower, productpricelower.iloc[:,1].values.reshape((numvars,1))))
-        revenue_cTS += rev
-        basket_cTS[j] = rev
-        
-        # Adding observed/theoretical X to list of observations
-#        dataxlower = np.append(dataxlower, truerdmlower, axis=1)
-        dataxlower = np.append(dataxlower, xpricelower, axis=1)
-        
-        # Recalculate parameters using MLE
-        productmeanlower = np.mean(dataxlower, axis=1)
-        productcovlower = 0
-        for i in range(dataxlower.shape[1]):
-            test1 = np.reshape((dataxlower[:,i]-productmeanlower), (numvars,1))
-            test2 = np.reshape((dataxlower[:,i]-productmeanlower), (1,numvars))
-            productcovlower += np.matmul(test1, test2)
-        productcovlower = productcovlower/(i+1)
-
-    # Higher arm is best
-    else:
-        cTS_counter_higher += 1
-        
-        # Pull the arm, calculate and accumulate OBSERVED revenue
-#        truerdmhigher = np.random.multivariate_normal(xpricehigher.flatten(),low,1).T
-#        realrevenue_classical_TS += np.sum(np.multiply(truerdmhigher,productpricehigher.iloc[:,1].values.reshape((numvars,1))))
-        rev = np.sum(np.multiply(xpricehigher, productpricehigher.iloc[:,1].values.reshape((numvars,1))))
-        revenue_cTS += rev
-        basket_cTS[j] = rev
-        
-        # Adding observed/theoretical X to list of observations
-#        dataxhigher = np.append(dataxhigher, truerdmhigher, axis=1)
-        dataxhigher = np.append(dataxhigher, xpricehigher, axis=1)
-        
-        # Recalculate parameters using MLE
-        productmeanhigher = np.mean(dataxhigher, axis=1)
-        productcovhigher = 0
-        for i in range(dataxhigher.shape[1]):
-            test1 = np.reshape((dataxhigher[:,i]-productmeanhigher), (numvars,1))
-            test2 = np.reshape((dataxhigher[:,i]-productmeanhigher), (1,numvars))
-            productcovhigher += np.matmul(test1, test2)
-        productcovhigher = productcovhigher/(i+1)
+    arm = np.argmax(cTS_forecast_revenue)
+    
+    # Add to counter
+    cTS_counter[arm] += 1
+    
+    # Pull the arm, calculate and accumulate OBSERVED revenue
+    rev = np.sum(np.multiply(truedemand[arm], prices[arm]))
+    revenue_cTS += rev
+    basket_cTS[j] = rev
+    
+    # Adding observed/theoretical X to list of observations
+    data_all[arm] = np.append(data_all[arm], truedemand[arm], axis=1)
+    
+    # Recalculate parameters using MLE
+    # Mean for each arm
+    cTS_mean[arm] = np.mean(data_all[arm], axis=1)
+    
+    # Covariance
+    cov = 0
+    for i in range(data_all[arm].shape[1]): # For each data point of each arm
+        temp1 = np.reshape((data_all[arm][:,i] - cTS_mean[arm]), (numvars,1))
+        temp2 = np.reshape((data_all[arm][:,i] - cTS_mean[arm]), (1,numvars))
+        cov += np.matmul(temp1, temp2)       
+    # divide by number of data points since MLE estimate of cov matrix is divide by N not N-1
+    cTS_cov[arm] = cov/(data_all[arm].shape[1])
 
 # =============================================================================
 # Validate if the chosen arm is correct (use theoretical X for each arm)
@@ -462,7 +404,6 @@ for arm in range(k):
 #plt.xlabel('Time period',fontsize=15)
 #plt.legend(['Real revenue','Lower arm','Middle arm','Higher arm'],fontsize=20)
 #plt.show()
-
 
 # =============================================================================
 # Upper confidence bound (UCB1 method, Hoeffding's inequality)
