@@ -60,10 +60,21 @@ productprice.reset_index(level=None, drop=True, inplace=True)
 
 productprice = productprice.iloc[:,1].values.reshape((numvars,1))
 
+
+
+
+
+
+
+
+
+
+
 # MVN parameters for true V
 vmean = productprice
 vcov = np.identity(numvars)
 
+# Generate num_data data points as prior data
 num_data = 20
 v_prior = np.empty((num_data, numvars))
 for i in range(num_data):
