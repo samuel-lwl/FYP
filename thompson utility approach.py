@@ -63,7 +63,12 @@ productprice = productprice.iloc[:,1].values.reshape((numvars,1))
 
 
 
-# MVN parameters for true V
+
+
+
+
+
+# True distribution of V (MVN distribution)
 vmean = productprice
 vcov = np.identity(numvars)
 
@@ -71,7 +76,7 @@ vcov = np.identity(numvars)
 num_data = 20
 
 # Array to store data
-data = np.zeros((num_data, numvars))
+data_demand = np.zeros((num_data, numvars))
 
 for k in range(num_data):
     # Generate a large number of V for each product since we want to approximate
@@ -94,7 +99,33 @@ for k in range(num_data):
         
         # +1 to account for x0 where the customer buys nothing
         denom = 1 + np.sum(denom, axis=1)
-        data[k,j] = np.mean(numerator/denom)
+        data_demand[k,j] = np.mean(numerator/denom)
+
+# x0
+x0 = 1 - np.sum(data_demand, axis=1)
+
+
+
+
+
+
+
+
+# To calculate estimates of V
+data_v = np.zeros((num_data, numvars)) #all overestimate?
+for i in range(num_data):
+    temp = productprice.flatten() + np.log(data_demand[i,:]) - math.log(x0[i])
+    data_v[i] = temp
+
+# Initialise parameters for prior distribution of V
+v_mean = np.mean(data_v, axis=0)
+v_cov = 0
+for i in range(data_v.shape[0]):
+    temp1 = np.reshape((data_v[i] - v_mean), (numvars,1))
+    temp2 = np.reshape((data_v[i] - v_mean), (1,numvars))
+    v_cov += np.matmul(temp1, temp2)
+# divide by number of data points since MLE estimate of cov matrix is divide by N not N-1
+v_cov /= data_v.shape[0]
 
 
 
@@ -105,6 +136,11 @@ for k in range(num_data):
 
 
 
+
+
+    
+    
+    
 
 
 
