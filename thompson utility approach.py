@@ -63,28 +63,38 @@ productprice = productprice.iloc[:,1].values.reshape((numvars,1))
 
 
 
-
-
-
-
-
-
-
 # MVN parameters for true V
 vmean = productprice
 vcov = np.identity(numvars)
 
 # Generate num_data data points as prior data
 num_data = 20
-v_prior = np.empty((num_data, numvars))
-for i in range(num_data):
-    v_prior[i] = np.random.multivariate_normal(vmean.flatten(), vcov, 1)
 
+# Array to store data
+data = np.zeros((num_data, numvars))
 
-
-
-
-
+for k in range(num_data):
+    # Generate a large number of V for each product since we want to approximate
+    # integration by using summation
+    approx = 1000
+    v_prior = np.empty((approx, numvars))
+    for i in range(approx):
+        v_prior[i] = np.random.multivariate_normal(vmean.flatten(), vcov, 1)
+    
+        
+    for j in range(numvars):
+        numerator = np.exp(v_prior[:,j] - productprice[j])
+        
+        # For denominator, each product must be subtracted with its price, thats why 
+        # we need an additional loop to loop over all products.
+        # Use np.copy() since denom = v_prior would be similar to passing by reference
+        denom = np.copy(v_prior)
+        for i in range(numvars):
+            denom[:,i] = np.exp(denom[:,i] - productprice[i])
+        
+        # +1 to account for x0 where the customer buys nothing
+        denom = 1 + np.sum(denom, axis=1)
+        data[k,j] = np.mean(numerator/denom)
 
 
 
