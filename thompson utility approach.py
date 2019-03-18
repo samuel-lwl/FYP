@@ -66,7 +66,7 @@ productprice = productprice.iloc[:,1].values.reshape((numvars,1))
 
 
 
-
+""" code starts from here """
 # True distribution of V (MVN distribution)
 vmean = productprice
 vcov = np.identity(numvars)
@@ -87,6 +87,7 @@ for k in range(num_data):
     
         
     for j in range(numvars):
+        # Numerator and denominator of MNL formula
         numerator = np.exp(v_prior[:,j] - productprice[j])
         
         # For denominator, each product must be subtracted with its price, thats why 
@@ -113,6 +114,7 @@ x0 = 1 - np.sum(data_demand, axis=1)
 # To calculate estimates of V
 data_v = np.zeros((num_data, numvars)) #all overestimate?
 for i in range(num_data):
+    # Use formula: P_j = V_j - log(X_j) + log(X_0)
     temp = productprice.flatten() + np.log(data_demand[i,:]) - math.log(x0[i])
     data_v[i] = temp
 
@@ -126,13 +128,31 @@ for i in range(data_v.shape[0]):
 # divide by number of data points since MLE estimate of cov matrix is divide by N not N-1
 v_cov /= data_v.shape[0]
 
-
+# To obtain v-hat
 v_estimate = np.random.multivariate_normal(v_mean.flatten(), v_cov, 1)
 
+""" use scipy.optimise """
+#from scipy.optimize import minimize
+#from scipy.optimize import Bounds
+#
+#V = np.append([0],[v_estimate])
+#x_guess = np.append([x0[-1]],[data_demand[-1]])
+## Objective function, multiply by -1 since we want to maximize
+#def eqn7(x):
+#    return -1.0*(np.sum(V*x) - np.sum(x[1:]*np.log(x[1:])) + (1-x[0])*(math.log(x[0])))
+#
+## Initial guess is previous demand
+#bounds = Bounds(x_guess.flatten()*0, np.ones(numvars+1))
+## Constraint
+#def con(t):
+#    return np.sum(t) - 1
+#cons = {'type':'eq', 'fun': con}
+#opresult = minimize(eqn7, x_guess.flatten(), bounds=bounds, constraints=cons)
+#newdemand = opresult.x
 
+""" use cvxopt """
 from cvxopt import solvers, matrix, spdiag, log, exp, div, mul
-
-
+solvers.options['show_progress'] = False
 
 A, b = matrix(1.0, (1, numvars+1)), matrix(1.0)
 V = matrix(v_estimate, (numvars,1))
@@ -154,29 +174,70 @@ def F(x=None, z=None):
     f = -(V*x - x[1:].T*log(x[1:]) + (1-x[0])*log(x[0]))
     
     # Vector of first partial derivatives
-    grad = V.T + mul(x, log(x))  
-    grad[0] = (1-x[0])/x[0] - log(x[0])
-    if z is None: return f, grad.T
+    global Df
+    Df = -(V.T + mul(x, log(x)))  
+    Df[0] = -((1-x[0])/x[0] - log(x[0]))
+    if z is None: return f, Df.T
     
-    # Hessian, why only z[0]?
-    H = - 1 - log(x)
-    H[0] = -(x[0]**-2)
-    H = spdiag(z[0] * H)
-    return f, grad.T, H
+    # Hessian
+    global H
+    H = -(- 1 - log(x))
+    H[0] = -(- (x[0]**-2) - (x[0]**-1))
+    H = spdiag(z[0] * (-H))
+    
+    return f, Df.T, H
 sol = solvers.cp(F, A=A, b=b) 
 p = sol['x']
+""" ValueError: Rank(A) < p or Rank([H(x); A; Df(x); G]) < n """
+
+# Find optimal price 
+price = v_estimate.T + np.log(p[1:]) + log(p[0])
 
 
 
+# example from cvxopt website
+from cvxopt import solvers, blas, matrix, spmatrix, spdiag, log, div
+solvers.options['show_progress'] = False
 
+# minimize     p'*log p
+# subject to  -0.1 <= a'*p <= 0.1
+#              0.5 <= (a**2)'*p <= 0.6
+#             -0.3 <= (3*a**3 - 2*a)'*p <= -0.2
+#              0.3 <= sum_{k:ak < 0} pk <= 0.4
+#              sum(p) = 1
+#
+# a in R^100 is made of 100 equidistant points in [-1,1].
+# The variable is p (100).
 
+n = 100
+a = -1.0 + (2.0/(n-1)) * matrix(list(range(n)), (1,n))
+I = [k for k in range(n) if a[k] < 0]
+G = matrix([-a, a, -a**2, a**2, -(3 * a**3 - 2*a), (3 * a**3 - 2*a),
+    matrix(0.0, (2,n))])
+G[6,I] = -1.0
+G[7,I] =  1.0
+h = matrix([0.1, 0.1, -0.5, 0.6, 0.3, -0.2, -0.3, 0.4 ])
 
+A, b = matrix(1.0, (1,n)), matrix(1.0)
 
+# minimize    x'*log x
+# subject to  G*x <= h
+#             A*x = b
+#
+# variable x (n).
 
-
-
-
-
+def F(x=None, z=None):
+   if x is None: return 0, matrix(1.0, (n,1))
+   if min(x) <= 0: return None
+   f = x.T*log(x)
+   global grad
+   grad = 1.0 + log(x)
+   if z is None: return f, grad.T
+   global H
+   H = spdiag(z[0] * x**-1)
+   return f, grad.T, H
+sol = solvers.cp(F, G, h, A=A, b=b)
+p = sol['x']
 
 
 
