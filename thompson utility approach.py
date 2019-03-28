@@ -4,7 +4,12 @@ Created on Tue Mar 12 16:59:36 2019
 
 @author: Samuel
 """
-
+"""
+replaced cvxopt with scipy
+saved v_prior for calculating true demand. problem of x0 = 0 is still present
+havent implement bayesian updating
+need to check code again for mnl part
+"""
 import pandas as pd
 import numpy as np
 import math
@@ -62,57 +67,54 @@ productprice = productprice.iloc[:,1].values.reshape((numvars,1))
 
 
 
-
-
-
-
 """ code starts from here """
 # True distribution of V (MVN distribution)
 v_mean_true = productprice
 v_cov_true = np.identity(numvars)
 
 # Generate num_data data points as prior data
-num_data = 20
+num_data = 1
 
 # Array to store data
 data_demand = np.zeros((num_data, numvars))
+#data_demand2 = np.zeros((num_data, numvars))
 
 for k in range(num_data):
     # Generate a large number of V for each product since we want to approximate
     # integration by using summation
     approx = 1000
-    v_prior = np.empty((approx, numvars))
+    v_prior = np.zeros((approx, numvars)) 
 
     for p in range(numvars): 
         for i in range(approx):
             # Perform rejection sampling, define variables
-            c = sqrt(2*math.exp(1)/math.pi)
-            y = np.random.exponential()
-            u = np.random.uniform()
+            c = sqrt(2*math.exp(1)/math.pi) 
+            y = np.random.exponential() 
+            u = np.random.uniform() 
             
             # If u <= the value, accept it. otherwise, reject and try again
-            while u > math.exp((-(y-1)*(y-1))/2):
-                y = np.random.exponential()
-                u = np.random.uniform()
+            while u > math.exp((-(y-1)*(y-1))/2): 
+                y = np.random.exponential() 
+                u = np.random.uniform() 
             
             # Accept 
-            z = y
+            z = y # ok
             
             # To decide z = z or z = -z
-            u = np.random.uniform()
+            u = np.random.uniform() 
             if u > 0.5:
-                z = -z
+                z = -z 
             
             # Convert to variable under v_mean_true and v_cov_true
-            x_true = z * 1 + v_mean_true[p] # *1 since cov is an identity matrix
+            x_true = z * 1 + v_mean_true[p] # *1 since cov is an identity matrix 
             
-            v_prior[i,p] = x_true
+            v_prior[i,p] = x_true 
     
     # here v_prior should be a full matrix
     # Calculate true demand using MNL model
     for j in range(numvars):
         # Numerator and denominator of MNL formula
-        numerator = np.exp(v_prior[:,j] - productprice[j])
+        numerator = np.exp(v_prior[:,j] - productprice[j]) 
         
         # For denominator, each product must be subtracted with its price, thats why 
         # we need an additional loop to loop over all products.
@@ -124,6 +126,16 @@ for k in range(num_data):
         # +1 to account for x0 where the customer buys nothing
         denom = 1 + np.sum(denom, axis=1)
         data_demand[k,j] = np.mean(numerator/denom)
+        
+        
+#        temp = np.zeros(approx)
+#        for app in range(approx):
+#            up = math.exp(v_prior[app,j] - productprice[j,0])
+#            down = 1
+#            for var in range(numvars):
+#                down += math.exp(v_prior[app,var] - productprice[var,0])
+#            temp[app] = up/down
+#        data_demand2[k,j] = np.mean(temp)
 
 # x0
 x0 = 1 - np.sum(data_demand, axis=1)
@@ -152,6 +164,9 @@ for i in range(data_v.shape[0]):
 # divide by number of data points since MLE estimate of cov matrix is divide by N not N-1
 v_cov_prior /= data_v.shape[0]
 
+# Set v_cov_prior to be I
+v_cov_prior = 0.1*np.identity(numvars)
+
 # To keep price history, repeat num_data times for our prior data
 data_prices = productprice.T
 for i in range(num_data-1):
@@ -162,31 +177,52 @@ iterations = 100
 revenue_utility = 0
 revenue_utility_basket = np.zeros(iterations)
 
-v_estimate = np.random.multivariate_normal(v_mean_prior.flatten(), v_cov_prior, 1)
+counter = 0
+collect1 = []
+collect2 = []
+collectx = []
+collecth = []
 
 for one in range(iterations):
     # To obtain v-hat
     v_estimate = np.random.multivariate_normal(v_mean_prior.flatten(), v_cov_prior, 1)
     
     """ use scipy.optimise """
-#    from scipy.optimize import minimize
-#    from scipy.optimize import Bounds
-#    
-#    V = np.append([0],[v_estimate])
-#    x_guess = np.append([x0[-1]],[data_demand[-1]])
-#    # Objective function, multiply by -1 since we want to maximize
-#    def eqn7(x):
-#        return -1.0*(np.sum(V*x) - np.sum(x[1:]*np.log(x[1:])) + (1-x[0])*(math.log(x[0])))
-#    
-#    # Initial guess is previous demand
-#    bounds = Bounds(x_guess.flatten()*0, np.ones(numvars+1))
-#    # Constraint
-#    def con(t):
-#        return np.sum(t) - 1
-#    cons = {'type':'eq', 'fun': con}
-#    opresult = minimize(eqn7, x_guess.flatten(), bounds=bounds, constraints=cons)
-#    newdemand = opresult.x
-#    newdemand = np.reshape(newdemand, (numvars+1,1))
+    from scipy.optimize import minimize
+    from scipy.optimize import Bounds
+    
+    V = np.append([0],[v_estimate])
+    x_guess = np.append([x0[-1]],[data_demand[-1]])
+    # Objective function, multiply by -1 since we want to maximize
+    def eqn7(x):
+        if (x <= 0).any(): # Return a large number if any x are <= 0
+            return 1e10            
+        return -1.0*(np.sum(V*x) - np.sum(x[1:]*np.log(x[1:])) + (1-x[0])*(math.log(x[0])))
+    
+    # Initial guess is previous demand
+    bounds = Bounds(np.zeros(numvars+1), np.ones(numvars+1))
+    # Constraint
+    def con(t):
+        return np.sum(t) - 1
+    cons = {'type':'eq', 'fun': con}
+    
+    def grad(t):
+        part1 = -((1-t[0])/t[0] - math.log(t[0]))
+        part2 = -(V[1:] - 1 - np.log(t[1:]))
+        ans = np.append([part1],[part2])        
+        return ans
+    
+    def hes(t):
+        ans = np.zeros((numvars+1, numvars+1))
+        ans[0,0] = -(- (t[0]**-2) - (t[0]**-1))
+        
+        for a in range(1, numvars+1):
+            ans[a,a] = -(-t[a]**-1)
+        return ans
+        
+    opresult = minimize(eqn7, x_guess.flatten(), bounds=bounds, constraints=cons, jac=grad, hess=hes)
+    newdemand_sp = opresult.x
+    newdemand_sp = np.reshape(newdemand_sp, (numvars+1,1))
     
     """ use cvxopt """
     from cvxopt import solvers, matrix, spdiag, log, exp, div, mul
@@ -203,8 +239,9 @@ for one in range(iterations):
     
     def F(x=None, z=None):
         # Set sample point x0 as 1/(number of variables)
-        if x is None: return 0, matrix(1/(numvars+1), (numvars+1,1))
-        
+#        if x is None: return 0, matrix(1/(numvars+1), (numvars+1,1)) 
+        if x is None: return 0, matrix(x_guess)
+
         # products' demand cannot be negative
         if min(x) < 0: return None
         
@@ -212,83 +249,101 @@ for one in range(iterations):
         f = -(V*x - x[1:].T*log(x[1:]) + (1-x[0])*log(x[0]))
         
         # Vector of first partial derivatives
-        Df = -(V.T - 1 - log(x))
-        Df[0] = -((1-x[0])/x[0] - log(x[0]))
+#        Df = -(V.T - 1 - log(x)) # (numvars+1, 1)
+#        Df[0] = -((1-x[0])/x[0] - log(x[0]))
+
+        
+        Df1 = -((1-x[0])/x[0] - log(x[0]))
+        Df2 = -(V[1:] - 1 - log(x[1:]))
+        Df = matrix([Df1, Df2])
+
+        global collect1
+        global collect2
+        global collectx
+        collect1.append(np.array(Df1))
+        collect2.append(np.array(Df2))
+        collectx.append(np.array(x))
+        
         
         if z is None: return f, Df.T
         
         # Hessian
+        global H
         H = -(-x**-1)
         H[0] = -(- (x[0]**-2) - (x[0]**-1))
         
         H = spdiag(z[0] * H)
         
-        return f, Df.T, H
+        collecth.append(np.array(H))
+        global counter
+        counter += 1
+
+        return f[0], Df.T, H
     sol = solvers.cp(F, A=A, b=b) 
     newdemand = sol['x']
+    newdemand = np.array(newdemand)
 
     # Find optimal price 
-    newprice = v_estimate.T - np.log(newdemand[1:]) + log(newdemand[0])
-    
-    newdemand_array = np.array(newdemand)
-    
-    # Generate multiple Vs for approximation
-    v_prior = np.empty((approx, numvars))
-    for p in range(numvars): 
-        for i in range(approx):
-            # Perform rejection sampling, define variables
-            c = sqrt(2*math.exp(1)/math.pi)
-            y = np.random.exponential()
-            u = np.random.uniform()
-            
-            # If u <= the value, accept it. otherwise, reject and try again
-            while u > math.exp((-(y-1)*(y-1))/2):
-                y = np.random.exponential()
-                u = np.random.uniform()
-            
-            # Accept 
-            z = y
-            
-            # To decide z = z or z = -z
-            u = np.random.uniform()
-            if u > 0.5:
-                z = -z
-            
-            # Convert to variable under v_mean_true and v_cov_true
-            x_true = z * 1 + v_mean_true[p] # since v_cov_true is an identity matrix
-            
-            v_prior[i,p] = x_true
-    
-    # here v_prior should be a full matrix
+    newprice_cv = v_estimate.T - np.log(newdemand[1:]) + np.log(newdemand[0])
+
+    newprice_sp = v_estimate.T  - np.log(newdemand_sp[1:]) + np.log(newdemand_sp[0])
+
     # Calculate true demand using MNL model and new price
-    temp_demand = np.zeros((1,numvars))
+    true_demand_cv = np.zeros((1,numvars))
     for j in range(numvars):
         # Numerator and denominator of MNL formula, using new price
-        numerator = np.exp(v_prior[:,j] - newprice[j])
+        numerator = np.exp(v_prior[:,j] - newprice_cv[j])
         
         # For denominator, each product must be subtracted with its price, thats why 
         # we need an additional loop to loop over all products.
         # Use np.copy() since denom = v_prior would be similar to passing by reference
         denom = np.copy(v_prior)
         for i in range(numvars):
-            denom[:,i] = np.exp(denom[:,i] - newprice[i][0])
+            denom[:,i] = np.exp(denom[:,i] - newprice_cv[i,0])
         
         # +1 to account for x0 where the customer buys nothing
         denom = 1 + np.sum(denom, axis=1)
-        temp_demand[0,j] = np.mean(numerator/denom)
-    
+        true_demand_cv[0,j] = np.mean(numerator/denom)
+
+    # Calculate true demand using MNL model and new price
+    true_demand_sp = np.zeros((1,numvars))
+    for j in range(numvars):
+        # Numerator and denominator of MNL formula, using new price
+        numerator = np.exp(v_prior[:,j] - newprice_sp[j])
+        
+        # For denominator, each product must be subtracted with its price, thats why 
+        # we need an additional loop to loop over all products.
+        # Use np.copy() since denom = v_prior would be similar to passing by reference
+        denom = np.copy(v_prior)
+        for i in range(numvars):
+            denom[:,i] = np.exp(denom[:,i] - newprice_sp[i,0])
+        
+        # +1 to account for x0 where the customer buys nothing
+        denom = 1 + np.sum(denom, axis=1)
+        true_demand_sp[0,j] = np.mean(numerator/denom)
+
     # x0 and V
-    temp_x0 = 1 - np.sum(temp_demand)
-    temp_v = newprice + np.log(temp_demand.T) + log(temp_x0)
+    true_x0_sp = 1 - np.sum(true_demand_sp)
+    true_x0_cv = 1 - np.sum(true_demand_cv)
+    haha
+
+
+
+
+
+
+
+
+    true_v = newprice + np.log(true_demand.T) + log(true_x0)
     
     # Calculate revenue
-    revenue_utility += np.matmul(temp_demand, newprice)[0,0]
-    revenue_utility_basket[one] = np.matmul(temp_demand, newprice)[0,0]
-        
+    revenue_utility += np.matmul(true_demand, newprice)[0,0]
+    revenue_utility_basket[one] = np.matmul(true_demand, newprice)[0,0]
+    
     # Append to our records
     data_prices = np.append(data_prices, newprice.T, axis=0)
-    data_demand = np.append(data_demand, temp_demand, axis=0)
-    data_v = np.append(data_v, temp_v.T, axis=0)
+    data_demand = np.append(data_demand, true_demand, axis=0)
+    data_v = np.append(data_v, true_v.T, axis=0)
     
     # Recalculate parameters
     v_mean_prior = np.mean(data_v, axis=0)
