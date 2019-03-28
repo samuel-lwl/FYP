@@ -3,6 +3,9 @@
 Created on Fri Feb  8 17:20:03 2019
 
 @author: Samuel
+
+In this script, the data generating mechanism is used to create
+historical data. TS is then applied on the historical data.
 """
 numvars = 10
 
