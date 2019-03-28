@@ -4,8 +4,14 @@ Created on Sun Feb 24 04:39:06 2019
 
 @author: Samuel
 
-In this script, I try to use the data generating mechanism as a start point,
-instead of using it to generate prior data.
+In this script, the data generating mechanism is 
+used as a start point, instead of using it to generate 
+historical data.
+
+run 10 trials and compare with mas-rev-passive?
+implement on original problem?
+
+why mosek and cplex both cmi?
 """
 numvars = 100
 
@@ -17,17 +23,15 @@ from scipy.optimize import minimize
 from scipy.optimize import Bounds
 import cplex
 
-np.random.seed(10)
 # True parameter
 gammastar = np.random.uniform(-3,-1,numvars)
 gammastar = np.reshape(gammastar, (numvars,1))
 
-beta = 0.0005 # original 0.5
+beta = 0.5 # original 0.5
 price0 = [12]*numvars
 price0 = np.array(price0)
 price0 = np.reshape(price0, (numvars,1))
 
-np.random.seed(10)
 # Initial demand
 f1 = np.random.uniform(0.5,5,numvars)
 
@@ -37,7 +41,6 @@ noisemean = np.zeros(numvars)
 noisecov = np.identity(numvars)
 
 # For d(i,0)
-np.random.seed(10)
 data = (f1 - c0 - np.random.multivariate_normal(noisemean, noisecov, 1))/beta 
 for i in range(numvars):
     if data[0][i] < 0:
@@ -53,13 +56,14 @@ revenue_basket = []
 datapts = 50
 
 # Prior estimate of gamma, use as mean of distribution
-np.random.seed(100)
 gammaprior = np.random.uniform(-5,-1,numvars)
 # constant c
 c = 0.1 * np.mean(gammaprior)
 elastmean = np.reshape(np.array(gammaprior),(numvars,1))
 elastcov = c*np.identity(numvars)
 
+historical_rev = np.zeros(2)
+historical_rev[0] = np.matmul(data, price0)
 sighat = np.std(data)
 
 # Data generating
@@ -68,22 +72,21 @@ for i in range(1,datapts):
     if i == 1:
         f = f1
     else:
-        np.random.seed(40)
         noise = np.random.multivariate_normal(noisemean, noisecov, 1)
         noise = np.reshape(noise, (numvars,1))
         f = c0 + noise
-        
+
         # To calculate f
         for j in range(1,i+1):
             f += (beta**j)*np.reshape(data[i-j], (numvars,1))
             
-        # To remove negative f
-        for j in range(numvars):
-            if f[j][0] < 0:
-                f[j][0] = 0
+#        # To remove negative f
+#        for j in range(numvars):
+#            if f[j][0] < 0:
+#                f[j][0] = 0
 
     f = np.reshape(f, (numvars,1))
-    
+
     # Random sample for elasticities
     np.random.seed(40)
     elast = np.random.multivariate_normal(elastmean.flatten(), elastcov,1)    
@@ -94,7 +97,6 @@ for i in range(1,datapts):
         np.random.seed(50)
         elast = np.random.multivariate_normal(elastmean.flatten(), elastcov,1)
     elast = np.reshape(elast, (numvars,1))
-    print("random sample ok")
     
     # Generate price
     """using mosek"""
@@ -232,48 +234,47 @@ for i in range(1,datapts):
 #    newprice = np.reshape(newprice, (numvars,1))
     
     """using scipy.optimize"""
-#    # Objective function, multiply by -1 since we want to maximize
-#    def eqn7(p):
-#        return -1.0*np.sum(p*p*f.flatten()*elast.flatten()/prevprice.flatten() - p*f.flatten()*elast.flatten() + p*f.flatten())
-#    
-#    # Initial guess is 1.05 * previous price
-#    bounds = Bounds(prevprice.flatten()*0.9, prevprice.flatten()*1.1)
-#    opresult = minimize(eqn7, prevprice.flatten()*1.05, bounds=bounds)
-#    newprice = opresult.x
-#    newprice = np.reshape(newprice, (numvars,1))   
+    # Objective function, multiply by -1 since we want to maximize
+    def eqn7(p):
+        return -1.0*np.sum(p*p*f.flatten()*elast.flatten()/prevprice.flatten() - p*f.flatten()*elast.flatten() + p*f.flatten())
+    
+    # Initial guess is 1.05 * previous price
+    bounds = Bounds(prevprice.flatten()*0.9, prevprice.flatten()*1.1)
+    opresult = minimize(eqn7, prevprice.flatten()*1.05, bounds=bounds)
+    newprice = opresult.x
+    newprice = np.reshape(newprice, (numvars,1))   
     
     """using cplex"""
-    # create an instance
-    problem = cplex.Cplex()
+#    # create an instance
+#    problem = cplex.Cplex()
+#    
+#    # set the function to maximise instead of minimise
+#    problem.objective.set_sense(problem.objective.sense.maximize)
+#    
+#    # Adds variables
+#    indices = problem.variables.add(names = [str(i) for i in range(numvars)])
+#    
+#    # Changes the linear part of the objective function.
+#    for i in range(numvars):
+#        problem.objective.set_linear(i, float(f[i]-f[i]*elast[i])) # form is objective.set_linear(var, value)
+#        
+#    # Sets the quadratic part of the objective function.
+#    quad = (f*elast/prevprice) # need to *2, see optimisation_test.py
+#    problem.objective.set_quadratic([2*float(i) for i in quad])
+#    
+#    # Sets the lower bound for a variable or set of variables
+#    for i in range(numvars):
+#        problem.variables.set_lower_bounds(i, prevprice[i][0]*0.9)
+#    
+#    # Sets the upper bound for a variable or set of variables
+#    for i in range(numvars):
+#        problem.variables.set_upper_bounds(i, prevprice[i][0]*1.1)
+#    
+#    problem.solve()
+#    newprice = problem.solution.get_values()
+#    newprice = np.array(newprice)
+#    newprice = np.reshape(newprice, (numvars,1))
     
-    # set the function to maximise instead of minimise
-    problem.objective.set_sense(problem.objective.sense.maximize)
-    
-    # Adds variables
-    indices = problem.variables.add(names = [str(i) for i in range(numvars)])
-    
-    # Changes the linear part of the objective function.
-    for i in range(numvars):
-        problem.objective.set_linear(i, float(f[i]-f[i]*elast[i])) # form is objective.set_linear(var, value)
-        
-    # Sets the quadratic part of the objective function.
-    quad = (f*elast/prevprice) # need to *2, see optimisation_test.py
-    problem.objective.set_quadratic([2*float(i) for i in quad])
-    
-    # Sets the lower bound for a variable or set of variables
-    for i in range(numvars):
-        problem.variables.set_lower_bounds(i, prevprice[i][0]*0.9)
-    
-    # Sets the upper bound for a variable or set of variables
-    for i in range(numvars):
-        problem.variables.set_upper_bounds(i, prevprice[i][0]*1.1)
-    
-    problem.solve()
-    newprice = problem.solution.get_values()
-    newprice = np.array(newprice)
-    newprice = np.reshape(newprice, (numvars,1))
-    
-    print("optimization ok")    
 
     # Observed demand
     np.random.seed(40)
@@ -281,7 +282,6 @@ for i in range(1,datapts):
     for k in range(len(observedx)):
         if observedx[k][0] < 0:
             observedx[k][0] = 0
-    print("observed demand ok")
     
     # Append new data    
     data = np.append(data, np.transpose(observedx), axis=0)
@@ -289,19 +289,20 @@ for i in range(1,datapts):
     # Add data as triplet into tripledata
     tripledata.append([f, prevprice, observedx, elastmean])
     revenue_basket.append(np.sum(np.multiply(observedx, newprice)))
+    if i == 1:
+        historical_rev[1] = np.sum(np.multiply(observedx, newprice))
+        sighat = np.std(historical_rev)
     
     # For M inverse matrix
     thet = np.multiply(np.reshape(newprice**2,(numvars,1)),f)
     thet = np.divide(thet, prevprice)
     thet = thet - np.multiply(np.reshape(newprice,(numvars,1)),f)
     minv = (thet*np.transpose(thet))/sighat**2 + 1e-5*np.identity(numvars) # original lambda = 1e-5
-    print("minv ok")
     
     # For M inverse beta matrix
     rbar = np.sum(np.multiply(np.reshape(newprice,(numvars,1)),f))
     rt = float(np.sum(np.multiply(observedx, np.reshape(newprice,(numvars,1)))))
     minvb = (rt - rbar)/(sighat**2)*thet
-    print("minvb ok")
     
     # Update mean of elasticity's distribution
     pt1 = np.linalg.inv(np.linalg.inv(elastcov) + minv)
@@ -311,7 +312,6 @@ for i in range(1,datapts):
 #        break
     
     elastmean = np.matmul(pt1, pt2)
-    print("update mean ok")
     
 
     
