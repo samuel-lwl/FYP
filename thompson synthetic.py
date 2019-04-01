@@ -191,7 +191,7 @@ for i in range(1,datapts):
                 lineartemp = np.empty([numvar,1])
                 for index in range(numvar):
                     lineartemp[index] = task.getcj(index)
-
+                
                 return (xx, qtemp, lineartemp, varbound)
             
     # call the main function
@@ -381,13 +381,13 @@ for j in range(40):
     f = np.e**(f) + np.reshape(np.array(dataall.iloc[-lag_order,:]), (numvars,1))
 
     # Checking for valid f
-    if (f>=0).all() == False:
+#    if (f>=0).all() == False:
 #        print("f is negative")
 #        break
-        for i in range(len(f)):
-            if f[i][0] < 0:
-                f[i][0] = 0        
-    print("demand forecast ok")
+#        for i in range(len(f)):
+#            if f[i][0] < 0:
+#                f[i][0] = 0        
+#    print("demand forecast ok")
 
     """using mosek"""
 #    # Since the actual value of Infinity is ignored, we define it solely for symbolic purposes:
