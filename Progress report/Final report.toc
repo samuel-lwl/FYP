@@ -1,0 +1,10 @@
+\babel@toc {english}{}
+\contentsline {section}{\numberline {1}Introduction}{4}% 
+\contentsline {subsection}{\numberline {1.1}Problem description}{4}% 
+\contentsline {subsection}{\numberline {1.2}Literature review}{4}% 
+\contentsline {section}{\numberline {2}Understanding the data}{5}% 
+\contentsline {section}{\numberline {3}Description of approaches}{6}% 
+\contentsline {section}{\numberline {4}Generating training data}{7}% 
+\contentsline {section}{\numberline {5}First approach}{8}% 
+\contentsline {section}{\numberline {6}Second approach}{10}% 
+\contentsline {section}{\numberline {7}Timeline of future work}{10}% 
