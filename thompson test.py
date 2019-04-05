@@ -256,7 +256,7 @@ for arm in range(k):
     # x0 is the choice where they dont buy anything
     x0[arm] = math.exp(v0)/(sum(truedemand[arm])+math.exp(v0))
     truedemand[arm] = truedemand[arm]/(np.sum(truedemand[arm])+math.exp(v0))
-haha
+
 # =============================================================================
 # To generate additional data by creating epsilons for each price vector
 # =============================================================================
@@ -398,15 +398,15 @@ for arm in range(k):
         basket_real[i][arm] = rev
 
 
-## Graphical comparison of TS vs each arm
-##plt.plot(np.cumsum(basket_cTS),'r')
-##plt.plot(np.cumsum(basket_real[:,0]),'b')
-##plt.plot(np.cumsum(basket_real[:,1]),'y')
-##plt.plot(np.cumsum(basket_real[:,2]),'m')
-##plt.ylabel('Cumulated revenue',fontsize=15)
-##plt.xlabel('Time period',fontsize=15)
-##plt.legend(['Real revenue','Lower arm','Middle arm','Higher arm'],fontsize=20)
-##plt.show()
+# Graphical comparison of TS vs each arm
+plt.plot(np.cumsum(basket_cTS),'r')
+plt.plot(np.cumsum(basket_real[:,0]),'b')
+plt.plot(np.cumsum(basket_real[:,1]),'y')
+plt.plot(np.cumsum(basket_real[:,2]),'m')
+plt.ylabel('Cumulated revenue',fontsize=15)
+plt.xlabel('Time period',fontsize=15)
+plt.legend(['Real revenue','Lower arm','Middle arm','Higher arm'],fontsize=20)
+plt.show()
 #
 ## =============================================================================
 ## Upper confidence bound (UCB1 method, Hoeffding's inequality)
