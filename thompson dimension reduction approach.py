@@ -9,7 +9,7 @@ instead of using it to generate prior data.
 
 Applied to children's dataset.
 
-Now need to apply max-rev-passive
+Each iteration, remove products that are already sold. dimension reduction
 """
 import pandas as pd
 # =============================================================================
@@ -112,24 +112,29 @@ import matplotlib.pyplot as plt
 gammastar = np.random.uniform(-3,-1,numvars)
 gammastar = np.reshape(gammastar, (numvars,1))
 
+# Initial parameters
 beta = 0.5 # original 0.5
 price0 = prices[1]
+c0 = 0.05 # original 0.005
 
 # Initial demand
 f1 = np.random.uniform(0.5,5,numvars)
 
-c0 = 0.05 # original 0.005
-
-noisemean = np.zeros(numvars)
-noisecov = np.identity(numvars)
+# Noise
+noisemean_true = np.zeros(numvars)
+noisemean_true = np.reshape(noisemean_true, (numvars, 1))
+noisecov_true = np.identity(numvars)
 
 data_ts = np.array(day01.iloc[:,1])
-f1 = data_ts*beta + c0 + np.random.multivariate_normal(noisemean, noisecov, 1)
+f1 = data_ts*beta + c0 + np.random.multivariate_normal(noisemean_true.flatten(), noisecov_true, 1)
 # f1 cannot be negative
 while (f1<0).any():
-        f1 = data_ts*beta + c0 + np.random.multivariate_normal(noisemean, noisecov, 1)
+        f1 = data_ts*beta + c0 + np.random.multivariate_normal(noisemean_true.flatten(), noisecov_true, 1)
 data_ts = np.reshape(data_ts, (1,numvars))
- 
+# For constant approach
+data_constant = np.copy(data_ts)
+
+# Set base price as previous price 
 prevprice = price0
 
 # To store histories of f, prevprice, observedx, elastmean
@@ -150,14 +155,29 @@ historical_rev[0] = np.matmul(data_ts, price0)
 historical_rev[1] = np.matmul(np.reshape(np.array(day04.iloc[:,1]), (1,numvars)) , price0)
 sighat = np.std(historical_rev)
 
+# 5000 stock for each product
+stock_ts = np.ones((numvars, 1))
+stock_ts *= 50
 
+truth = stock_ts <= 0
+
+# make another copy for TS
+gammastar_ts = gammastar
+noisemean_ts = noisemean_true
+noisecov_ts = noisecov_true
+
+i = 0
 # Data generating
-for i in range(1, datapts):
+while (stock_ts>0).any():
+    i += 1
+    
+#for i in range(1, datapts):
+    
     # Demand forecast
     if i == 1:
         f = f1
     else:
-        noise = np.random.multivariate_normal(noisemean, noisecov, 1)
+        noise = np.random.multivariate_normal(noisemean_ts.flatten(), noisecov_ts, 1)
         noise = np.reshape(noise, (numvars,1))
         f = c0 + noise
 
@@ -177,10 +197,10 @@ for i in range(1, datapts):
     elast_ts = np.reshape(elast_ts, (numvars,1))
     
     # Save for max-rev-passive
-    if i == 1:
-        elast1 = elast_ts
-    if i == 2:
-        elast2 = elast_ts
+#    if i == 1:
+#        elast1 = elast_ts
+#    if i == 2:
+#        elast2 = elast_ts
         
     # Generate price
     """using scipy.optimize"""
@@ -195,10 +215,15 @@ for i in range(1, datapts):
     newprice = np.reshape(newprice, (numvars,1))   
     
     # Observed demand
-    observedx = f * (newprice / prevprice)**gammastar + np.reshape(np.random.multivariate_normal(noisemean, noisecov, 1), (numvars,1))
+    observedx = f * (newprice / prevprice)**gammastar_ts + np.reshape(np.random.multivariate_normal(noisemean_ts.flatten(), noisecov_ts, 1), (numvars,1))
     for k in range(len(observedx)):
         if observedx[k,0] < 0:
             observedx[k,0] = 0
+        if truth[k,0] == True:
+            observedx[k,0] = 0
+    
+    # Update stocks
+    stock_ts -= observedx
     
     # Append new data    
     data_ts = np.append(data_ts, np.transpose(observedx), axis=0)
@@ -232,9 +257,49 @@ for i in range(1, datapts):
     
     # Update prevprice to new price
     prevprice = np.reshape(newprice, (numvars,1))
+    
+    
+    
+    
+    # Get T/F values 
+    truth = stock_ts <= 0
+    # To get all indices and reshape appropriately
+    rang = np.array(range(len(truth)))
+    rang = np.reshape(rang, (len(truth), 1))
+    # To get indices that are <= 0 since we want to remove them
+    want = rang[truth]
+    # Sort in descending order for cov matrices
+    want_desc = want[::-1]
+    # Update numvars
+    numvars -= len(want)
 
-
-
+    # Reset means. must negate truth since these are the ones we want to keep
+    noisemean_ts = noisemean_ts[np.logical_not(truth)]
+    noisemean_ts = np.reshape(noisemean_ts, (numvars, 1))
+    elastmean = elastmean[np.logical_not(truth)]
+    elastmean = np.reshape(elastmean, (numvars, 1))
+    
+    # Reset cov matrices
+    for index in want_desc:
+        # Delete row
+        noisecov_ts = np.delete(noisecov_ts, index, 0)
+        elastcov = np.delete(elastcov, index, 0)
+        # Delete col
+        noisecov_ts = np.delete(noisecov_ts, index, 1)
+        elastcov = np.delete(elastcov, index, 1)
+        data_ts = np.delete(data_ts, index, 1)
+                
+    # Reset prevprice
+    prevprice = prevprice[np.logical_not(truth)]
+    prevprice = np.reshape(prevprice, (numvars, 1))
+    
+    # Reset gammastar_ts
+    gammastar_ts = gammastar_ts[np.logical_not(truth)]
+    gammastar_ts = np.reshape(gammastar_ts, (numvars, 1))
+    
+    # Reset stock_ts
+    stock_ts = stock_ts[np.logical_not(truth)]
+    stock_ts = np.reshape(stock_ts, (numvars, 1))
 
 
 priceshistory = []
@@ -245,7 +310,9 @@ fhistory = []
 for i in range(len(tripledata_ts)):
     fhistory.append(tripledata_ts[i][0])
     
-
+obshistory = []
+for i in range(len(tripledata_ts)):
+    obshistory.append(tripledata_ts[i][2])
 plt.plot(revenue_basket_ts)
 
 # =============================================================================
@@ -258,15 +325,29 @@ revenue_basket_constant = []
 
 prevprice = price0
 
-data_constant = data_ts[0,:]
-data_constant = np.reshape(data_constant, (1, numvars))
+numvars = 66
 
-for i in range(1, datapts):
+# 5000 stock for each product
+stock_constant = np.ones((numvars, 1))
+stock_constant *= 50
+
+truth = stock_constant <= 0
+
+# Copy for constant approach
+noisemean_constant = noisemean_true
+noisecov_constant = noisecov_true
+gammastar_constant = gammastar
+
+i = 0
+# Data generating
+while (stock_constant>0).any():
+    i += 1
+#for i in range(1, datapts):
     # Demand forecast
     if i == 1:
         f = f1
     else:
-        noise = np.random.multivariate_normal(noisemean, noisecov, 1)
+        noise = np.random.multivariate_normal(noisemean_constant.flatten(), noisecov_constant, 1)
         noise = np.reshape(noise, (numvars,1))
         f = c0 + noise
 
@@ -280,28 +361,80 @@ for i in range(1, datapts):
     newprice = prevprice
     
     # Observed demand
-    observedx = f + np.reshape(np.random.multivariate_normal(noisemean, noisecov, 1), (numvars,1))
+    observedx = f + np.reshape(np.random.multivariate_normal(noisemean_constant.flatten(), noisecov_constant, 1), (numvars,1))
     for k in range(len(observedx)):
         if observedx[k,0] < 0:
             observedx[k,0] = 0
+        if truth[k,0] == True:
+            observedx[k,0] = 0
     
+    # Update stocks
+    stock_constant -= observedx
+
     # Append new data    
     data_constant = np.append(data_constant, np.transpose(observedx), axis=0)
 
     # Add data as triplet into tripledata
     tripledata_constant.append([f, prevprice, observedx])
     revenue_basket_constant.append(np.sum(np.multiply(observedx, newprice)))
-        
+
     # Update prevprice to new price
     prevprice = np.reshape(newprice, (numvars,1))
 
 
 
+    truth = stock_constant <= 0
+    # To get all indices and reshape appropriately
+    rang = np.array(range(len(truth)))
+    rang = np.reshape(rang, (len(truth), 1))
+    # To get indices that are <= 0 since we want to remove them
+    want = rang[truth]
+    # Sort in descending order for cov matrices
+    want_desc = want[::-1]
+    # Update numvars
+    numvars -= len(want)
+
+    # Reset means. must negate truth since these are the ones we want to keep
+    noisemean_constant = noisemean_constant[np.logical_not(truth)]
+    noisemean_constant = np.reshape(noisemean_constant, (numvars, 1))
+    
+    # Reset cov matrices
+    for index in want_desc:
+        # Delete row
+        noisecov_constant = np.delete(noisecov_constant, index, 0)
+        # Delete col
+        noisecov_constant = np.delete(noisecov_constant, index, 1)
+        data_constant = np.delete(data_constant, index, 1)
+                
+    # Reset prevprice
+    prevprice = prevprice[np.logical_not(truth)]
+    prevprice = np.reshape(prevprice, (numvars, 1))
+    
+    # Reset gammastar_constant
+    gammastar_constant = gammastar_constant[np.logical_not(truth)]
+    gammastar_constant = np.reshape(gammastar_constant, (numvars, 1))
+    
+    # Reset stock_constant
+    stock_constant = stock_constant[np.logical_not(truth)]
+    stock_constant = np.reshape(stock_constant, (numvars, 1))
+
 plt.plot(revenue_basket_constant)
 
+priceshistory_constant = []
+for i in range(len(tripledata_constant)):
+    priceshistory_constant.append(tripledata_constant[i][1])
+
+fhistory_constant = []
+for i in range(len(tripledata_constant)):
+    fhistory_constant.append(tripledata_constant[i][0])
+    
+obshistory_constant = []
+for i in range(len(tripledata_constant)):
+    obshistory_constant.append(tripledata_constant[i][2])
 
 
-
+plt.plot(np.cumsum(revenue_basket_ts))
+plt.plot(np.cumsum(revenue_basket_constant))
 
 
 
