@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 from math import sqrt
 from math import log
 
-x = pd.read_excel("C:/Uninotes/FYP/data/selected-sales data_children%27s book_every 99 cut 50.xlsx") # desktop
-#x = pd.read_excel("C:/Users/Samuel/Desktop/uninotes/FYP/selected-sales data_children%27s book_every 99 cut 50.xlsx") # laptop
+#x = pd.read_excel("C:/Uninotes/FYP/data/selected-sales data_children%27s book_every 99 cut 50.xlsx") # desktop
+x = pd.read_excel("C:/Users/Samuel/Desktop/uninotes/FYP/selected-sales data_children%27s book_every 99 cut 50.xlsx") # laptop
 
 # removed brand_id, agio_cut_price and free_cut_price
 dataoriginalprice = x.iloc[:,[1,17]]
@@ -109,9 +109,9 @@ productpricehigher = productprice*1.1
 # 0: lower, 1: middle, 2: higher
 prices = [productpricelower.iloc[:,1].values.reshape((numvars,1)), productprice.iloc[:,1].values.reshape((numvars,1)), productpricehigher.iloc[:,1].values.reshape((numvars,1))]
 
-###########################################################################################
-########################################## now trying to use mle for first price vector
-# 11 days, take as 11 observations for each good
+##########################################################################################
+######################################### now trying to use mle for first price vector
+## 11 days, take as 11 observations for each good
 #
 ## All goods_id in the dataset
 #allgoods = x.loc[:,"goods_id"]
@@ -201,7 +201,7 @@ prices = [productpricelower.iloc[:,1].values.reshape((numvars,1)), productprice.
 #day11 = pd.concat([day11,day11missing])
 #day11.sort_values(by='goods_id', axis=0, ascending=True, inplace=True)
 #day11.reset_index(level=None, drop=True, inplace=True)
-#
+
 ## get observations for each product
 ## numpy's std uses population variance(biased). statistics.stdev uses sample variance(unbiased). 
 ## to use sample variance, set ddof = 1 in np.std. use unbiased since sample size small? wrong, 
@@ -238,22 +238,25 @@ k = 3
 # First we generate V. one V for all price vectors. V = +- 5% of Pbar
 # Build V around the default price vector which is equivalent to the average of all 3 price vectors
 v = np.empty([numvars,1])
-#np.random.seed(10)
+np.random.seed(10)
 for i in range(numvars):
     v[i] = np.random.randint(prices[1][i]-0.05*prices[1][i], prices[1][i]+0.05*prices[1][i]) # 1 since prices[1] is the default price vector
 
-#np.random.seed(10)
+np.random.seed(13)
 v0 = np.random.randint(0, 5)
 # True demand: Theoretical X, where X is the demand
 truedemand = [np.empty([numvars,1])] * k
+
+# To store x0
+x0 = np.zeros(k)
 
 for arm in range(k):
     for i in range(numvars):
         truedemand[arm][i] = math.exp(v[i]-(prices[arm][i]))
     # x0 is the choice where they dont buy anything
-    x0 = math.exp(v0)/(sum(truedemand[arm])+math.exp(v0))
+    x0[arm] = math.exp(v0)/(sum(truedemand[arm])+math.exp(v0))
     truedemand[arm] = truedemand[arm]/(np.sum(truedemand[arm])+math.exp(v0))
-
+haha
 # =============================================================================
 # To generate additional data by creating epsilons for each price vector
 # =============================================================================
@@ -395,278 +398,282 @@ for arm in range(k):
         basket_real[i][arm] = rev
 
 
-# Graphical comparison of TS vs each arm
-#plt.plot(np.cumsum(basket_cTS),'r')
-#plt.plot(np.cumsum(basket_real[:,0]),'b')
-#plt.plot(np.cumsum(basket_real[:,1]),'y')
-#plt.plot(np.cumsum(basket_real[:,2]),'m')
-#plt.ylabel('Cumulated revenue',fontsize=15)
-#plt.xlabel('Time period',fontsize=15)
-#plt.legend(['Real revenue','Lower arm','Middle arm','Higher arm'],fontsize=20)
-#plt.show()
-
-# =============================================================================
-# Upper confidence bound (UCB1 method, Hoeffding's inequality)
-# =============================================================================
-# Initialise counters
-# 0:lower, 1:middle, 2:higher
-ucb_counter = np.ones(k)
-
-# Initialise basket
-basket_ucb = np.zeros(itr)
-
-# UCB scores
-ucb_scores = np.zeros(k)
-
-# Initialise mean, pull each arm once
-ucb_mean = np.zeros(k)
-for arm in range(k):
-    rev = np.sum(truedemand[arm] * prices[arm])
-    ucb_mean[arm] = rev
-    basket_ucb[arm] = rev
-    
-# Update ucb scores
-for arm in range(k):
-    ucb_scores[arm] = ucb_mean[arm] + sqrt(2*(log(k)/ucb_counter[arm]))
-
-# Overall revenue
-revenue_ucb = np.sum(ucb_mean)
-
-for i in range(k, itr):
-    # Find the arm with highest ucb score
-    arm = np.argmax(ucb_scores)
-    
-    # Calculate revenue and add to basket
-    rev = np.sum(truedemand[arm] * prices[arm])
-    revenue_ucb += rev
-    basket_ucb[i] = rev
-    
-    # Increase counter and recalculate mean
-    ucb_counter[arm] += 1
-    ucb_mean[arm] += (rev - ucb_mean[arm])/(ucb_counter[arm])
-    
-    # Recalculate ucb score
-    ucb_scores[arm] = ucb_mean[arm] + sqrt(2*(log(i+1)/ucb_counter[arm])) # i+1 for number of iterations
-
-# =============================================================================
-# Epsilon-greedy algorithm
-# =============================================================================
-# Initialise counters
-# 0:lower, 1:middle, 2:higher
-eg_counter = np.zeros(k)
-
-# Initialise basket
-basket_eg = np.zeros(itr)
-
-# Initialise mean
-eg_mean = np.zeros(k)
-    
-# Overall revenue
-revenue_eg = 0  
-
-# Set epsilon = 0.1
-e = 0.1
-
-# Overall revenue for this algorithm
-revenue_eg = 0
-
-for i in range(itr):
-    ep = np.random.uniform()
-    
-    # Exploitation, run the best arm
-    if ep>e:
-        # Checking for the best arm
-        arm = np.argmax(eg_mean)
-        
-        # Calculate revenue and add to basket
-        rev = np.sum(truedemand[arm] * prices[arm])
-        revenue_eg += rev
-        basket_eg[i] = rev
-        
-        # Increase counter and recalculate mean
-        eg_counter[arm] += 1
-        eg_mean[arm] += (rev - eg_mean[arm])/(eg_counter[arm])
-                    
-    # Exploration, randomly select an arm
-    else:
-        arm = np.random.randint(0,3)
-        
-        # Calculate revenue and add to basket
-        rev = np.sum(truedemand[arm] * prices[arm])
-        revenue_eg += rev
-        basket_eg[i] = rev
-        
-        # Increase counter and recalculate mean
-        eg_counter[arm] += 1
-        eg_mean[arm] += (rev - eg_mean[arm])/(eg_counter[arm])
-
-# =============================================================================
-# Epsilon-greedy algorithm with optimistic initialisation
-# =============================================================================
-# Initialise counters
-# 0:lower, 1:middle, 2:higher
-egoi_counter = np.zeros(k)
-
-# Initialise basket
-basket_egoi = np.zeros(itr)
-
-# Initialise mean for each arm as 100
-egoi_mean = [100.0]*k
-egoi_mean = np.array(egoi_mean)
-    
-# Overall revenue
-revenue_egoi = 0  
-
-# Set epsilon = 0.1
-e = 0.1
-
-# Overall revenue for this algorithm
-revenue_egoi = 0
-
-for i in range(itr):
-    ep = np.random.uniform()
-    
-    # Exploitation, run the best arm
-    if ep>e:
-        # Checking for the best arm
-        arm = np.argmax(egoi_mean)
-        
-        # Calculate revenue and add to basket
-        rev = np.sum(truedemand[arm] * prices[arm])
-        revenue_egoi += rev
-        basket_egoi[i] = rev
-        
-        # Increase counter and recalculate mean
-        egoi_counter[arm] += 1
-        egoi_mean[arm] += (rev - egoi_mean[arm])/(egoi_counter[arm])
-                    
-    # Exploration, randomly select an arm
-    else:
-        arm = np.random.randint(0,3)
-        
-        # Calculate revenue and add to basket
-        rev = np.sum(truedemand[arm] * prices[arm])
-        revenue_egoi += rev
-        basket_egoi[i] = rev
-        
-        # Increase counter and recalculate mean
-        egoi_counter[arm] += 1
-        egoi_mean[arm] += (rev - egoi_mean[arm])/(egoi_counter[arm])
-        
-    
-# =============================================================================
-# Epsilon-greedy algorithm with decay
-# =============================================================================
-# Initialise counters
-# 0:lower, 1:middle, 2:higher
-egd_counter = np.zeros(k)
-
-# Initialise mean to be 100 for each arm
-egd_mean = [100.0]*k
-egd_mean = np.array(egd_mean)
-
-# Set epsilon using this formula
-# e = 1/(1+n/k) where k is the number of arms and n is the number of iterations already passed
-
-# Overall revenue for this algorithm
-revenue_egd = 0
-basket_egd = np.zeros(itr)
-
-for i in range(itr):
-    ep = np.random.uniform()
-    
-    # Exploitation, run the best arm
-    if ep > 1/(1+i/k):
-        # Checking for the best arm
-        arm = np.argmax(egd_mean)
-        
-        # Calculate revenue and add to basket
-        rev = np.sum(truedemand[arm] * prices[arm])
-        revenue_egd += rev
-        egd_counter[arm] += 1
-        basket_egd[i] = rev
-        
-        # Recalculate mean
-        egd_mean[arm] += (rev - egd_mean[arm])/(egd_counter[arm] + 1) # Since we have initialisation =/= 0
- 
-    # Exploration, randomly select an arm
-    else:
-        arm = np.random.randint(0,k)
-        
-        # Calculate revenue and add to basket
-        rev = np.sum(truedemand[arm] * prices[arm])
-        revenue_egd += rev
-        egd_counter[arm] += 1
-        basket_egd[i] = rev
-        
-        # Recalculate mean
-        egd_mean[arm] += (rev - egd_mean[arm])/(egd_counter[arm] + 1) # Since we have initialisation =/= 0
-        
-# =============================================================================
-# UCB1-Tuned
-# =============================================================================
-# Initialise counters
-# 0:lower, 1:middle, 2:higher
-ucbt_counter = np.ones(k)
-
-# Initialise basket
-basket_ucbt = np.zeros(itr)
-
-# UCB scores
-ucbt_scores = np.zeros(k)
-
-# sum of squares for ucb1-tuned
-ucbt_ss = np.zeros(k)
-
-# Initialise mean, pull each arm once
-ucbt_mean = np.zeros(k)
-for arm in range(k):
-    rev = np.sum(truedemand[arm] * prices[arm])
-    ucbt_mean[arm] = rev
-    basket_ucbt[arm] = rev
-    ucbt_ss[arm] += rev**2
-    
-# Update ucb scores
-for arm in range(k):
-    ucbt_scores[arm] = ucbt_mean[arm] + sqrt((log(k)/ucbt_counter[arm]) * min(1/4, (ucbt_ss[arm] + 2*(log(k)/ucbt_counter[arm]))) )
-
-# Overall revenue
-revenue_ucbt = np.sum(ucbt_mean)
-
-for i in range(k, itr):
-    # Find the arm with highest ucb score
-    arm = np.argmax(ucbt_scores)
-    
-    # Calculate revenue and add to basket
-    rev = np.sum(truedemand[arm] * prices[arm])
-    revenue_ucbt += rev
-    basket_ucbt[i] = rev
-    
-    # Increase counter and recalculate mean, sum of squares
-    ucbt_counter[arm] += 1
-    ucbt_mean[arm] += (rev - ucbt_mean[arm])/(ucbt_counter[arm])
-    ucbt_ss[arm] += rev**2
-    
-    # Recalculate ucb score
-    ucbt_scores[arm] = ucbt_mean[arm] + sqrt((log(i+1)/ucbt_counter[arm]) * min(1/4, (ucbt_ss[arm] + 2*(log(i+1)/ucbt_counter[arm]))) ) # i+1 for number of iterations
-           
-# Graphical comparison of results
-#plt.plot(np.cumsum(basket_cTS),'y')
-#plt.plot(np.cumsum(basket_eg),'b')
-#plt.plot(np.cumsum(basket_egd),'c')
-#plt.plot(np.cumsum(basket_egoi),'m')
-#plt.plot(np.cumsum(basket_ucb),'r')
-#plt.plot(np.cumsum(basket_ucbt),'k')
-#plt.ylabel('Cumulated revenue',fontsize=15)
-#plt.xlabel('Time period',fontsize=15)
-#plt.legend(['classical Thompson sampling','epsilon-greedy','epsilon-greedy w/ decay','epsilon-greedy w/ optimistic initialisation','ucb1','ucb1-tuned'],fontsize=20)
-#plt.show()
-    
-
-haha
+## Graphical comparison of TS vs each arm
+##plt.plot(np.cumsum(basket_cTS),'r')
+##plt.plot(np.cumsum(basket_real[:,0]),'b')
+##plt.plot(np.cumsum(basket_real[:,1]),'y')
+##plt.plot(np.cumsum(basket_real[:,2]),'m')
+##plt.ylabel('Cumulated revenue',fontsize=15)
+##plt.xlabel('Time period',fontsize=15)
+##plt.legend(['Real revenue','Lower arm','Middle arm','Higher arm'],fontsize=20)
+##plt.show()
+#
+## =============================================================================
+## Upper confidence bound (UCB1 method, Hoeffding's inequality)
+## =============================================================================
+## Initialise counters
+## 0:lower, 1:middle, 2:higher
+#ucb_counter = np.ones(k)
+#
+## Initialise basket
+#basket_ucb = np.zeros(itr)
+#
+## UCB scores
+#ucb_scores = np.zeros(k)
+#
+## Initialise mean, pull each arm once
+#ucb_mean = np.zeros(k)
+#for arm in range(k):
+#    rev = np.sum(truedemand[arm] * prices[arm])
+#    ucb_mean[arm] = rev
+#    basket_ucb[arm] = rev
+#    
+## Update ucb scores
+#for arm in range(k):
+#    ucb_scores[arm] = ucb_mean[arm] + sqrt(2*(log(k)/ucb_counter[arm]))
+#
+## Overall revenue
+#revenue_ucb = np.sum(ucb_mean)
+#
+#for i in range(k, itr):
+#    # Find the arm with highest ucb score
+#    arm = np.argmax(ucb_scores)
+#    
+#    # Calculate revenue and add to basket
+#    rev = np.sum(truedemand[arm] * prices[arm])
+#    revenue_ucb += rev
+#    basket_ucb[i] = rev
+#    
+#    # Increase counter and recalculate mean
+#    ucb_counter[arm] += 1
+#    ucb_mean[arm] += (rev - ucb_mean[arm])/(ucb_counter[arm])
+#    
+#    # Recalculate ucb score
+#    ucb_scores[arm] = ucb_mean[arm] + sqrt(2*(log(i+1)/ucb_counter[arm])) # i+1 for number of iterations
+#
+## =============================================================================
+## Epsilon-greedy algorithm
+## =============================================================================
+## Initialise counters
+## 0:lower, 1:middle, 2:higher
+#eg_counter = np.zeros(k)
+#
+## Initialise basket
+#basket_eg = np.zeros(itr)
+#
+## Initialise mean
+#eg_mean = np.zeros(k)
+#    
+## Overall revenue
+#revenue_eg = 0  
+#
+## Set epsilon = 0.1
+#e = 0.1
+#
+## Overall revenue for this algorithm
+#revenue_eg = 0
+#
+#for i in range(itr):
+#    ep = np.random.uniform()
+#    
+#    # Exploitation, run the best arm
+#    if ep>e:
+#        # Checking for the best arm
+#        arm = np.argmax(eg_mean)
+#        
+#        # Calculate revenue and add to basket
+#        rev = np.sum(truedemand[arm] * prices[arm])
+#        revenue_eg += rev
+#        basket_eg[i] = rev
+#        
+#        # Increase counter and recalculate mean
+#        eg_counter[arm] += 1
+#        eg_mean[arm] += (rev - eg_mean[arm])/(eg_counter[arm])
+#                    
+#    # Exploration, randomly select an arm
+#    else:
+#        arm = np.random.randint(0,3)
+#        
+#        # Calculate revenue and add to basket
+#        rev = np.sum(truedemand[arm] * prices[arm])
+#        revenue_eg += rev
+#        basket_eg[i] = rev
+#        
+#        # Increase counter and recalculate mean
+#        eg_counter[arm] += 1
+#        eg_mean[arm] += (rev - eg_mean[arm])/(eg_counter[arm])
+#
+## =============================================================================
+## Epsilon-greedy algorithm with optimistic initialisation
+## =============================================================================
+## Initialise counters
+## 0:lower, 1:middle, 2:higher
+#egoi_counter = np.zeros(k)
+#
+## Initialise basket
+#basket_egoi = np.zeros(itr)
+#
+## Initialise mean for each arm as 100
+#egoi_mean = [100.0]*k
+#egoi_mean = np.array(egoi_mean)
+#    
+## Overall revenue
+#revenue_egoi = 0  
+#
+## Set epsilon = 0.1
+#e = 0.1
+#
+## Overall revenue for this algorithm
+#revenue_egoi = 0
+#
+#for i in range(itr):
+#    ep = np.random.uniform()
+#    
+#    # Exploitation, run the best arm
+#    if ep>e:
+#        # Checking for the best arm
+#        arm = np.argmax(egoi_mean)
+#        
+#        # Calculate revenue and add to basket
+#        rev = np.sum(truedemand[arm] * prices[arm])
+#        revenue_egoi += rev
+#        basket_egoi[i] = rev
+#        
+#        # Increase counter and recalculate mean
+#        egoi_counter[arm] += 1
+#        egoi_mean[arm] += (rev - egoi_mean[arm])/(egoi_counter[arm])
+#                    
+#    # Exploration, randomly select an arm
+#    else:
+#        arm = np.random.randint(0,3)
+#        
+#        # Calculate revenue and add to basket
+#        rev = np.sum(truedemand[arm] * prices[arm])
+#        revenue_egoi += rev
+#        basket_egoi[i] = rev
+#        
+#        # Increase counter and recalculate mean
+#        egoi_counter[arm] += 1
+#        egoi_mean[arm] += (rev - egoi_mean[arm])/(egoi_counter[arm])
+#        
+#    
+## =============================================================================
+## Epsilon-greedy algorithm with decay
+## =============================================================================
+## Initialise counters
+## 0:lower, 1:middle, 2:higher
+#egd_counter = np.zeros(k)
+#
+## Initialise mean to be 100 for each arm
+#egd_mean = [100.0]*k
+#egd_mean = np.array(egd_mean)
+#
+## Set epsilon using this formula
+## e = 1/(1+n/k) where k is the number of arms and n is the number of iterations already passed
+#
+## Overall revenue for this algorithm
+#revenue_egd = 0
+#basket_egd = np.zeros(itr)
+#
+#for i in range(itr):
+#    ep = np.random.uniform()
+#    
+#    # Exploitation, run the best arm
+#    if ep > 1/(1+i/k):
+#        # Checking for the best arm
+#        arm = np.argmax(egd_mean)
+#        
+#        # Calculate revenue and add to basket
+#        rev = np.sum(truedemand[arm] * prices[arm])
+#        revenue_egd += rev
+#        egd_counter[arm] += 1
+#        basket_egd[i] = rev
+#        
+#        # Recalculate mean
+#        egd_mean[arm] += (rev - egd_mean[arm])/(egd_counter[arm] + 1) # Since we have initialisation =/= 0
+# 
+#    # Exploration, randomly select an arm
+#    else:
+#        arm = np.random.randint(0,k)
+#        
+#        # Calculate revenue and add to basket
+#        rev = np.sum(truedemand[arm] * prices[arm])
+#        revenue_egd += rev
+#        egd_counter[arm] += 1
+#        basket_egd[i] = rev
+#        
+#        # Recalculate mean
+#        egd_mean[arm] += (rev - egd_mean[arm])/(egd_counter[arm] + 1) # Since we have initialisation =/= 0
+#        
+## =============================================================================
+## UCB1-Tuned
+## =============================================================================
+## Initialise counters
+## 0:lower, 1:middle, 2:higher
+#ucbt_counter = np.ones(k)
+#
+## Initialise basket
+#basket_ucbt = np.zeros(itr)
+#
+## UCB scores
+#ucbt_scores = np.zeros(k)
+#
+## sum of squares for ucb1-tuned
+#ucbt_ss = np.zeros(k)
+#
+## Initialise mean, pull each arm once
+#ucbt_mean = np.zeros(k)
+#for arm in range(k):
+#    rev = np.sum(truedemand[arm] * prices[arm])
+#    ucbt_mean[arm] = rev
+#    basket_ucbt[arm] = rev
+#    ucbt_ss[arm] += rev**2
+#    
+## Update ucb scores
+#for arm in range(k):
+#    ucbt_scores[arm] = ucbt_mean[arm] + sqrt((log(k)/ucbt_counter[arm]) * min(1/4, (ucbt_ss[arm] + 2*(log(k)/ucbt_counter[arm]))) )
+#
+## Overall revenue
+#revenue_ucbt = np.sum(ucbt_mean)
+#
+#for i in range(k, itr):
+#    # Find the arm with highest ucb score
+#    arm = np.argmax(ucbt_scores)
+#    
+#    # Calculate revenue and add to basket
+#    rev = np.sum(truedemand[arm] * prices[arm])
+#    revenue_ucbt += rev
+#    basket_ucbt[i] = rev
+#    
+#    # Increase counter and recalculate mean, sum of squares
+#    ucbt_counter[arm] += 1
+#    ucbt_mean[arm] += (rev - ucbt_mean[arm])/(ucbt_counter[arm])
+#    ucbt_ss[arm] += rev**2
+#    
+#    # Recalculate ucb score
+#    ucbt_scores[arm] = ucbt_mean[arm] + sqrt((log(i+1)/ucbt_counter[arm]) * min(1/4, (ucbt_ss[arm] + 2*(log(i+1)/ucbt_counter[arm]))) ) # i+1 for number of iterations
+#           
+## Graphical comparison of results
+##plt.plot(np.cumsum(basket_cTS),'y')
+##plt.plot(np.cumsum(basket_eg),'b')
+##plt.plot(np.cumsum(basket_egd),'c')
+##plt.plot(np.cumsum(basket_egoi),'m')
+##plt.plot(np.cumsum(basket_ucb),'r')
+##plt.plot(np.cumsum(basket_ucbt),'k')
+##plt.ylabel('Cumulated revenue',fontsize=15)
+##plt.xlabel('Time period',fontsize=15)
+##plt.legend(['classical Thompson sampling','epsilon-greedy','epsilon-greedy w/ decay','epsilon-greedy w/ optimistic initialisation','ucb1','ucb1-tuned'],fontsize=20)
+##plt.show()
+#
+#
+#
 # =============================================================================
 # Thomson sampling (Dynamic pricing approach)
 # =============================================================================
+haha
+
+
+
 # Initialising prior distribution
 
 # PED depends on the sequence of price vector used. Assume low-normal-high is the sequence. 
