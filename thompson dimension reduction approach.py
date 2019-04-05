@@ -9,7 +9,8 @@ instead of using it to generate prior data.
 
 Applied to children's dataset.
 
-Each iteration, remove products that are already sold. dimension reduction
+Dimension reduction approach
+Each iteration, remove products that are already sold. 
 """
 import pandas as pd
 # =============================================================================
