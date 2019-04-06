@@ -403,9 +403,10 @@ plt.plot(np.cumsum(basket_cTS),'r')
 plt.plot(np.cumsum(basket_real[:,0]),'b')
 plt.plot(np.cumsum(basket_real[:,1]),'y')
 plt.plot(np.cumsum(basket_real[:,2]),'m')
-plt.ylabel('Cumulated revenue',fontsize=15)
-plt.xlabel('Time period',fontsize=15)
+plt.ylabel('Cumulated revenue',fontsize=20)
+plt.xlabel('Time period',fontsize=20)
 plt.legend(['Real revenue','Lower arm','Middle arm','Higher arm'],fontsize=20)
+plt.title("Comparing results with all 3 arms", fontsize=20)
 plt.show()
 #
 ## =============================================================================
