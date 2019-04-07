@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 
+"""
+Shouldnt apply dynamic pricing to MNL? cos elasticity will
+always have some positive. because we need all of X_i to sum up
+to 1 so for products that have increase in demand, other products
+must decrease in demand to satisfy the constraint. this means
+we will always have some products that have positive elasticity.
+"""
 import pandas as pd
 import numpy as np
 import math
@@ -305,109 +312,109 @@ itr = 1000
 # =============================================================================
 # Thompson sampling done here (classical approach)
 # =============================================================================
-# Assume each price vector has normal distribution. Use MLE to estimate parameters from data created.
-# Mean for each arm
-cTS_mean = [0.0]*k
-for arm in range(k):
-    cTS_mean[arm] = np.mean(data_all[arm], axis=1)
-
-# Covariance
-cTS_cov = [0.0]*k
-for arm in range(k):
-    # Must reset cov = 0 for each arm other cumulative sum will affect later arms
-    cov = 0
-    for i in range(data_all[arm].shape[1]): # For each data point of each arm
-        temp1 = np.reshape((data_all[arm][:,i] - cTS_mean[arm]), (numvars,1))
-        temp2 = np.reshape((data_all[arm][:,i] - cTS_mean[arm]), (1,numvars))
-        cov += np.matmul(temp1, temp2)
-        
-    # divide by number of data points since MLE estimate of cov matrix is divide by N not N-1
-    cTS_cov[arm] = cov/(numep*2)
-
-# Initialise counter for the number of times each arm is selected
-cTS_counter = np.zeros(k)
-
-# Revenue and basket
-revenue_cTS = 0
-basket_cTS = np.zeros(itr)
-
-"""Idea is to estimate the true underlying demand distribution using historical data.
-Using our estimated demand distribution, produce an estimate of the demand by sampling.
-Optimise/choose the price that will maximise revenue BASED ON the SAMPLED demand.
-OBSERVE the ACTUAL demand that comes from the true underlying demand distribution.
-Calculate the revenue that we obtain. Add this new information (price and demand)
-to our historical data and repeat.
-
-Since we dont have a distribution to sample from that represents the true demand, we shall replace that
-with the theoretical X since in the long run, random samples from the true demand distribution
-should be very close to the theoretical X.
-"""
-
-#np.random.seed(10)
-for j in range(itr):
-    # Randomly sample from each distribution. This is our SAMPLED demand.
-    cTS_forecast_demand = [0.0]*k
-    for arm in range(k):
-#        np.random.seed(10)
-        cTS_forecast_demand[arm] = np.random.multivariate_normal(cTS_mean[arm], cTS_cov[arm], 1).T
-    
-    # Calculate revenue based on the SAMPLED demand
-    cTS_forecast_revenue = np.zeros(k)
-    for arm in range(k):
-        cTS_forecast_revenue[arm] = np.sum(np.multiply(cTS_forecast_demand[arm], prices[arm]))
-       
-    # Choose the arm with the highest revenue based on SAMPLED demand.
-    arm = np.argmax(cTS_forecast_revenue)
-    
-    # Add to counter
-    cTS_counter[arm] += 1
-    
-    # Pull the arm, calculate and accumulate OBSERVED revenue
-    rev = np.sum(np.multiply(truedemand[arm], prices[arm]))
-    revenue_cTS += rev
-    basket_cTS[j] = rev
-    
-    # Adding observed/theoretical X to list of observations
-    data_all[arm] = np.append(data_all[arm], truedemand[arm], axis=1)
-    
-    # Recalculate parameters using MLE
-    # Mean for each arm
-    cTS_mean[arm] = np.mean(data_all[arm], axis=1)
-    
-    # Covariance
-    cov = 0
-    for i in range(data_all[arm].shape[1]): # For each data point of each arm
-        temp1 = np.reshape((data_all[arm][:,i] - cTS_mean[arm]), (numvars,1))
-        temp2 = np.reshape((data_all[arm][:,i] - cTS_mean[arm]), (1,numvars))
-        cov += np.matmul(temp1, temp2)       
-    # divide by number of data points since MLE estimate of cov matrix is divide by N not N-1
-    cTS_cov[arm] = cov/(data_all[arm].shape[1])
-
-# =============================================================================
-# Validate if the chosen arm is correct (use theoretical X for each arm)
-# =============================================================================
-# 0:lower, 1:middle, 2:higher
-# Real revenue and basket
-realrevenue = np.zeros(k)
-basket_real = np.zeros((itr, k))
-
-for arm in range(k):
-    for i in range(itr):
-        rev = np.sum(truedemand[arm] * prices[arm])
-        realrevenue[arm] += rev
-        basket_real[i][arm] = rev
-
-
-# Graphical comparison of TS vs each arm
-plt.plot(np.cumsum(basket_cTS),'r')
-plt.plot(np.cumsum(basket_real[:,0]),'b')
-plt.plot(np.cumsum(basket_real[:,1]),'y')
-plt.plot(np.cumsum(basket_real[:,2]),'m')
-plt.ylabel('Cumulated revenue',fontsize=20)
-plt.xlabel('Time period',fontsize=20)
-plt.legend(['Real revenue','Lower arm','Middle arm','Higher arm'],fontsize=20)
-plt.title("Comparing results with all 3 arms", fontsize=20)
-plt.show()
+## Assume each price vector has normal distribution. Use MLE to estimate parameters from data created.
+## Mean for each arm
+#cTS_mean = [0.0]*k
+#for arm in range(k):
+#    cTS_mean[arm] = np.mean(data_all[arm], axis=1)
+#
+## Covariance
+#cTS_cov = [0.0]*k
+#for arm in range(k):
+#    # Must reset cov = 0 for each arm other cumulative sum will affect later arms
+#    cov = 0
+#    for i in range(data_all[arm].shape[1]): # For each data point of each arm
+#        temp1 = np.reshape((data_all[arm][:,i] - cTS_mean[arm]), (numvars,1))
+#        temp2 = np.reshape((data_all[arm][:,i] - cTS_mean[arm]), (1,numvars))
+#        cov += np.matmul(temp1, temp2)
+#        
+#    # divide by number of data points since MLE estimate of cov matrix is divide by N not N-1
+#    cTS_cov[arm] = cov/(numep*2)
+#
+## Initialise counter for the number of times each arm is selected
+#cTS_counter = np.zeros(k)
+#
+## Revenue and basket
+#revenue_cTS = 0
+#basket_cTS = np.zeros(itr)
+#
+#"""Idea is to estimate the true underlying demand distribution using historical data.
+#Using our estimated demand distribution, produce an estimate of the demand by sampling.
+#Optimise/choose the price that will maximise revenue BASED ON the SAMPLED demand.
+#OBSERVE the ACTUAL demand that comes from the true underlying demand distribution.
+#Calculate the revenue that we obtain. Add this new information (price and demand)
+#to our historical data and repeat.
+#
+#Since we dont have a distribution to sample from that represents the true demand, we shall replace that
+#with the theoretical X since in the long run, random samples from the true demand distribution
+#should be very close to the theoretical X.
+#"""
+#
+##np.random.seed(10)
+#for j in range(itr):
+#    # Randomly sample from each distribution. This is our SAMPLED demand.
+#    cTS_forecast_demand = [0.0]*k
+#    for arm in range(k):
+##        np.random.seed(10)
+#        cTS_forecast_demand[arm] = np.random.multivariate_normal(cTS_mean[arm], cTS_cov[arm], 1).T
+#    
+#    # Calculate revenue based on the SAMPLED demand
+#    cTS_forecast_revenue = np.zeros(k)
+#    for arm in range(k):
+#        cTS_forecast_revenue[arm] = np.sum(np.multiply(cTS_forecast_demand[arm], prices[arm]))
+#       
+#    # Choose the arm with the highest revenue based on SAMPLED demand.
+#    arm = np.argmax(cTS_forecast_revenue)
+#    
+#    # Add to counter
+#    cTS_counter[arm] += 1
+#    
+#    # Pull the arm, calculate and accumulate OBSERVED revenue
+#    rev = np.sum(np.multiply(truedemand[arm], prices[arm]))
+#    revenue_cTS += rev
+#    basket_cTS[j] = rev
+#    
+#    # Adding observed/theoretical X to list of observations
+#    data_all[arm] = np.append(data_all[arm], truedemand[arm], axis=1)
+#    
+#    # Recalculate parameters using MLE
+#    # Mean for each arm
+#    cTS_mean[arm] = np.mean(data_all[arm], axis=1)
+#    
+#    # Covariance
+#    cov = 0
+#    for i in range(data_all[arm].shape[1]): # For each data point of each arm
+#        temp1 = np.reshape((data_all[arm][:,i] - cTS_mean[arm]), (numvars,1))
+#        temp2 = np.reshape((data_all[arm][:,i] - cTS_mean[arm]), (1,numvars))
+#        cov += np.matmul(temp1, temp2)       
+#    # divide by number of data points since MLE estimate of cov matrix is divide by N not N-1
+#    cTS_cov[arm] = cov/(data_all[arm].shape[1])
+#
+## =============================================================================
+## Validate if the chosen arm is correct (use theoretical X for each arm)
+## =============================================================================
+## 0:lower, 1:middle, 2:higher
+## Real revenue and basket
+#realrevenue = np.zeros(k)
+#basket_real = np.zeros((itr, k))
+#
+#for arm in range(k):
+#    for i in range(itr):
+#        rev = np.sum(truedemand[arm] * prices[arm])
+#        realrevenue[arm] += rev
+#        basket_real[i][arm] = rev
+#
+#
+## Graphical comparison of TS vs each arm
+##plt.plot(np.cumsum(basket_cTS),'ko-')
+##plt.plot(np.cumsum(basket_real[:,0]),'k--')
+##plt.plot(np.cumsum(basket_real[:,1]),'k-.')
+##plt.plot(np.cumsum(basket_real[:,2]),'k:')
+##plt.ylabel('Cumulated revenue',fontsize=20)
+##plt.xlabel('Time period',fontsize=20)
+##plt.legend(['Real revenue','Lower arm','Middle arm','Higher arm'],fontsize=20)
+##plt.title("Comparing results with all 3 arms", fontsize=20)
+##plt.show()
 #
 ## =============================================================================
 ## Upper confidence bound (UCB1 method, Hoeffding's inequality)
@@ -632,6 +639,7 @@ plt.show()
 #    
 ## Update ucb scores
 #for arm in range(k):
+#    # I think the calculation of scores here is wrong? ss should be variance of that arm.
 #    ucbt_scores[arm] = ucbt_mean[arm] + sqrt((log(k)/ucbt_counter[arm]) * min(1/4, (ucbt_ss[arm] + 2*(log(k)/ucbt_counter[arm]))) )
 #
 ## Overall revenue
@@ -655,23 +663,24 @@ plt.show()
 #    ucbt_scores[arm] = ucbt_mean[arm] + sqrt((log(i+1)/ucbt_counter[arm]) * min(1/4, (ucbt_ss[arm] + 2*(log(i+1)/ucbt_counter[arm]))) ) # i+1 for number of iterations
 #           
 ## Graphical comparison of results
-##plt.plot(np.cumsum(basket_cTS),'y')
-##plt.plot(np.cumsum(basket_eg),'b')
-##plt.plot(np.cumsum(basket_egd),'c')
-##plt.plot(np.cumsum(basket_egoi),'m')
-##plt.plot(np.cumsum(basket_ucb),'r')
-##plt.plot(np.cumsum(basket_ucbt),'k')
-##plt.ylabel('Cumulated revenue',fontsize=15)
-##plt.xlabel('Time period',fontsize=15)
-##plt.legend(['classical Thompson sampling','epsilon-greedy','epsilon-greedy w/ decay','epsilon-greedy w/ optimistic initialisation','ucb1','ucb1-tuned'],fontsize=20)
-##plt.show()
+#plt.plot(np.cumsum(basket_cTS),'ko-')
+#plt.plot(np.cumsum(basket_eg),'k--')
+#plt.plot(np.cumsum(basket_egd),'k-.')
+#plt.plot(np.cumsum(basket_egoi),'k:')
+#plt.plot(np.cumsum(basket_ucb),'k+-.')
+#plt.plot(np.cumsum(basket_ucbt),'kx:')
+#plt.ylabel('Cumulated revenue',fontsize=20)
+#plt.xlabel('Time period',fontsize=20)
+#plt.legend(['classical Thompson sampling','epsilon-greedy','epsilon-greedy w/ decay','epsilon-greedy w/ optimistic initialisation','ucb1','ucb1-tuned'],fontsize=20)
+#plt.title("Comparing TS with other algorithms",fontsize=20)
+#plt.show()
 #
 #
 #
 # =============================================================================
 # Thomson sampling (Dynamic pricing approach)
 # =============================================================================
-haha
+
 
 
 
@@ -679,9 +688,9 @@ haha
 
 # PED depends on the sequence of price vector used. Assume low-normal-high is the sequence. 
 # normal - low
-temp1 = (((xprice-xpricelower)/xpricelower)/((productprice-productpricelower)/productpricelower)).iloc[:,1]
+temp1 = (((truedemand[1]-truedemand[0])/truedemand[0])/((prices[1]-prices[0])/prices[0]))
 # high - normal
-temp2 = (((xpricehigher-xprice)/xprice)/((productpricehigher-productprice)/productprice)).iloc[:,1]
+temp2 = (((truedemand[2]-truedemand[1])/truedemand[1])/((prices[2]-prices[1])/prices[1]))
 
 # Use elasticity estimates as mean and cov of prior distribution
 elastmean = (temp1+temp2)/2
