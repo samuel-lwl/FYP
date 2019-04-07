@@ -2,9 +2,14 @@
 \contentsline {section}{\numberline {1}Introduction}{4}% 
 \contentsline {subsection}{\numberline {1.1}Problem description}{4}% 
 \contentsline {subsection}{\numberline {1.2}Literature review}{4}% 
-\contentsline {section}{\numberline {2}Understanding the data}{5}% 
-\contentsline {section}{\numberline {3}Description of approaches}{6}% 
-\contentsline {section}{\numberline {4}Generating training data}{7}% 
-\contentsline {section}{\numberline {5}First approach}{8}% 
-\contentsline {section}{\numberline {6}Second approach}{10}% 
-\contentsline {section}{\numberline {7}Timeline of future work}{10}% 
+\contentsline {section}{\numberline {2}Description of approaches}{5}% 
+\contentsline {section}{\numberline {3}Analysing a dataset with promotions}{6}% 
+\contentsline {section}{\numberline {4}First approach}{7}% 
+\contentsline {subsection}{\numberline {4.1}Data generation}{7}% 
+\contentsline {subsection}{\numberline {4.2}Implementation of classical TS}{8}% 
+\contentsline {subsection}{\numberline {4.3}Comparison with other algorithms}{10}% 
+\contentsline {section}{\numberline {5}Second approach}{12}% 
+\contentsline {subsection}{\numberline {5.1}Dynamic vs Constant pricing without constraint}{14}% 
+\contentsline {subsection}{\numberline {5.2}Dynamic vs Constant pricing with constraint}{15}% 
+\contentsline {section}{\numberline {6}Conclusion and future direction}{16}% 
+\contentsline {section}{References}{18}% 

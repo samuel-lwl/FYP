@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (MiKTeX 2.9.7000 64-bit) (preloaded format=pdflatex 2019.4.3)  4 APR 2019 06:53
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (MiKTeX 2.9.7000 64-bit) (preloaded format=pdflatex 2019.4.3)  8 APR 2019 01:23
 entering extended mode
 **"./Final report.tex"
 ("Final report.tex"
@@ -531,21 +531,30 @@ LaTeX Info: Redefining \addtolength on input line 81.
 \calc@Cskip=\skip48
 )
 \c@@todonotes@numberoftodonotes=\count126
+)
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/tocbibind\tocbibi
+nd.sty"
+Package: tocbibind 2010/10/13 v1.5k extra ToC listings
+Package tocbibind Info: The document has section divisions on input line 50.
+
+
+Package tocbibind Note: Using section or other style headings.
+
 ) ("Final report.aux")
 \openout1 = `"Final report.aux"'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 19.
-LaTeX Font Info:    ... okay on input line 19.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 19.
-LaTeX Font Info:    ... okay on input line 19.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 19.
-LaTeX Font Info:    ... okay on input line 19.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 19.
-LaTeX Font Info:    ... okay on input line 19.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 19.
-LaTeX Font Info:    ... okay on input line 19.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 19.
-LaTeX Font Info:    ... okay on input line 19.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
 
 ("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/context/base/mkii\supp-
 pdf.mkii"
@@ -623,7 +632,7 @@ G,.JBIG2,.JB2,.eps]
 <NTU.png, id=28, 1047.915pt x 377.41pt>
 File: NTU.png Graphic file (type png)
 <use NTU.png>
-Package pdftex.def Info: NTU.png  used on input line 24.
+Package pdftex.def Info: NTU.png  used on input line 19.
 (pdftex.def)             Requested size: 276.00105pt x 99.40274pt.
  [1
 
@@ -634,119 +643,191 @@ Package pdftex.def Info: NTU.png  used on input line 24.
 
 
 [3]
-Underfull \hbox (badness 10000) in paragraph at lines 81--88
+Underfull \hbox (badness 10000) in paragraph at lines 78--88
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 81--88
+Underfull \hbox (badness 10000) in paragraph at lines 78--88
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 78--88
 
  []
 
 [4]
-Underfull \hbox (badness 10000) in paragraph at lines 91--101
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 91--101
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 91--101
+Underfull \hbox (badness 10000) in paragraph at lines 91--95
 
  []
 
 [5]
-<cut.png, id=54, 925.056pt x 478.78876pt>
+Underfull \hbox (badness 10000) in paragraph at lines 97--107
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 97--107
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 97--107
+
+ []
+
+[6]
+<cut.png, id=58, 925.056pt x 478.78876pt>
 File: cut.png Graphic file (type png)
 <use cut.png>
-Package pdftex.def Info: cut.png  used on input line 104.
+Package pdftex.def Info: cut.png  used on input line 110.
 (pdftex.def)             Requested size: 345.0pt x 178.56638pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 109--113
-
- []
-
-[6 <./cut.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 116--120
+Underfull \hbox (badness 10000) in paragraph at lines 115--119
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 120--131
+Underfull \hbox (badness 10000) in paragraph at lines 121--125
+
+ []
+
+[7 <./cut.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 125--136
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 120--131
+Underfull \hbox (badness 10000) in paragraph at lines 125--136
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 120--131
-
- []
-
-[7]
-Underfull \hbox (badness 10000) in paragraph at lines 133--137
-
- []
-
-<approach1.png, id=67, 1473.70575pt x 751.00575pt>
-File: approach1.png Graphic file (type png)
-<use approach1.png>
-Package pdftex.def Info: approach1.png  used on input line 148.
-(pdftex.def)             Requested size: 345.0pt x 175.81027pt.
-
-Underfull \hbox (badness 10000) in paragraph at lines 151--161
+Underfull \hbox (badness 10000) in paragraph at lines 125--136
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 151--161
+Underfull \hbox (badness 10000) in paragraph at lines 138--142
+
+ []
+
+[8]
+<Figure_1-2.png, id=71, 1144.0341pt x 572.3784pt>
+File: Figure_1-2.png Graphic file (type png)
+<use Figure_1-2.png>
+Package pdftex.def Info: Figure_1-2.png  used on input line 159.
+(pdftex.def)             Requested size: 345.0pt x 172.60568pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 153--165
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 151--161
+Underfull \hbox (badness 10000) in paragraph at lines 153--165
 
  []
 
-[8] [9 <./approach1.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 165--170
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[9]
+<Figure_1-3.png, id=76, 1143.3114pt x 578.16pt>
+File: Figure_1-3.png Graphic file (type png)
+<use Figure_1-3.png>
+Package pdftex.def Info: Figure_1-3.png  used on input line 180.
+(pdftex.def)             Requested size: 345.0pt x 174.46387pt.
+<Figure_1-4.png, id=77, 802.49812pt x 398.99063pt>
+File: Figure_1-4.png Graphic file (type png)
+<use Figure_1-4.png>
+Package pdftex.def Info: Figure_1-4.png  used on input line 185.
+(pdftex.def)             Requested size: 345.0pt x 171.53218pt.
+ [10 <./Figure_1-2.png>] [11 <./Figure_1-3.png> <./Figure_1-4.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 193--207
 
  []
 
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 180.
 
-("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/base\omscmr.fd"
-File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
-)
-LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <12> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 180.
+Underfull \hbox (badness 10000) in paragraph at lines 193--207
 
-[10]
-Underfull \hbox (badness 10000) in paragraph at lines 190--191
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 193--207
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 193--207
+
+ []
+
+[12] [13]
+<Figure_2-1.png, id=95, 1152.7065pt x 578.8827pt>
+File: Figure_2-1.png Graphic file (type png)
+<use Figure_2-1.png>
+Package pdftex.def Info: Figure_2-1.png  used on input line 219.
+(pdftex.def)             Requested size: 345.0pt x 173.25099pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 216--230
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 216--230
+
+ []
+
+[14 <./Figure_2-1.png>]
+<Figure_2-2.png, id=100, 1153.4292pt x 579.6054pt>
+File: Figure_2-2.png Graphic file (type png)
+<use Figure_2-2.png>
+Package pdftex.def Info: Figure_2-2.png  used on input line 234.
+(pdftex.def)             Requested size: 345.0pt x 173.36116pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 231--243
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 231--243
+
+ []
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[15]
+Underfull \hbox (badness 10000) in paragraph at lines 246--253
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 246--253
+
+ []
+
+[16 <./Figure_2-2.png>] [17]
+Underfull \hbox (badness 10000) in paragraph at lines 257--258
 []\OT1/cmr/m/n/12 https://www.statista.com/statistics/534123/e-commerce-share-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 193--194
+Underfull \hbox (badness 10000) in paragraph at lines 260--261
 []\OT1/cmr/m/n/12 https://milled.com/CalvinKlein/final-hours-take-40-off-every-
 
  []
 
-[11] ("Final report.aux") ) 
+[18] ("Final report.aux") ) 
 Here is how much of TeX's memory you used:
- 13394 strings out of 492945
- 270563 string characters out of 3125809
- 320721 words of memory out of 3000000
- 17004 multiletter control sequences out of 15000+200000
+ 13486 strings out of 492945
+ 271888 string characters out of 3125809
+ 321653 words of memory out of 3000000
+ 17091 multiletter control sequences out of 15000+200000
  8915 words of font info for 32 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
- 62i,6n,81p,1374b,292s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 62i,7n,81p,1228b,292s stack positions out of 5000i,500n,10000p,200000b,50000s
 <C:/Users/Samuel/AppData/Local/Programs/MiKTeX 2.9/f
 onts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Users/Samuel/AppData/Local/Program
 s/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Users/Samuel/AppData
@@ -756,15 +837,15 @@ fb><C:/Users/Samuel/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfon
 ts/cm/cmmi8.pfb><C:/Users/Samuel/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/
 public/amsfonts/cm/cmr10.pfb><C:/Users/Samuel/AppData/Local/Programs/MiKTeX 2.9
 /fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/Samuel/AppData/Local/Progra
-ms/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr6.pfb><C:/Users/Samuel/AppData/
-Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Users/Sam
-uel/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb
-><C:/Users/Samuel/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts
-/cm/cmsy8.pfb><C:/Users/Samuel/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/pu
-blic/amsfonts/cm/cmti12.pfb>
-Output written on "Final report.pdf" (12 pages, 602366 bytes).
+ms/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Users/Samuel/AppData/
+Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/S
+amuel/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy6.pf
+b><C:/Users/Samuel/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfont
+s/cm/cmsy8.pfb><C:/Users/Samuel/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/p
+ublic/amsfonts/cm/cmti12.pfb>
+Output written on "Final report.pdf" (19 pages, 818605 bytes).
 PDF statistics:
- 120 PDF objects out of 1000 (max. 8388607)
+ 153 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
- 124 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 144 words of extra memory for PDF output out of 10000 (max. 10000000)
 
