@@ -137,7 +137,7 @@ prevprice = price0
 tripledata_ts = []
 revenue_basket_ts = []
 
-datapts = 51
+datapts = 17
 
 # Prior estimate of gamma, use as mean of distribution
 gammaprior = np.random.uniform(-5,-1,numvars)
@@ -152,16 +152,17 @@ historical_rev[1] = np.matmul(np.reshape(np.array(day04.iloc[:,1]), (1,numvars))
 sighat = np.std(historical_rev)
 
 # 5000 stock for each product
-stock_ts = np.zeros((numvars, 1))
-#stock_ts *= 50
+#stock_ts = np.zeros((numvars, 1))
+stock_ts = np.ones((numvars, 1))
+stock_ts *= 1200
 
 i = 0
 # Data generating
-#while (stock_ts>0).any():
-#    i += 1
-    
-for i in range(1, datapts):
-#    truth = stock_ts<=0
+while (stock_ts>0).any():
+    i += 1
+    truth = stock_ts<=0
+
+#for i in range(1, datapts):
     # Demand forecast
     if i == 1:
         f = f1
@@ -212,11 +213,12 @@ for i in range(1, datapts):
     for k in range(len(observedx)):
         if observedx[k,0] < 0:
             observedx[k,0] = 0
-#        if truth[k,0] == True:
-#            observedx[k,0] = 0
+        if truth[k,0] == True:
+            observedx[k,0] = 0
     
     # Update stocks
-    stock_ts += observedx
+#    stock_ts += observedx
+    stock_ts -= observedx
     
     # Append new data    
     data_ts = np.append(data_ts, np.transpose(observedx), axis=0)
@@ -224,10 +226,6 @@ for i in range(1, datapts):
     # Add data as triplet into tripledata
     tripledata_ts.append([f, newprice, observedx, elastmean])
     revenue_basket_ts.append(np.sum(np.multiply(observedx, newprice)))
-
-#        if i == 1:
-#            historical_rev[1] = np.sum(np.multiply(observedx, newprice))
-#            sighat = np.std(historical_rev)
     
     # For M inverse matrix
     thet = np.multiply(np.reshape(newprice**2,(numvars,1)), f)
@@ -267,8 +265,8 @@ obshistory_ts = []
 for i in range(len(tripledata_ts)):
     obshistory_ts.append(tripledata_ts[i][2])
 
-plt.plot(revenue_basket_ts)
-plt.plot(np.cumsum(revenue_basket_ts))
+#plt.plot(revenue_basket_ts)
+plt.plot(np.cumsum(revenue_basket_ts),'ko-')
 # =============================================================================
 # constant price
 # =============================================================================
@@ -283,15 +281,16 @@ data_constant = data_ts[0,:]
 data_constant = np.reshape(data_constant, (1, numvars))
 
 # 5000 stock for each product
-stock_constant = np.zeros((numvars, 1))
-#stock_constant *= 50
+#stock_constant = np.zeros((numvars, 1))
+stock_constant = np.ones((numvars,1))
+stock_constant *= 1200
 
 i = 0
 # Data generating
-#while (stock_constant>0).any():
-#    i += 1
-#    truth = stock_constant <= 0
-for i in range(1, datapts):
+while (stock_constant>0).any():
+    i += 1
+    truth = stock_constant <= 0
+#for i in range(1, datapts):
     # Demand forecast
     if i == 1:
         f = f1
@@ -318,11 +317,12 @@ for i in range(1, datapts):
     for k in range(len(observedx)):
         if observedx[k,0] < 0:
             observedx[k,0] = 0
-#        if truth[k,0] == True:
-#            observedx[k,0] = 0
+        if truth[k,0] == True:
+            observedx[k,0] = 0
     
     # Update stocks
-    stock_constant += observedx
+#    stock_constant += observedx
+    stock_constant -= observedx
 
     # Append new data    
     data_constant = np.append(data_constant, np.transpose(observedx), axis=0)
@@ -336,8 +336,8 @@ for i in range(1, datapts):
 
 
 
-plt.plot(revenue_basket_constant)
-plt.plot(np.cumsum(revenue_basket_constant))
+#plt.plot(revenue_basket_constant)
+plt.plot(np.cumsum(revenue_basket_constant),'k')
 
 priceshistory_constant = []
 for i in range(len(tripledata_constant)):
@@ -353,12 +353,45 @@ for i in range(len(tripledata_constant)):
 
 
 
-plt.ylabel('Revenue',fontsize=15)
-plt.xlabel('Time period',fontsize=15)
-plt.legend(['revenue_basket_ts','cumsum(revenue_basket_ts)','revenue_basket_constant','cumsum(revenue_basket_constant'],fontsize=20)
-plt.title('with inventory constraint',fontsize=15)
+plt.ylabel('Cumulated revenue',fontsize=20)
+plt.xlabel('Time period',fontsize=20)
+plt.legend(['Thompson Sampling','Constant pricing'],fontsize=20)
+plt.title('TS vs Constant pricing with inventory constraint',fontsize=20)
 
+cost = prices[1]
+cost *= 0.5
 
+#limit = np.ones((numvars,1))
+#limit *= 1000
+#left_ts = limit - stock_ts
+#left_con = limit - stock_constant
+haha
+timeperiod = 16
+totalts = np.zeros((numvars,1))
+totalcon = np.zeros((numvars,1))
+for i in range(timeperiod):
+    totalts += obshistory_ts[i]
+for i in range(numvars):
+    if totalts[i] > 50:
+        totalts[i] = 50
+for i in range(timeperiod):
+    totalcon += obshistory_constant[i]
+for i in range(numvars):
+    if totalcon[i] > 50:
+        totalcon[i] = 50
+left_ts = 50 - totalts
+left_con = 50 - totalcon
+revenue_basket_constant = revenue_basket_constant[:timeperiod]
+revenue_basket_ts = revenue_basket_ts[:timeperiod]
+
+rev_con = np.sum(revenue_basket_constant)
+rev_ts = np.sum(revenue_basket_ts)
+cost_con = np.sum(cost*left_con)
+cost_ts = np.sum(cost*left_ts)
+loss_ts = cost_ts - rev_ts
+loss_con = cost_con - rev_con
+profit_ts = -1 * loss_ts
+profit_con = -1 * loss_con
 # =============================================================================
 # MAX-REV-PASSIVE
 # =============================================================================
