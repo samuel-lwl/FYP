@@ -1,4 +1,4 @@
-# Final-Year-Project
+# Final Year Project Proposal
 
 Title: Pricing problems with Thompson sampling
 
