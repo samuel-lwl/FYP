@@ -137,7 +137,7 @@ prevprice = price0
 tripledata_ts = []
 revenue_basket_ts = []
 
-datapts = 17
+datapts = 16
 
 # Prior estimate of gamma, use as mean of distribution
 gammaprior = np.random.uniform(-5,-1,numvars)
@@ -152,17 +152,21 @@ historical_rev[1] = np.matmul(np.reshape(np.array(day04.iloc[:,1]), (1,numvars))
 sighat = np.std(historical_rev)
 
 # 5000 stock for each product
-#stock_ts = np.zeros((numvars, 1))
-stock_ts = np.ones((numvars, 1))
-stock_ts *= 1200
+stock_ts = np.zeros((numvars, 1))
+#stock_ts = np.ones((numvars, 1))
+#stock_ts *= 1200
 
 i = 0
-# Data generating
-while (stock_ts>0).any():
-    i += 1
-    truth = stock_ts<=0
+f0 = data_ts
+f0 = np.reshape(f0, (numvars,1))
 
-#for i in range(1, datapts):
+# Data generating
+#while (stock_ts>0).any():
+#    i += 1
+#    truth = stock_ts<=0
+
+
+for i in range(1, datapts):
     # Demand forecast
     if i == 1:
         f = f1
@@ -176,10 +180,6 @@ while (stock_ts>0).any():
             f += (beta**j)*np.reshape(data_ts[i-j], (numvars,1))
     
     f = np.reshape(f, (numvars,1))
-    
-#    for var in range(numvars):
-#        if truth[var,0] == True:
-#            f[var,0] = 0
     
     # Random sample for elasticities
     elast_ts = np.random.multivariate_normal(elastmean.flatten(), elastcov,1)    
@@ -213,12 +213,12 @@ while (stock_ts>0).any():
     for k in range(len(observedx)):
         if observedx[k,0] < 0:
             observedx[k,0] = 0
-        if truth[k,0] == True:
-            observedx[k,0] = 0
+#        if truth[k,0] == True:
+#            observedx[k,0] = 0
     
     # Update stocks
-#    stock_ts += observedx
-    stock_ts -= observedx
+    stock_ts += observedx
+#    stock_ts -= observedx
     
     # Append new data    
     data_ts = np.append(data_ts, np.transpose(observedx), axis=0)
@@ -248,6 +248,7 @@ while (stock_ts>0).any():
     
     # Update prevprice to new price
     prevprice = np.reshape(newprice, (numvars,1))
+#    prevprice=price0
 
 
 
@@ -267,6 +268,7 @@ for i in range(len(tripledata_ts)):
 
 #plt.plot(revenue_basket_ts)
 plt.plot(np.cumsum(revenue_basket_ts),'ko-')
+
 # =============================================================================
 # constant price
 # =============================================================================
@@ -281,16 +283,18 @@ data_constant = data_ts[0,:]
 data_constant = np.reshape(data_constant, (1, numvars))
 
 # 5000 stock for each product
-#stock_constant = np.zeros((numvars, 1))
-stock_constant = np.ones((numvars,1))
-stock_constant *= 1200
+stock_constant = np.zeros((numvars, 1))
+#stock_constant = np.ones((numvars,1))
+#stock_constant *= 1200
 
 i = 0
+f = data_constant
+
 # Data generating
-while (stock_constant>0).any():
-    i += 1
-    truth = stock_constant <= 0
-#for i in range(1, datapts):
+#while (stock_constant>0).any():
+#    i += 1
+#    truth = stock_constant <= 0
+for i in range(1, datapts):
     # Demand forecast
     if i == 1:
         f = f1
@@ -304,11 +308,7 @@ while (stock_constant>0).any():
             f += (beta**j)*np.reshape(data_constant[i-j], (numvars,1))
                 
     f = np.reshape(f, (numvars,1))
-    
-#    for var in range(numvars):
-#        if truth[var,0] == True:
-#            f[var,0] = 0
-    
+     
     # Generate price
     newprice = prevprice
     
@@ -317,12 +317,12 @@ while (stock_constant>0).any():
     for k in range(len(observedx)):
         if observedx[k,0] < 0:
             observedx[k,0] = 0
-        if truth[k,0] == True:
-            observedx[k,0] = 0
+#        if truth[k,0] == True:
+#            observedx[k,0] = 0
     
     # Update stocks
-#    stock_constant += observedx
-    stock_constant -= observedx
+    stock_constant += observedx
+#    stock_constant -= observedx
 
     # Append new data    
     data_constant = np.append(data_constant, np.transpose(observedx), axis=0)
@@ -333,7 +333,7 @@ while (stock_constant>0).any():
         
     # Update prevprice to new price
     prevprice = np.reshape(newprice, (numvars,1))
-
+#    prevprice=price0
 
 
 #plt.plot(revenue_basket_constant)
@@ -356,8 +356,8 @@ for i in range(len(tripledata_constant)):
 plt.ylabel('Cumulated revenue',fontsize=20)
 plt.xlabel('Time period',fontsize=20)
 plt.legend(['Thompson Sampling','Constant pricing'],fontsize=20)
-plt.title('TS vs Constant pricing with inventory constraint',fontsize=20)
-
+plt.title('TS vs Constant pricing with stationary demand function without inventory constraint',fontsize=20)
+haha
 cost = prices[1]
 cost *= 0.5
 
