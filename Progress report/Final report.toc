@@ -1,15 +1,26 @@
 \babel@toc {english}{}
-\contentsline {section}{\numberline {1}Introduction}{4}% 
-\contentsline {subsection}{\numberline {1.1}Problem description}{4}% 
-\contentsline {subsection}{\numberline {1.2}Literature review}{4}% 
-\contentsline {section}{\numberline {2}Description of approaches}{5}% 
-\contentsline {section}{\numberline {3}Analysing a dataset with promotions}{6}% 
-\contentsline {section}{\numberline {4}First approach}{7}% 
-\contentsline {subsection}{\numberline {4.1}Data generation}{7}% 
-\contentsline {subsection}{\numberline {4.2}Implementation of classical TS}{8}% 
-\contentsline {subsection}{\numberline {4.3}Comparison with other algorithms}{10}% 
-\contentsline {section}{\numberline {5}Second approach}{12}% 
-\contentsline {subsection}{\numberline {5.1}Dynamic vs Constant pricing without constraint}{14}% 
-\contentsline {subsection}{\numberline {5.2}Dynamic vs Constant pricing with constraint}{15}% 
-\contentsline {section}{\numberline {6}Conclusion and future direction}{16}% 
-\contentsline {section}{References}{18}% 
+\contentsline {section}{\numberline {1}Introduction}{6}% 
+\contentsline {subsection}{\numberline {1.1}Background information}{6}% 
+\contentsline {subsection}{\numberline {1.2}Motivation}{8}% 
+\contentsline {section}{\numberline {2}Literature review}{11}% 
+\contentsline {section}{\numberline {3}Description of approaches}{12}% 
+\contentsline {section}{\numberline {4}First approach: Discrete prices}{13}% 
+\contentsline {subsection}{\numberline {4.1}Multinomial-Logit model}{13}% 
+\contentsline {subsubsection}{\numberline {4.1.1}Data generation}{13}% 
+\contentsline {subsubsection}{\numberline {4.1.2}Implementation of classical TS}{14}% 
+\contentsline {subsubsection}{\numberline {4.1.3}Comparison with other algorithms}{16}% 
+\contentsline {subsection}{\numberline {4.2}Constant price elasticity model}{17}% 
+\contentsline {subsubsection}{\numberline {4.2.1}Data generation}{17}% 
+\contentsline {subsubsection}{\numberline {4.2.2}Implementation of classical TS}{18}% 
+\contentsline {subsubsection}{\numberline {4.2.3}Comparison with other algorithms}{18}% 
+\contentsline {subsection}{\numberline {4.3}Conclusion of first approach}{19}% 
+\contentsline {section}{\numberline {5}Second approach: Continuous prices}{20}% 
+\contentsline {subsection}{\numberline {5.1}Non-stationary demand function}{22}% 
+\contentsline {subsubsection}{\numberline {5.1.1}Dynamic vs Constant pricing without constraint}{22}% 
+\contentsline {subsubsection}{\numberline {5.1.2}Dynamic vs Constant pricing with constraint}{23}% 
+\contentsline {subsection}{\numberline {5.2}Stationary demand function}{24}% 
+\contentsline {subsubsection}{\numberline {5.2.1}Dynamic vs Constant pricing without constraint}{24}% 
+\contentsline {subsubsection}{\numberline {5.2.2}Dynamic vs Constant pricing with constraint}{25}% 
+\contentsline {subsection}{\numberline {5.3}Conclusion of second approach}{25}% 
+\contentsline {section}{\numberline {6}Conclusion and future direction}{26}% 
+\contentsline {section}{References}{28}% 
