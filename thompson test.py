@@ -34,51 +34,66 @@ datamerge = datamerge.sort_values(by='goods_money')
 # remove outlier index 1139 where cut_goods_money = 0.35
 datamerge.drop(1139,inplace=True)
 
+# goods_money is the amount a customer paid, quantity * price
+
 
 # =============================================================================
 # checking for full-cut pricing
 # =============================================================================
-##%matplotlib qt
-#
-#mylist=[]
-## histogram using 99 as threshold 
-###datamerge.hist(column="goods_money",bins=[0,99,99*2,99*3,99*4,99*5,99*6,99*7])
-#for i in range(1,8): 
-#    # calculate mean of full_cut for each range 
-#    mylist.append(datamerge.loc[(datamerge["goods_money"]>=99*(i-1)) & (datamerge["goods_money"]<99*i),:].mean()[2])
-#
-#mylist2=[]    
-## histogram using 80 as threshold 
-###datamerge.hist(column="goods_money",bins=[0,80,80*2,80*3,80*4,80*5,80*6,80*7,80*8,80*9])
-#for i in range(1,8): 
-#    # calculate mean of full_cut for each range 
-#    mylist2.append(datamerge.loc[(datamerge["goods_money"]>=80*(i-1)) & (datamerge["goods_money"]<80*i),:].mean()[2])
-#
-#mylist3=[]
-## histogram using 120 as threshold 
-###datamerge.hist(column="goods_money",bins=[0,120,120*2,120*3,120*4,120*5,120*6,120*7])
-#for i in range(1,8): 
-#    # calculate mean of full_cut for each range 
-#    mylist3.append(datamerge.loc[(datamerge["goods_money"]>=120*(i-1)) & (datamerge["goods_money"]<120*i),:].mean()[2])
-#
-#mylist4=[]
-## histogram using 110 as threshold 
-###datamerge.hist(column="goods_money",bins=[0,110,110*2,110*3,110*4,110*5,110*6,110*7])
-#for i in range(1,8): 
-#    # calculate mean of full_cut for each range 
-#    mylist4.append(datamerge.loc[(datamerge["goods_money"]>=110*(i-1)) & (datamerge["goods_money"]<110*i),:].mean()[2])
-#
-#mylist5=[]
-## histogram using 90 as threshold 
-###datamerge.hist(column="goods_money",bins=[0,90,90*2,90*3,90*4,90*5,90*6,90*7,90*8])
-#for i in range(1,8): 
-#    # calculate mean of full_cut for each range 
-#    mylist5.append(datamerge.loc[(datamerge["goods_money"]>=90*(i-1)) & (datamerge["goods_money"]<90*i),:].mean()[2])
-#
-#plt.plot(mylist2,'r', mylist5,'b', mylist,'g', mylist4,'m', mylist3, 'y')
-#plt.ylabel('Mean discount',fontsize=15)
-#plt.xlabel('Groups',fontsize=15)
-#plt.legend(['X = 80','X = 90','X = 99','X = 110', 'X = 120'],fontsize=20)
+#%matplotlib qt
+
+mylist=[]
+# histogram using 99 as threshold 
+##datamerge.hist(column="goods_money",bins=[0,99,99*2,99*3,99*4,99*5,99*6,99*7])
+for i in range(1,8): 
+    # calculate mean of full_cut for each range 
+    mylist.append(datamerge.loc[(datamerge["goods_money"]>=99*(i-1)) & (datamerge["goods_money"]<99*i),:].mean()[2])
+
+mylist2=[]    
+# histogram using 80 as threshold 
+##datamerge.hist(column="goods_money",bins=[0,80,80*2,80*3,80*4,80*5,80*6,80*7,80*8,80*9])
+for i in range(1,8): 
+    # calculate mean of full_cut for each range 
+    mylist2.append(datamerge.loc[(datamerge["goods_money"]>=80*(i-1)) & (datamerge["goods_money"]<80*i),:].mean()[2])
+
+mylist3=[]
+# histogram using 120 as threshold 
+##datamerge.hist(column="goods_money",bins=[0,120,120*2,120*3,120*4,120*5,120*6,120*7])
+for i in range(1,8): 
+    # calculate mean of full_cut for each range 
+    mylist3.append(datamerge.loc[(datamerge["goods_money"]>=120*(i-1)) & (datamerge["goods_money"]<120*i),:].mean()[2])
+
+mylist4=[]
+# histogram using 110 as threshold 
+##datamerge.hist(column="goods_money",bins=[0,110,110*2,110*3,110*4,110*5,110*6,110*7])
+for i in range(1,8): 
+    # calculate mean of full_cut for each range 
+    mylist4.append(datamerge.loc[(datamerge["goods_money"]>=110*(i-1)) & (datamerge["goods_money"]<110*i),:].mean()[2])
+
+mylist5=[]
+# histogram using 90 as threshold 
+##datamerge.hist(column="goods_money",bins=[0,90,90*2,90*3,90*4,90*5,90*6,90*7,90*8])
+for i in range(1,8): 
+    # calculate mean of full_cut for each range 
+    mylist5.append(datamerge.loc[(datamerge["goods_money"]>=90*(i-1)) & (datamerge["goods_money"]<90*i),:].mean()[2])
+
+plt.plot(mylist2,'k--', mylist5,'k-.', mylist,'ko-', mylist4,'k:', mylist3, 'k+-.')
+plt.ylabel('Mean discount',fontsize=20)
+plt.xlabel('Groups',fontsize=20)
+plt.legend(['Threshold = 80','Threshold = 90','Threshold = 99','Threshold = 110', 'Threshold = 120'],fontsize=20)
+plt.title("Verifying full-cut promotion",fontsize=20)
+plt.show()
+ha
+#plt.plot(np.cumsum(basket_cTS),'ko-')
+#plt.plot(np.cumsum(basket_eg),'k--')
+#plt.plot(np.cumsum(basket_egd),'k-.')
+#plt.plot(np.cumsum(basket_egoi),'k:')
+#plt.plot(np.cumsum(basket_ucb),'k+-.')
+#plt.plot(np.cumsum(basket_ucbt),'kx:')
+#plt.ylabel('Cumulated revenue',fontsize=20)
+#plt.xlabel('Time period',fontsize=20)
+#plt.legend(['classical Thompson sampling','epsilon-greedy','epsilon-greedy w/ decay','epsilon-greedy w/ optimistic initialisation','ucb1','ucb1-tuned'],fontsize=20)
+#plt.title("Comparing TS with other algorithms",fontsize=20)
 #plt.show()
 ###############################################################################################################################################
 # changes goods_money to reflect price of just 1 quantity
