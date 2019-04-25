@@ -1,0 +1,26 @@
+\babel@toc {english}{}
+\contentsline {section}{\numberline {1}Introduction}{6}% 
+\contentsline {subsection}{\numberline {1.1}Background information}{6}% 
+\contentsline {subsection}{\numberline {1.2}Motivation}{8}% 
+\contentsline {section}{\numberline {2}Literature review}{11}% 
+\contentsline {section}{\numberline {3}Description of approaches}{12}% 
+\contentsline {section}{\numberline {4}First approach: Discrete prices}{13}% 
+\contentsline {subsection}{\numberline {4.1}Multinomial-Logit model}{13}% 
+\contentsline {subsubsection}{\numberline {4.1.1}Data generation}{13}% 
+\contentsline {subsubsection}{\numberline {4.1.2}Implementation of classical TS}{14}% 
+\contentsline {subsubsection}{\numberline {4.1.3}Comparison with other algorithms}{16}% 
+\contentsline {subsection}{\numberline {4.2}Constant price elasticity model}{18}% 
+\contentsline {subsubsection}{\numberline {4.2.1}Data generation}{18}% 
+\contentsline {subsubsection}{\numberline {4.2.2}Implementation of classical TS}{18}% 
+\contentsline {subsubsection}{\numberline {4.2.3}Comparison with other algorithms}{19}% 
+\contentsline {subsection}{\numberline {4.3}Conclusion of first approach}{19}% 
+\contentsline {section}{\numberline {5}Second approach: Continuous prices}{20}% 
+\contentsline {subsection}{\numberline {5.1}Non-stationary demand function}{23}% 
+\contentsline {subsubsection}{\numberline {5.1.1}Dynamic vs Constant pricing without constraint}{23}% 
+\contentsline {subsubsection}{\numberline {5.1.2}Dynamic vs Constant pricing with constraint}{24}% 
+\contentsline {subsection}{\numberline {5.2}Stationary demand function}{25}% 
+\contentsline {subsubsection}{\numberline {5.2.1}Dynamic vs Constant pricing without constraint}{25}% 
+\contentsline {subsubsection}{\numberline {5.2.2}Dynamic vs Constant pricing with constraint}{25}% 
+\contentsline {subsection}{\numberline {5.3}Conclusion of second approach}{26}% 
+\contentsline {section}{\numberline {6}Conclusion and future direction}{26}% 
+\contentsline {section}{References}{29}% 
