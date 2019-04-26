@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (MiKTeX 2.9.7000 64-bit) (preloaded format=pdflatex 2019.4.3)  26 APR 2019 03:06
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (MiKTeX 2.9.7000 64-bit) (preloaded format=pdflatex 2019.4.3)  27 APR 2019 03:09
 entering extended mode
 **"./Final report.tex"
 ("Final report.tex"
@@ -551,45 +551,578 @@ Package: soul 2003/11/17 v2.4 letterspacing/underlining (mf)
 \SOUL@ttwidth=\dimen163
 \SOUL@uldp=\dimen164
 \SOUL@ulht=\dimen165
-) ("Final report.aux")
-\openout1 = `"Final report.aux"'.
-
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 15.
-LaTeX Font Info:    ... okay on input line 15.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 15.
-LaTeX Font Info:    ... okay on input line 15.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 15.
-LaTeX Font Info:    ... okay on input line 15.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 15.
-LaTeX Font Info:    ... okay on input line 15.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 15.
-LaTeX Font Info:    ... okay on input line 15.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 15.
-LaTeX Font Info:    ... okay on input line 15.
-
-("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/context/base/mkii\supp-
-pdf.mkii"
-[Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count127
-\scratchdimen=\dimen166
-\scratchbox=\box40
-\nofMPsegments=\count128
-\nofMParguments=\count129
-\everyMPshowfont=\toks41
-\MPscratchCnt=\count130
-\MPscratchDim=\dimen167
-\MPnumerator=\count131
-\makeMPintoPDFobject=\count132
-\everyMPtoPDFconversion=\toks42
 )
-("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/oberdiek\epstopdf
--base.sty"
-Package: epstopdf-base 2016/05/15 v2.6 Base part for package epstopdf
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/appendix\appendix
+.sty"
+Package: appendix 2009/09/02 v1.2b extra appendix facilities
+\c@@pps=\count127
+\c@@ppsavesec=\count128
+\c@@ppsaveapp=\count129
+)
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/listings\listings
+.sty"
+\lst@mode=\count130
+\lst@gtempboxa=\box40
+\lst@token=\toks41
+\lst@length=\count131
+\lst@currlwidth=\dimen166
+\lst@column=\count132
+\lst@pos=\count133
+\lst@lostspace=\dimen167
+\lst@width=\dimen168
+\lst@newlines=\count134
+\lst@lineno=\count135
+\lst@maxwidth=\dimen169
+
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/listings\lstmisc.
+sty"
+File: lstmisc.sty 2019/02/27 1.8b (Carsten Heinz)
+\c@lstnumber=\count136
+\lst@skipnumbers=\count137
+\lst@framebox=\box41
+)
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/listings\listings
+.cfg"
+File: listings.cfg 2019/02/27 1.8b listings configuration
+))
+Package: listings 2019/02/27 1.8b (Carsten Heinz)
+
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/tcolorbox\tcolorb
+ox.sty"
+Package: tcolorbox 2019/03/02 version 4.20 text color boxes
+
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/tools\verbatim.st
+y"
+Package: verbatim 2014/10/28 v1.5q LaTeX2e package for verbatim enhancements
+\every@verbatim=\toks42
+\verbatim@line=\toks43
+\verbatim@in@stream=\read2
+)
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/environ\environ.s
+ty"
+Package: environ 2014/05/04 v0.3 A new way to define environments
+
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/trimspaces\trimsp
+aces.sty"
+Package: trimspaces 2009/09/17 v1.1 Trim spaces around a token list
+))
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/etoolbox\etoolbox
+.sty"
+Package: etoolbox 2018/08/19 v2.5f e-TeX tools for LaTeX (JAW)
+\etb@tempcnta=\count138
+)
+\tcb@titlebox=\box42
+\tcb@upperbox=\box43
+\tcb@lowerbox=\box44
+\tcb@phantombox=\box45
+\c@tcbbreakpart=\count139
+\c@tcblayer=\count140
+\tcolorbox@number=\count141
+\tcb@temp=\box46
+\tcb@temp=\box47
+\tcb@temp=\box48
+\tcb@temp=\box49
+\tcb@out=\write4
+\tcb@record@out=\write5
+
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/tcolorbox\tcbrast
+er.code.tex"
+Library (tcolorbox): 'tcbraster.code.tex' version '4.20'
+\c@tcbrastercolumn=\count142
+\c@tcbrasterrow=\count143
+\c@tcbraster=\count144
+)
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/tcolorbox\tcbskin
+s.code.tex"
+Library (tcolorbox): 'tcbskins.code.tex' version '4.20'
+\tcb@waterbox=\box50
+
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/tcolorbox\tcbskin
+sjigsaw.code.tex"
+Library (tcolorbox): 'tcbskinsjigsaw.code.tex' version '4.20'
+))
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/tcolorbox\tcbbrea
+kable.code.tex"
+Library (tcolorbox): 'tcbbreakable.code.tex' version '4.20'
+\tcb@testbox=\box51
+\tcb@totalupperbox=\box52
+\tcb@totallowerbox=\box53
+)
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/tcolorbox\tcbhook
+s.code.tex"
+Library (tcolorbox): 'tcbhooks.code.tex' version '4.20'
+)
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/tcolorbox\tcbtheo
+rems.code.tex"
+Library (tcolorbox): 'tcbtheorems.code.tex' version '4.20'
+)
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/tcolorbox\tcbfitt
+ing.code.tex"
+Library (tcolorbox): 'tcbfitting.code.tex' version '4.20'
+\tcbfitdim=\dimen170
+\tcb@lowerfitdim=\dimen171
+\tcb@upperfitdim=\dimen172
+\tcb@cur@hbadness=\count145
+)
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/tcolorbox\tcbxpar
+se.code.tex"
+Library (tcolorbox): 'tcbxparse.code.tex' version '4.20'
+
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/l3packages/xparse
+\xparse.sty"
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/l3kernel\expl3.st
+y"
+Package: expl3 2019-04-21 L3 programming layer (loader) 
+
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/l3kernel\expl3-co
+de.tex"
+Package: expl3 2019-04-21 L3 programming layer (code)
+\c_max_int=\count146
+\l_tmpa_int=\count147
+\l_tmpb_int=\count148
+\g_tmpa_int=\count149
+\g_tmpb_int=\count150
+\g__kernel_prg_map_int=\count151
+\c__ior_term_ior=\count152
+\c_log_iow=\count153
+\l_iow_line_count_int=\count154
+\l__iow_line_target_int=\count155
+\l__iow_one_indent_int=\count156
+\l__iow_indent_int=\count157
+\c_zero_dim=\dimen173
+\c_max_dim=\dimen174
+\l_tmpa_dim=\dimen175
+\l_tmpb_dim=\dimen176
+\g_tmpa_dim=\dimen177
+\g_tmpb_dim=\dimen178
+\c_zero_skip=\skip50
+\c_max_skip=\skip51
+\l_tmpa_skip=\skip52
+\l_tmpb_skip=\skip53
+\g_tmpa_skip=\skip54
+\g_tmpb_skip=\skip55
+\c_zero_muskip=\muskip11
+\c_max_muskip=\muskip12
+\l_tmpa_muskip=\muskip13
+\l_tmpb_muskip=\muskip14
+\g_tmpa_muskip=\muskip15
+\g_tmpb_muskip=\muskip16
+\l_keys_choice_int=\count158
+\l__intarray_loop_int=\count159
+\c__intarray_sp_dim=\dimen179
+\g__intarray_font_int=\count160
+\c__fp_leading_shift_int=\count161
+\c__fp_middle_shift_int=\count162
+\c__fp_trailing_shift_int=\count163
+\c__fp_big_leading_shift_int=\count164
+\c__fp_big_middle_shift_int=\count165
+\c__fp_big_trailing_shift_int=\count166
+\c__fp_Bigg_leading_shift_int=\count167
+\c__fp_Bigg_middle_shift_int=\count168
+\c__fp_Bigg_trailing_shift_int=\count169
+\c__kernel_randint_max_int=\count170
+\g__fp_array_int=\count171
+\l__fp_array_loop_int=\count172
+\l__sort_length_int=\count173
+\l__sort_min_int=\count174
+\l__sort_top_int=\count175
+\l__sort_max_int=\count176
+\l__sort_true_max_int=\count177
+\l__sort_block_int=\count178
+\l__sort_begin_int=\count179
+\l__sort_end_int=\count180
+\l__sort_A_int=\count181
+\l__sort_B_int=\count182
+\l__sort_C_int=\count183
+\l__tl_analysis_normal_int=\count184
+\l__tl_analysis_index_int=\count185
+\l__tl_analysis_nesting_int=\count186
+\l__tl_analysis_type_int=\count187
+\l__regex_internal_a_int=\count188
+\l__regex_internal_b_int=\count189
+\l__regex_internal_c_int=\count190
+\l__regex_balance_int=\count191
+\l__regex_group_level_int=\count192
+\l__regex_mode_int=\count193
+\c__regex_cs_in_class_mode_int=\count194
+\c__regex_cs_mode_int=\count195
+\l__regex_catcodes_int=\count196
+\l__regex_default_catcodes_int=\count197
+\c__regex_catcode_D_int=\count198
+\c__regex_catcode_S_int=\count199
+\c__regex_catcode_L_int=\count266
+\c__regex_catcode_O_int=\count267
+\c__regex_catcode_A_int=\count268
+\c__regex_all_catcodes_int=\count269
+\l__regex_show_lines_int=\count270
+\l__regex_min_state_int=\count271
+\l__regex_max_state_int=\count272
+\l__regex_left_state_int=\count273
+\l__regex_right_state_int=\count274
+\l__regex_capturing_group_int=\count275
+\l__regex_min_pos_int=\count276
+\l__regex_max_pos_int=\count277
+\l__regex_curr_pos_int=\count278
+\l__regex_start_pos_int=\count279
+\l__regex_success_pos_int=\count280
+\l__regex_curr_char_int=\count281
+\l__regex_curr_catcode_int=\count282
+\l__regex_last_char_int=\count283
+\l__regex_case_changed_char_int=\count284
+\l__regex_curr_state_int=\count285
+\l__regex_step_int=\count286
+\l__regex_min_active_int=\count287
+\l__regex_max_active_int=\count288
+\l__regex_replacement_csnames_int=\count289
+\l__regex_match_count_int=\count290
+\l__regex_min_submatch_int=\count291
+\l__regex_submatch_int=\count292
+\l__regex_zeroth_submatch_int=\count293
+\g__regex_trace_regex_int=\count294
+\c_empty_box=\box54
+\l_tmpa_box=\box55
+\l_tmpb_box=\box56
+\g_tmpa_box=\box57
+\g_tmpb_box=\box58
+\l__box_top_dim=\dimen180
+\l__box_bottom_dim=\dimen181
+\l__box_left_dim=\dimen182
+\l__box_right_dim=\dimen183
+\l__box_top_new_dim=\dimen184
+\l__box_bottom_new_dim=\dimen185
+\l__box_left_new_dim=\dimen186
+\l__box_right_new_dim=\dimen187
+\l__box_internal_box=\box59
+\l__coffin_internal_box=\box60
+\l__coffin_internal_dim=\dimen188
+\l__coffin_offset_x_dim=\dimen189
+\l__coffin_offset_y_dim=\dimen190
+\l__coffin_x_dim=\dimen191
+\l__coffin_y_dim=\dimen192
+\l__coffin_x_prime_dim=\dimen193
+\l__coffin_y_prime_dim=\dimen194
+\c_empty_coffin=\box61
+\l__coffin_aligned_coffin=\box62
+\l__coffin_aligned_internal_coffin=\box63
+\l_tmpa_coffin=\box64
+\l_tmpb_coffin=\box65
+\g_tmpa_coffin=\box66
+\g_tmpb_coffin=\box67
+\l__coffin_bounding_shift_dim=\dimen195
+\l__coffin_left_corner_dim=\dimen196
+\l__coffin_right_corner_dim=\dimen197
+\l__coffin_bottom_corner_dim=\dimen198
+\l__coffin_top_corner_dim=\dimen199
+\l__coffin_scaled_total_height_dim=\dimen256
+\l__coffin_scaled_width_dim=\dimen257
+\c__coffin_empty_coffin=\box68
+\l__coffin_display_coffin=\box69
+\l__coffin_display_coord_coffin=\box70
+\l__coffin_display_pole_coffin=\box71
+\l__coffin_display_offset_dim=\dimen258
+\l__coffin_display_x_dim=\dimen259
+\l__coffin_display_y_dim=\dimen260
+\g__file_internal_ior=\read3
+\l__seq_internal_a_int=\count295
+\l__seq_internal_b_int=\count296
+\c__deprecation_minus_one=\count297
+)
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/l3kernel\l3pdfmod
+e.def"
+File: l3pdfmode.def 2019-04-06 v L3 Experimental driver: PDF mode
+\l__driver_color_stack_int=\count298
+))
+Package: xparse 2019-03-05 L3 Experimental document command parser
+\l__xparse_current_arg_int=\count299
+\g__xparse_grabber_int=\count300
+\l__xparse_m_args_int=\count301
+\l__xparse_v_nesting_int=\count302
+))
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/tcolorbox\tcblist
+ingsutf8.code.tex"
+Library (tcolorbox): 'tcblistingsutf8.code.tex' version '4.20'
+
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/oberdiek\listings
+utf8.sty"
+Package: listingsutf8 2016/05/16 v1.3 Allow UTF-8 in listings input (HO)
+
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/generic/oberdiek\pdftex
+cmds.sty"
+Package: pdftexcmds 2018/09/10 v0.29 Utility functions of pdfTeX for LuaTeX (HO
+)
 
 ("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/generic/oberdiek\infwar
 err.sty"
 Package: infwarerr 2016/05/16 v1.4 Providing info/warning/error messages (HO)
 )
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/generic/oberdiek\ifluat
+ex.sty"
+Package: ifluatex 2016/05/16 v1.4 Provides the ifluatex switch (HO)
+Package ifluatex Info: LuaTeX not detected.
+)
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/generic/oberdiek\ltxcmd
+s.sty"
+Package: ltxcmds 2016/05/16 v1.23 LaTeX kernel commands for general use (HO)
+)
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/generic/oberdiek\ifpdf.
+sty"
+Package: ifpdf 2018/09/07 v3.3 Provides the ifpdf switch
+)
+Package pdftexcmds Info: LuaTeX not detected.
+Package pdftexcmds Info: \pdf@primitive is available.
+Package pdftexcmds Info: \pdf@ifprimitive is available.
+Package pdftexcmds Info: \pdfdraftmode found.
+)
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/generic/oberdiek\string
+enc.sty"
+Package: stringenc 2016/05/16 v1.11 Convert strings between diff. encodings (HO
+)
+
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/generic/oberdiek\pdfesc
+ape.sty"
+Package: pdfescape 2016/05/16 v1.14 Implements pdfTeX's escape features (HO)
+)))
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/tcolorbox\tcblist
+ings.code.tex"
+Library (tcolorbox): 'tcblistings.code.tex' version '4.20'
+
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/tcolorbox\tcblist
+ingscore.code.tex"
+Library (tcolorbox): 'tcblistingscore.code.tex' version '4.20'
+
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/tcolorbox\tcbproc
+essing.code.tex"
+Library (tcolorbox): 'tcbprocessing.code.tex' version '4.20'
+
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/tools\shellesc.st
+y"
+Package: shellesc 2016/06/07 v0.02a unified shell escape interface for LaTeX
+Package shellesc Info: Restricted shell escape enabled on input line 69.
+))
+\c@tcblisting=\count303
+)))
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/tcolorbox\tcbexte
+rnal.code.tex"
+Library (tcolorbox): 'tcbexternal.code.tex' version '4.20'
+)
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/tcolorbox\tcbmaga
+zine.code.tex"
+Library (tcolorbox): 'tcbmagazine.code.tex' version '4.20'
+)
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/tcolorbox\tcbvign
+ette.code.tex"
+Library (tcolorbox): 'tcbvignette.code.tex' version '4.20'
+)
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/tcolorbox\tcbpost
+er.code.tex"
+Library (tcolorbox): 'tcbposter.code.tex' version '4.20'
+))
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/inconsolata\incon
+solata.sty"
+Package: inconsolata 2017/01/04 v1.112
+
+`inconsolata-zi4' v1.112, 2017/01/04 Text macros for Inconsolata (msharpe)
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/base\textcomp.sty
+"
+Package: textcomp 2018/08/11 v2.0j Standard LaTeX package
+Package textcomp Info: Sub-encoding information:
+(textcomp)               5 = only ISO-Adobe without \textcurrency
+(textcomp)               4 = 5 + \texteuro
+(textcomp)               3 = 4 + \textohm
+(textcomp)               2 = 3 + \textestimated + \textcurrency
+(textcomp)               1 = TS1 - \textcircled - \t
+(textcomp)               0 = TS1 (full)
+(textcomp)             Font families with sub-encoding setting implement
+(textcomp)             only a restricted character set as indicated.
+(textcomp)             Family '?' is the default used for unknown fonts.
+(textcomp)             See the documentation for details.
+Package textcomp Info: Setting ? sub-encoding to TS1/1 on input line 79.
+ ("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/base\ts1enc.def"
+File: ts1enc.def 2001/06/05 v3.0e (jk/car/fm) Standard LaTeX file
+Now handling font encoding TS1 ...
+... processing UTF-8 mapping file for font encoding TS1
+ ("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/base\ts1enc.dfu"
+File: ts1enc.dfu 2018/10/05 v1.2f UTF-8 support for inputenc
+   defining Unicode char U+00A2 (decimal 162)
+   defining Unicode char U+00A3 (decimal 163)
+   defining Unicode char U+00A4 (decimal 164)
+   defining Unicode char U+00A5 (decimal 165)
+   defining Unicode char U+00A6 (decimal 166)
+   defining Unicode char U+00A7 (decimal 167)
+   defining Unicode char U+00A8 (decimal 168)
+   defining Unicode char U+00A9 (decimal 169)
+   defining Unicode char U+00AA (decimal 170)
+   defining Unicode char U+00AC (decimal 172)
+   defining Unicode char U+00AE (decimal 174)
+   defining Unicode char U+00AF (decimal 175)
+   defining Unicode char U+00B0 (decimal 176)
+   defining Unicode char U+00B1 (decimal 177)
+   defining Unicode char U+00B2 (decimal 178)
+   defining Unicode char U+00B3 (decimal 179)
+   defining Unicode char U+00B4 (decimal 180)
+   defining Unicode char U+00B5 (decimal 181)
+   defining Unicode char U+00B6 (decimal 182)
+   defining Unicode char U+00B7 (decimal 183)
+   defining Unicode char U+00B9 (decimal 185)
+   defining Unicode char U+00BA (decimal 186)
+   defining Unicode char U+00BC (decimal 188)
+   defining Unicode char U+00BD (decimal 189)
+   defining Unicode char U+00BE (decimal 190)
+   defining Unicode char U+00D7 (decimal 215)
+   defining Unicode char U+00F7 (decimal 247)
+   defining Unicode char U+0192 (decimal 402)
+   defining Unicode char U+02C7 (decimal 711)
+   defining Unicode char U+02D8 (decimal 728)
+   defining Unicode char U+02DD (decimal 733)
+   defining Unicode char U+0E3F (decimal 3647)
+   defining Unicode char U+2016 (decimal 8214)
+   defining Unicode char U+2020 (decimal 8224)
+   defining Unicode char U+2021 (decimal 8225)
+   defining Unicode char U+2022 (decimal 8226)
+   defining Unicode char U+2030 (decimal 8240)
+   defining Unicode char U+2031 (decimal 8241)
+   defining Unicode char U+203B (decimal 8251)
+   defining Unicode char U+203D (decimal 8253)
+   defining Unicode char U+2044 (decimal 8260)
+   defining Unicode char U+204E (decimal 8270)
+   defining Unicode char U+2052 (decimal 8274)
+   defining Unicode char U+20A1 (decimal 8353)
+   defining Unicode char U+20A4 (decimal 8356)
+   defining Unicode char U+20A6 (decimal 8358)
+   defining Unicode char U+20A9 (decimal 8361)
+   defining Unicode char U+20AB (decimal 8363)
+   defining Unicode char U+20AC (decimal 8364)
+   defining Unicode char U+20B1 (decimal 8369)
+   defining Unicode char U+2103 (decimal 8451)
+   defining Unicode char U+2116 (decimal 8470)
+   defining Unicode char U+2117 (decimal 8471)
+   defining Unicode char U+211E (decimal 8478)
+   defining Unicode char U+2120 (decimal 8480)
+   defining Unicode char U+2122 (decimal 8482)
+   defining Unicode char U+2126 (decimal 8486)
+   defining Unicode char U+2127 (decimal 8487)
+   defining Unicode char U+212E (decimal 8494)
+   defining Unicode char U+2190 (decimal 8592)
+   defining Unicode char U+2191 (decimal 8593)
+   defining Unicode char U+2192 (decimal 8594)
+   defining Unicode char U+2193 (decimal 8595)
+   defining Unicode char U+2329 (decimal 9001)
+   defining Unicode char U+232A (decimal 9002)
+   defining Unicode char U+2422 (decimal 9250)
+   defining Unicode char U+25E6 (decimal 9702)
+   defining Unicode char U+25EF (decimal 9711)
+   defining Unicode char U+266A (decimal 9834)
+   defining Unicode char U+FEFF (decimal 65279)
+))
+LaTeX Info: Redefining \oldstylenums on input line 334.
+Package textcomp Info: Setting cmr sub-encoding to TS1/0 on input line 349.
+Package textcomp Info: Setting cmss sub-encoding to TS1/0 on input line 350.
+Package textcomp Info: Setting cmtt sub-encoding to TS1/0 on input line 351.
+Package textcomp Info: Setting cmvtt sub-encoding to TS1/0 on input line 352.
+Package textcomp Info: Setting cmbr sub-encoding to TS1/0 on input line 353.
+Package textcomp Info: Setting cmtl sub-encoding to TS1/0 on input line 354.
+Package textcomp Info: Setting ccr sub-encoding to TS1/0 on input line 355.
+Package textcomp Info: Setting ptm sub-encoding to TS1/4 on input line 356.
+Package textcomp Info: Setting pcr sub-encoding to TS1/4 on input line 357.
+Package textcomp Info: Setting phv sub-encoding to TS1/4 on input line 358.
+Package textcomp Info: Setting ppl sub-encoding to TS1/3 on input line 359.
+Package textcomp Info: Setting pag sub-encoding to TS1/4 on input line 360.
+Package textcomp Info: Setting pbk sub-encoding to TS1/4 on input line 361.
+Package textcomp Info: Setting pnc sub-encoding to TS1/4 on input line 362.
+Package textcomp Info: Setting pzc sub-encoding to TS1/4 on input line 363.
+Package textcomp Info: Setting bch sub-encoding to TS1/4 on input line 364.
+Package textcomp Info: Setting put sub-encoding to TS1/5 on input line 365.
+Package textcomp Info: Setting uag sub-encoding to TS1/5 on input line 366.
+Package textcomp Info: Setting ugq sub-encoding to TS1/5 on input line 367.
+Package textcomp Info: Setting ul8 sub-encoding to TS1/4 on input line 368.
+Package textcomp Info: Setting ul9 sub-encoding to TS1/4 on input line 369.
+Package textcomp Info: Setting augie sub-encoding to TS1/5 on input line 370.
+Package textcomp Info: Setting dayrom sub-encoding to TS1/3 on input line 371.
+Package textcomp Info: Setting dayroms sub-encoding to TS1/3 on input line 372.
+
+Package textcomp Info: Setting pxr sub-encoding to TS1/0 on input line 373.
+Package textcomp Info: Setting pxss sub-encoding to TS1/0 on input line 374.
+Package textcomp Info: Setting pxtt sub-encoding to TS1/0 on input line 375.
+Package textcomp Info: Setting txr sub-encoding to TS1/0 on input line 376.
+Package textcomp Info: Setting txss sub-encoding to TS1/0 on input line 377.
+Package textcomp Info: Setting txtt sub-encoding to TS1/0 on input line 378.
+Package textcomp Info: Setting lmr sub-encoding to TS1/0 on input line 379.
+Package textcomp Info: Setting lmdh sub-encoding to TS1/0 on input line 380.
+Package textcomp Info: Setting lmss sub-encoding to TS1/0 on input line 381.
+Package textcomp Info: Setting lmssq sub-encoding to TS1/0 on input line 382.
+Package textcomp Info: Setting lmvtt sub-encoding to TS1/0 on input line 383.
+Package textcomp Info: Setting lmtt sub-encoding to TS1/0 on input line 384.
+Package textcomp Info: Setting qhv sub-encoding to TS1/0 on input line 385.
+Package textcomp Info: Setting qag sub-encoding to TS1/0 on input line 386.
+Package textcomp Info: Setting qbk sub-encoding to TS1/0 on input line 387.
+Package textcomp Info: Setting qcr sub-encoding to TS1/0 on input line 388.
+Package textcomp Info: Setting qcs sub-encoding to TS1/0 on input line 389.
+Package textcomp Info: Setting qpl sub-encoding to TS1/0 on input line 390.
+Package textcomp Info: Setting qtm sub-encoding to TS1/0 on input line 391.
+Package textcomp Info: Setting qzc sub-encoding to TS1/0 on input line 392.
+Package textcomp Info: Setting qhvc sub-encoding to TS1/0 on input line 393.
+Package textcomp Info: Setting futs sub-encoding to TS1/4 on input line 394.
+Package textcomp Info: Setting futx sub-encoding to TS1/4 on input line 395.
+Package textcomp Info: Setting futj sub-encoding to TS1/4 on input line 396.
+Package textcomp Info: Setting hlh sub-encoding to TS1/3 on input line 397.
+Package textcomp Info: Setting hls sub-encoding to TS1/3 on input line 398.
+Package textcomp Info: Setting hlst sub-encoding to TS1/3 on input line 399.
+Package textcomp Info: Setting hlct sub-encoding to TS1/5 on input line 400.
+Package textcomp Info: Setting hlx sub-encoding to TS1/5 on input line 401.
+Package textcomp Info: Setting hlce sub-encoding to TS1/5 on input line 402.
+Package textcomp Info: Setting hlcn sub-encoding to TS1/5 on input line 403.
+Package textcomp Info: Setting hlcw sub-encoding to TS1/5 on input line 404.
+Package textcomp Info: Setting hlcf sub-encoding to TS1/5 on input line 405.
+Package textcomp Info: Setting pplx sub-encoding to TS1/3 on input line 406.
+Package textcomp Info: Setting pplj sub-encoding to TS1/3 on input line 407.
+Package textcomp Info: Setting ptmx sub-encoding to TS1/4 on input line 408.
+Package textcomp Info: Setting ptmj sub-encoding to TS1/4 on input line 409.
+)
+\zifour@ocount=\count304
+)
+\c@tcb@cnt@sexylisting=\count305
+ ("Final report.aux")
+\openout1 = `"Final report.aux"'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 23.
+LaTeX Font Info:    ... okay on input line 23.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 23.
+LaTeX Font Info:    ... okay on input line 23.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 23.
+LaTeX Font Info:    ... okay on input line 23.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 23.
+LaTeX Font Info:    ... okay on input line 23.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 23.
+LaTeX Font Info:    ... okay on input line 23.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 23.
+LaTeX Font Info:    ... okay on input line 23.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 23.
+LaTeX Font Info:    Try loading font information for TS1+cmr on input line 23.
+
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/base\ts1cmr.fd"
+File: ts1cmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    ... okay on input line 23.
+
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/context/base/mkii\supp-
+pdf.mkii"
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count306
+\scratchdimen=\dimen261
+\scratchbox=\box72
+\nofMPsegments=\count307
+\nofMParguments=\count308
+\everyMPshowfont=\toks44
+\MPscratchCnt=\count309
+\MPscratchDim=\dimen262
+\MPnumerator=\count310
+\makeMPintoPDFobject=\count311
+\everyMPtoPDFconversion=\toks45
+)
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/oberdiek\epstopdf
+-base.sty"
+Package: epstopdf-base 2016/05/15 v2.6 Base part for package epstopdf
+
 ("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/oberdiek\grfext.s
 ty"
 Package: grfext 2016/05/16 v1.2 Manage graphics extensions (HO)
@@ -597,11 +1130,7 @@ Package: grfext 2016/05/16 v1.2 Manage graphics extensions (HO)
 ("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/generic/oberdiek\kvdefi
 nekeys.sty"
 Package: kvdefinekeys 2016/05/16 v1.4 Define keys (HO)
-
-("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/generic/oberdiek\ltxcmd
-s.sty"
-Package: ltxcmds 2016/05/16 v1.23 LaTeX kernel commands for general use (HO)
-)))
+))
 ("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/oberdiek\kvoption
 s.sty"
 Package: kvoptions 2016/05/16 v3.12 Key value format for package options (HO)
@@ -613,26 +1142,7 @@ Package: kvsetkeys 2016/05/16 v1.17 Key value parser (HO)
 ("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/generic/oberdiek\etexcm
 ds.sty"
 Package: etexcmds 2016/05/16 v1.6 Avoid name clashes with e-TeX commands (HO)
-
-("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/generic/oberdiek\ifluat
-ex.sty"
-Package: ifluatex 2016/05/16 v1.4 Provides the ifluatex switch (HO)
-Package ifluatex Info: LuaTeX not detected.
-))))
-("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/generic/oberdiek\pdftex
-cmds.sty"
-Package: pdftexcmds 2018/09/10 v0.29 Utility functions of pdfTeX for LuaTeX (HO
-)
-
-("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/generic/oberdiek\ifpdf.
-sty"
-Package: ifpdf 2018/09/07 v3.3 Provides the ifpdf switch
-)
-Package pdftexcmds Info: LuaTeX not detected.
-Package pdftexcmds Info: \pdf@primitive is available.
-Package pdftexcmds Info: \pdf@ifprimitive is available.
-Package pdftexcmds Info: \pdfdraftmode found.
-)
+)))
 Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
 38.
 Package grfext Info: Graphics extension search list:
@@ -640,389 +1150,447 @@ Package grfext Info: Graphics extension search list:
 G,.JBIG2,.JB2,.eps]
 (grfext)             \AppendGraphicsExtensions on input line 456.
 ) ABD: EveryShipout initializing macros
-<NTU.png, id=28, 1047.915pt x 377.41pt>
+\c@lstlisting=\count312
+
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/upquote\upquote.s
+ty"
+Package: upquote 2012/04/19 v1.3 upright-quote and grave-accent glyphs in verba
+tim
+)
+<NTU.png, id=40, 1047.915pt x 377.41pt>
 File: NTU.png Graphic file (type png)
 <use NTU.png>
-Package pdftex.def Info: NTU.png  used on input line 20.
+Package pdftex.def Info: NTU.png  used on input line 28.
 (pdftex.def)             Requested size: 276.00105pt x 99.40274pt.
  [1
 
 {C:/Users/Samuel/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map} <./NTU.png>
-] [1] [2] [3] [4]
-("Final report.toc")
-\tf@toc=\write4
-\openout4 = `"Final report.toc"'.
+] [1] [2] ("Final report.toc")
+\tf@toc=\write6
+\openout6 = `"Final report.toc"'.
 
- [5]
-Underfull \hbox (badness 10000) in paragraph at lines 106--116
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 106--116
+ [3]
+Underfull \hbox (badness 10000) in paragraph at lines 84--94
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 106--116
+Underfull \hbox (badness 10000) in paragraph at lines 84--94
 
  []
 
-[6] [7]
-<data1.png, id=59, 542.025pt x 196.735pt>
+
+Underfull \hbox (badness 10000) in paragraph at lines 84--94
+
+ []
+
+[4] [5]
+<data1.png, id=65, 542.025pt x 196.735pt>
 File: data1.png Graphic file (type png)
 <use data1.png>
-Package pdftex.def Info: data1.png  used on input line 124.
+Package pdftex.def Info: data1.png  used on input line 102.
 (pdftex.def)             Requested size: 379.5021pt x 137.74956pt.
 
-Overfull \hbox (34.5021pt too wide) in paragraph at lines 124--125
+Overfull \hbox (34.5021pt too wide) in paragraph at lines 102--103
  [][] 
  []
 
-<data2.png, id=60, 531.48563pt x 196.735pt>
+<data2.png, id=66, 531.48563pt x 196.735pt>
 File: data2.png Graphic file (type png)
 <use data2.png>
-Package pdftex.def Info: data2.png  used on input line 129.
+Package pdftex.def Info: data2.png  used on input line 107.
 (pdftex.def)             Requested size: 362.25105pt x 134.09322pt.
 
-Overfull \hbox (17.25105pt too wide) in paragraph at lines 129--130
+Overfull \hbox (17.25105pt too wide) in paragraph at lines 107--108
  [][] 
  []
 
-<threshold.png, id=61, 1135.3617pt x 581.0508pt>
+<threshold.png, id=67, 1135.3617pt x 581.0508pt>
 File: threshold.png Graphic file (type png)
 <use threshold.png>
-Package pdftex.def Info: threshold.png  used on input line 143.
+Package pdftex.def Info: threshold.png  used on input line 121.
 (pdftex.def)             Requested size: 362.25105pt x 185.39035pt.
 
-Overfull \hbox (17.25105pt too wide) in paragraph at lines 143--144
+Overfull \hbox (17.25105pt too wide) in paragraph at lines 121--122
  [][] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 118--156
+Underfull \hbox (badness 10000) in paragraph at lines 96--134
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 118--156
+Underfull \hbox (badness 10000) in paragraph at lines 96--134
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 118--156
+Underfull \hbox (badness 10000) in paragraph at lines 96--134
 
  []
 
 
-Overfull \hbox (0.21571pt too wide) in paragraph at lines 118--156
+Overfull \hbox (0.21571pt too wide) in paragraph at lines 96--134
 \OT1/cmr/m/n/12 The last 3 columns $\OML/cmm/m/it/12 full[]cut[]price$\OT1/cmr/
 m/n/12 , $\OML/cmm/m/it/12 agio[]cut[]price$ \OT1/cmr/m/n/12 and $\OML/cmm/m/it
 /12 free[]cut[]price$
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 118--156
+Underfull \hbox (badness 10000) in paragraph at lines 96--134
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 118--156
+Underfull \hbox (badness 10000) in paragraph at lines 96--134
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 118--156
+Underfull \hbox (badness 10000) in paragraph at lines 96--134
 
  []
 
 
-Overfull \hbox (15.65681pt too wide) in paragraph at lines 118--156
+Overfull \hbox (15.65681pt too wide) in paragraph at lines 96--134
 \OT1/cmr/m/n/12 In the dataset, the last two columns ($\OML/cmm/m/it/12 agio[]c
 ut[]price$ \OT1/cmr/m/n/12 and $\OML/cmm/m/it/12 free[]cut[]price$\OT1/cmr/m/n/
 12 )
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 118--156
+Underfull \hbox (badness 10000) in paragraph at lines 96--134
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 118--156
+Underfull \hbox (badness 10000) in paragraph at lines 96--134
 
  []
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[8 <./data1.png>] [9 <./data2.png>] [10 <./threshold.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 160--166
+[6 <./data1.png>] [7 <./data2.png>] [8 <./threshold.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 138--144
+
+ []
+
+[9]
+Underfull \hbox (badness 10000) in paragraph at lines 148--152
+
+ []
+
+[10]
+Underfull \hbox (badness 10000) in paragraph at lines 161--165
 
  []
 
 [11]
-Underfull \hbox (badness 10000) in paragraph at lines 170--174
+Underfull \hbox (badness 10000) in paragraph at lines 165--176
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 165--176
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 165--176
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 178--182
 
  []
 
 [12]
-Underfull \hbox (badness 10000) in paragraph at lines 183--187
-
- []
-
-[13]
-Underfull \hbox (badness 10000) in paragraph at lines 187--198
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 187--198
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 187--198
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 200--204
-
- []
-
-[14]
-<Figure_1-2.png, id=94, 1144.0341pt x 572.3784pt>
+<Figure_1-2.png, id=101, 1144.0341pt x 572.3784pt>
 File: Figure_1-2.png Graphic file (type png)
 <use Figure_1-2.png>
-Package pdftex.def Info: Figure_1-2.png  used on input line 225.
+Package pdftex.def Info: Figure_1-2.png  used on input line 203.
 (pdftex.def)             Requested size: 355.34958pt x 177.78482pt.
 
-Overfull \hbox (10.34958pt too wide) in paragraph at lines 225--226
+Overfull \hbox (10.34958pt too wide) in paragraph at lines 203--204
  [][] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 215--228
+Underfull \hbox (badness 10000) in paragraph at lines 193--206
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 215--228
+Underfull \hbox (badness 10000) in paragraph at lines 193--206
 
  []
 
-[15] [16 <./Figure_1-2.png>]
-<Figure_1-3.png, id=102, 1143.3114pt x 578.16pt>
+[13] [14 <./Figure_1-2.png>]
+<Figure_1-3.png, id=109, 1143.3114pt x 578.16pt>
 File: Figure_1-3.png Graphic file (type png)
 <use Figure_1-3.png>
-Package pdftex.def Info: Figure_1-3.png  used on input line 245.
+Package pdftex.def Info: Figure_1-3.png  used on input line 223.
 (pdftex.def)             Requested size: 355.34958pt x 179.69531pt.
 
-Overfull \hbox (10.34958pt too wide) in paragraph at lines 245--246
+Overfull \hbox (10.34958pt too wide) in paragraph at lines 223--224
  [][] 
  []
 
-<Figure_1-4.png, id=103, 802.49812pt x 398.99063pt>
+<Figure_1-4.png, id=110, 802.49812pt x 398.99063pt>
 File: Figure_1-4.png Graphic file (type png)
 <use Figure_1-4.png>
-Package pdftex.def Info: Figure_1-4.png  used on input line 251.
+Package pdftex.def Info: Figure_1-4.png  used on input line 229.
 (pdftex.def)             Requested size: 355.34958pt x 176.67662pt.
 
-Overfull \hbox (10.34958pt too wide) in paragraph at lines 251--252
+Overfull \hbox (10.34958pt too wide) in paragraph at lines 229--230
  [][] 
  []
 
-[17 <./Figure_1-3.png> <./Figure_1-4.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 263--267
+[15 <./Figure_1-3.png> <./Figure_1-4.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 241--245
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 267--272
+Underfull \hbox (badness 10000) in paragraph at lines 245--250
 
  []
 
-<7.png, id=109, 1162.8243pt x 577.4373pt>
+
+Underfull \hbox (badness 10000) in paragraph at lines 252--256
+
+ []
+
+[16]
+<7.png, id=121, 1162.8243pt x 577.4373pt>
 File: 7.png Graphic file (type png)
 <use 7.png>
-Package pdftex.def Info: 7.png  used on input line 280.
+Package pdftex.def Info: 7.png  used on input line 259.
 (pdftex.def)             Requested size: 355.34958pt x 176.45734pt.
 
-Overfull \hbox (10.34958pt too wide) in paragraph at lines 280--281
+Overfull \hbox (10.34958pt too wide) in paragraph at lines 259--260
  [][] 
  []
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 274--285
-
- []
-
-[18]
-<5.png, id=115, 1152.7065pt x 580.3281pt>
+<5.png, id=122, 1152.7065pt x 580.3281pt>
 File: 5.png Graphic file (type png)
 <use 5.png>
-Package pdftex.def Info: 5.png  used on input line 292.
+Package pdftex.def Info: 5.png  used on input line 270.
 (pdftex.def)             Requested size: 355.34958pt x 178.89922pt.
 
-Overfull \hbox (10.34958pt too wide) in paragraph at lines 292--293
+Overfull \hbox (10.34958pt too wide) in paragraph at lines 270--271
  [][] 
  []
 
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-<6.png, id=116, 1138.2525pt x 575.2692pt>
+<6.png, id=123, 1138.2525pt x 575.2692pt>
 File: 6.png Graphic file (type png)
 <use 6.png>
-Package pdftex.def Info: 6.png  used on input line 297.
+Package pdftex.def Info: 6.png  used on input line 275.
 (pdftex.def)             Requested size: 355.34958pt x 179.59563pt.
 
-Overfull \hbox (10.34958pt too wide) in paragraph at lines 297--298
+Overfull \hbox (10.34958pt too wide) in paragraph at lines 275--276
  [][] 
  []
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[19 <./7.png>] [20 <./5.png> <./6.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 307--321
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[17 <./7.png>] [18 <./5.png> <./6.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 286--306
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 307--321
+Underfull \hbox (badness 10000) in paragraph at lines 286--306
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 307--321
+Underfull \hbox (badness 10000) in paragraph at lines 286--306
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 307--321
+Underfull \hbox (badness 10000) in paragraph at lines 286--306
 
  []
 
-[21]
-<2.png, id=130, 1149.8157pt x 578.16pt>
-File: 2.png Graphic file (type png)
-<use 2.png>
-Package pdftex.def Info: 2.png  used on input line 334.
-(pdftex.def)             Requested size: 355.34958pt x 178.67195pt.
 
-Overfull \hbox (10.34958pt too wide) in paragraph at lines 334--335
+Underfull \hbox (badness 10000) in paragraph at lines 286--306
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 286--306
+
+ []
+
+[19] [20] [21]
+<4.png, id=143, 1152.7065pt x 580.3281pt>
+File: 4.png Graphic file (type png)
+<use 4.png>
+Package pdftex.def Info: 4.png  used on input line 320.
+(pdftex.def)             Requested size: 355.34958pt x 178.89922pt.
+
+Overfull \hbox (10.34958pt too wide) in paragraph at lines 320--321
  [][] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 331--345
+Underfull \hbox (badness 10000) in paragraph at lines 317--328
+
+ []
+
+[22 <./4.png>]
+<512.png, id=148, 806.51312pt x 405.01312pt>
+File: 512.png Graphic file (type png)
+<use 512.png>
+Package pdftex.def Info: 512.png  used on input line 333.
+(pdftex.def)             Requested size: 355.34958pt x 178.44733pt.
+
+Overfull \hbox (10.34958pt too wide) in paragraph at lines 333--334
+ [][] 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 330--344
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 331--345
+Underfull \hbox (badness 10000) in paragraph at lines 330--344
 
  []
 
-[22] [23 <./2.png>]
-<4.png, id=138, 1152.7065pt x 580.3281pt>
-File: 4.png Graphic file (type png)
-<use 4.png>
-Package pdftex.def Info: 4.png  used on input line 350.
-(pdftex.def)             Requested size: 355.34958pt x 178.89922pt.
+[23 <./512.png>]
+<3.png, id=153, 1154.1519pt x 583.9416pt>
+File: 3.png Graphic file (type png)
+<use 3.png>
+Package pdftex.def Info: 3.png  used on input line 350.
+(pdftex.def)             Requested size: 355.34958pt x 179.7904pt.
 
 Overfull \hbox (10.34958pt too wide) in paragraph at lines 350--351
  [][] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 347--359
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 353--357
 
  []
 
+[24] [25 <./3.png>]
+<522.png, id=162, 805.50937pt x 406.01688pt>
+File: 522.png Graphic file (type png)
+<use 522.png>
+Package pdftex.def Info: 522.png  used on input line 362.
+(pdftex.def)             Requested size: 355.34958pt x 179.11261pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 347--359
-
- []
-
-[24 <./4.png>]
-<1.png, id=144, 1154.1519pt x 583.9416pt>
-File: 1.png Graphic file (type png)
-<use 1.png>
-Package pdftex.def Info: 1.png  used on input line 367.
-(pdftex.def)             Requested size: 355.34958pt x 179.7904pt.
-
-Overfull \hbox (10.34958pt too wide) in paragraph at lines 367--368
+Overfull \hbox (10.34958pt too wide) in paragraph at lines 362--363
  [][] 
  []
 
 
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-<3.png, id=145, 1154.1519pt x 583.9416pt>
-File: 3.png Graphic file (type png)
-<use 3.png>
-Package pdftex.def Info: 3.png  used on input line 374.
-(pdftex.def)             Requested size: 355.34958pt x 179.7904pt.
-
-Overfull \hbox (10.34958pt too wide) in paragraph at lines 374--375
- [][] 
- []
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-[25]
-Underfull \hbox (badness 10000) in paragraph at lines 382--389
+Underfull \hbox (badness 10000) in paragraph at lines 359--373
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 382--389
+Overfull \hbox (2.79639pt too wide) in paragraph at lines 359--373
+\OT1/cmr/m/n/12 sev-eral runs and ex-per-i-ments, the max-i-mum amount of stock
+ Thomp-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 359--373
 
  []
 
-[26 <./1.png>] [27 <./3.png>] [28]
-Underfull \hbox (badness 10000) in paragraph at lines 393--394
+[26 <./522.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 380--390
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 380--390
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 380--390
+
+ []
+
+[27] [28]
+Underfull \hbox (badness 10000) in paragraph at lines 394--395
 []\OT1/cmr/m/n/12 https://www.statista.com/statistics/534123/e-commerce-share-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 396--397
+Underfull \hbox (badness 10000) in paragraph at lines 397--398
 []\OT1/cmr/m/n/12 https://milled.com/CalvinKlein/final-hours-take-40-off-every-
 
  []
 
-[29] ("Final report.aux") ) 
+[29]
+LaTeX Font Info:    Try loading font information for OT1+zi4 on input line 440.
+
+
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/inconsolata\ot1zi
+4.fd"
+File: ot1zi4.fd 2018/01/14 OT1/zi4 (Inconsolata)
+)
+LaTeX Font Info:    Font shape `OT1/zi4/m/n' will be
+(Font)              scaled to size 12.0pt on input line 440.
+\openout4 = `"Final report.listing"'.
+
+
+("C:\Users\Samuel\AppData\Local\Programs\MiKTeX 2.9\tex/latex/listings\lstlang1
+.sty"
+File: lstlang1.sty 2019/02/27 1.8b listings language file
+) ("Final report.listing")
+\openout4 = `"Final report.listing"'.
+
+ ("Final report.listing") [30] ("Final report.aux") ) 
 Here is how much of TeX's memory you used:
- 13701 strings out of 492945
- 274434 string characters out of 3125809
- 331208 words of memory out of 3000000
- 17293 multiletter control sequences out of 15000+200000
- 9536 words of font info for 34 fonts, out of 3000000 for 9000
+ 30630 strings out of 492945
+ 630298 string characters out of 3125809
+ 868299 words of memory out of 3000000
+ 34078 multiletter control sequences out of 15000+200000
+ 538773 words of font info for 46 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
- 62i,7n,81p,2076b,292s stack positions out of 5000i,500n,10000p,200000b,50000s
-<C:/Users/Samuel/AppData/Local/Programs/MiKTeX 2.9/f
-onts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Users/Samuel/AppData/Local/Program
-s/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Users/Samuel/AppData
-/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Users/
-Samuel/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi12.
-pfb><C:/Users/Samuel/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfo
-nts/cm/cmmi6.pfb><C:/Users/Samuel/AppData/Local/Programs/MiKTeX 2.9/fonts/type1
-/public/amsfonts/cm/cmmi8.pfb><C:/Users/Samuel/AppData/Local/Programs/MiKTeX 2.
-9/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/Samuel/AppData/Local/Progr
-ams/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/Samuel/AppDat
-a/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Users/S
-amuel/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.p
-fb><C:/Users/Samuel/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfon
-ts/cm/cmsy6.pfb><C:/Users/Samuel/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/
-public/amsfonts/cm/cmsy8.pfb><C:/Users/Samuel/AppData/Local/Programs/MiKTeX 2.9
-/fonts/type1/public/amsfonts/cm/cmti12.pfb>
-Output written on "Final report.pdf" (30 pages, 1282298 bytes).
+ 63i,7n,101p,2076b,1665s stack positions out of 5000i,500n,10000p,200000b,50000s
+{C:/Users/Samuel/AppData/L
+ocal/Programs/MiKTeX 2.9/fonts/enc/dvips/inconsolata/i4-ot1-0.enc} <C:\Users\Sa
+muel\AppData\Local\MiKTeX\2.9\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm1200.pk><C
+:/Users/Samuel/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/inconsolata
+/Inconsolata-zi4r.pfb><C:/Users/Samuel/AppData/Local/Programs/MiKTeX 2.9/fonts/
+type1/public/amsfonts/cm/cmbx10.pfb><C:/Users/Samuel/AppData/Local/Programs/MiK
+TeX 2.9/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Users/Samuel/AppData/Loca
+l/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Users/Samue
+l/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi12.pfb><
+C:/Users/Samuel/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/c
+m/cmmi6.pfb><C:/Users/Samuel/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/publ
+ic/amsfonts/cm/cmmi8.pfb><C:/Users/Samuel/AppData/Local/Programs/MiKTeX 2.9/fon
+ts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/Samuel/AppData/Local/Programs/M
+iKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/Samuel/AppData/Loc
+al/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Users/Samuel
+/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C
+:/Users/Samuel/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm
+/cmsy6.pfb><C:/Users/Samuel/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/publi
+c/amsfonts/cm/cmsy8.pfb><C:/Users/Samuel/AppData/Local/Programs/MiKTeX 2.9/font
+s/type1/public/amsfonts/cm/cmti12.pfb>
+Output written on "Final report.pdf" (31 pages, 1302802 bytes).
 PDF statistics:
- 204 PDF objects out of 1000 (max. 8388607)
+ 230 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
- 179 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 227 words of extra memory for PDF output out of 10000 (max. 10000000)
 

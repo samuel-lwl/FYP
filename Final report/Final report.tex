@@ -9,8 +9,16 @@
 \usepackage[nottoc]{tocbibind} % include references in contents page
 \usepackage{color,soul} % for highlighting
 %\usepackage[document]{ragged2e}
+\usepackage[toc,page]{appendix} %appendix
 
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
+\usepackage{inconsolata}
 
+\newtcblisting[auto counter]{sexylisting}[2][]{sharp corners, 
+	fonttitle=\bfseries, colframe=gray, listing only, 
+	listing options={basicstyle=\ttfamily,language=Python}, 
+	title=Listing \thetcbcounter: #2, #1, top=0pt, bottom=0pt, boxsep=0pt, left=0pt}
 
 \begin{document}
 
@@ -62,37 +70,7 @@ My heartfelt thanks and gratitude go to Dr. Yan Zhenzhen for her patience and gu
 \end{center}	
 	\large
 	In 1933, William R. Thompson proposed an algorithm known as Thompson sampling in order to maximise culmulative payoff in a multi-armed bandit (MAB) problem. MAB problems have been frequently used to model real-life decision making scenarios. This paper explores the extension of Thompson sampling to other problems beyond the MAB setting. More specifically, Thompson sampling is applied to product sales using data from a real dataset in a dynamic pricing setting as part of the multi-product pricing problem. 
-	\newpage
-	clearer explanation about what you mean by nonstationary demand, how do you reflect it in the function. why is it nonstationary and what is the point. her understanding is in different time periods, elasticity is of a different function (it is a variable, not a constant). at beginning of section, can say we considering the normal function. in the following two parts we consider whether we fix f or f will change. must clearly specify in the beginning so that later dont need to point out again cos its basically the same function just whether the parameters fixed or not. 
-	normally, stationary is usually defined as demand follows a certain distribution, but this distribution varies with time. eg first 10 periods its linear with X parameters, next 10 periods its linear with Y parameters, assuming that we use a linear demand fn. committee might ask why do you define this as nonstationary since it contrasts with the usual definition of stationarity. could be mab problem with two level, first level is determine price, next level is determine which function elasticity comes from. 
-	
-	in infinite setting: swap order of with constraint and without constraint. first do with inventory constraint. with constraint TS is worse, explain why this is the case. basically considering too many periods, some of the goods run out of inventory, termination is when all goods run out of inventory, but possible that before termination, some of them alr run out. not reasonable to consider so many periods. from the curve, can consider a shorter fixed time period without constraint which leads to the second graph (without constraint). logic flows better. should explain more on f where f is the demand forecasting component, potentially confusing for ppl. also must clarify very clearly what do you mean by stationary and nonstationary. cannot position as different demand function, demand function's form/type is the same but parameter will change overtime. 
-	
-	without constraint, fix time period and inventory. with constraint, dont fix time period but fix inventory. maybe shld set withconstraint's approach to be same inventory? 
-	
-	also, cite the paper when describing the algorithm again just to be safe. 
-	
-	in discrete setting: do more analysis, why consider these two demand model. or maybe say ok for demand model A which algo best? what is your intuition? do the same for the demand model B. or if TS always best out of both, then can say TS is robust. if observe diff performance, try to position as first need to have correct asumption of underlying demand model and then carefully select algo, provide analysis and insight if observe diff performance. problem is not because of TS its because of demand model. reasonable during algo design to first estimate demand. thats why demand function is important. based on what type of demand function, you need to design the corresponding best algo. 
-	
-	if observe same performance TS always outperform, then insight is TS is robust cos its outperforms other algos in different demand models.  
 
-
-
-		
-	presentation: not just copy and paste from report. must have complete story, flow will probbaly different from report. 
-	
-	trying to solve fmcg promotion problem which tries to clear inventory. provide these two algos from report and show their results. 
-	
-	not everyone is familiar with ecommerce and understands why this promotion is important. 
-	
-	can seaarch data from website why we need to clear inventory cos leftover goods incurs loss, commonly observed problem. zara etc all have this issue i.e. fast fashion. 
-	
-	should emphasise significance of the problem. when problem is well motivated, state problem clearly, now we can solve it by providing some algo. here is the one we chose. 
-	
-	what is it? why did we choose it? cos recently it has a lot of achievement in revenue management problem and you are not the first to choose it. list the literature that all use ts to solve problem. we also choose this one. what is your creativity/contribution? 
-	
-	1. describe importance of problem
-	2. introduce method and emphasise contribution
 \pagebreak
 \large
 %\renewcommand{\baselinestretch}{1.5}
@@ -265,7 +243,7 @@ The remaining subsections are very similar to the previous subsections under the
 \newline
 Similar to the previous subsection using the MNL model, we reuse the same 3 price vectors for $k = 1,2,3$. The demand function under the constant price elasticity model is given below. 
 \[d_{i,k} = f_{i,0} \left(\frac{p_{i,k}}{p_{i,0}}\right)^{\gamma_{*,i}} \]
-To recap, our dataset consisted of 11 days of data and we chose the first day to be set as the baseline demand $f_{i,0}$ since every product was sold at least once on the first day. This ensures that the starting point of the algorithm uses real data. $\gamma_{*,i}$ was randomly generated once and fixed throughout the entire horizon. The middle price vector $p_{i,2}$ from the previous subsection, which is also the price from our dataset, was set as the baseline price $p_{i,0}.$ $d_{i,k}$ thus refers to the quantity demanded of product $i$ under price vector $k$.
+To recap, our dataset consisted of 11 days of data and we chose the first day to be set as the baseline demand $f_{i,0}$ since every product was sold at least once on the first day. This ensures that the starting point of the algorithm uses real data. $\gamma_{*,i}$ was randomly generated once to be some random vector where $\gamma_* \in [-3, -1]^{66}$ and fixed throughout the entire horizon. The middle price vector $p_{i,2}$ from the previous subsection, which is also the price from our dataset, was set as the baseline price $p_{i,0}.$ $d_{i,k}$ thus refers to the quantity demanded of product $i$ under price vector $k$.
 \newline
 \newline
 Since we now have our theoretical demand $d_i$ corresponding to each price vector $k$, we can again create historical data in the same manner as before by creating epsilon vectors and then performing addition and subtraction. This would ensure that the means for our historical data for each price vector would be equal to the theoretical demand.
@@ -275,18 +253,18 @@ In this approach, the objective remains the same: to learn the true theoretical 
 \newline
 \newline
 The process is exactly the same as that described in section 4.1.2, bar step 4. In this setting, the observed demand would be $d_{i,k}$ depending on which price vector $k$ was chosen.
+\vfill
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=1.03\textwidth]{7.png}
 	\caption{\label{fig:7}Comparing revenue between all 3 arms and actual revenue (constant elasticity model)}
 \end{figure}
-\newline
-Similar to Figure 4, we again see that Thompson sampling had already correctly identified the best arm from the beginning and was exploiting it in every iteration.
+\vfill
+
+Similar to Figure 4, we again see that Thompson sampling had already correctly identified the best arm from the beginning and was exploiting it in every iteration in Figure 7.
 
 \subsubsection{Comparison with other algorithms}
 We again compare the performance of Thompson sampling to other well-established algorithms as in the previous subsection. From Figures 8 and 9, we see that the results are consistent with our previous observations. Thompson sampling and the UCB algorithms both outperform the greedy algorithms. However, the difference in cumulated revenue between Thompson sampling and UCB is much smaller under the constant price elasticity model. By the end of the horizon, Thompson sampling still outperforms the UCB algorithms.
-
-
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=1.03\textwidth]{5.png}
@@ -297,92 +275,115 @@ We again compare the performance of Thompson sampling to other well-established 
 	\includegraphics[width=1.03\textwidth]{6.png}
 	\caption{\label{fig:6}Comparing revenue between all algorithms - last 20 time periods (constant elasticity model)}
 \end{figure}
+\newpage
 \subsection{Conclusion of first approach}
-TS works well in both commonly used demand functions? possible extension would be to consider non-stationary demand functions?
-\pagebreak
+In this section, we have seen that Thompson sampling is relatively robust as it worked well in two commonly used demand functions, namely the MNL model and the constant price elasticity model. It is worth noting that in both of these settings, we had reliable historical data since taking the mean of the data actually produced the true theoretical demand. Repeating the experiments with poor or no historical data (i.e. random initialisation of parameters) may yield interesting results in which other algorithms may possibly outperform Thompson sampling. Another possible extension would be to consider non-stationary demand functions as part of the non-stationary bandit problem.
+
 \section{Second approach: Continuous prices}
-In this approach, the objective is to learn the true elasticity values for each product. We implement the Thompson Sampling algorithm for dynamic pricing proposed by Ganti, Sustik, Tran \& Seaman (2018). In their paper, they consider the demand function to be a modified constant elasticity model. The commonly used constant elasticity model is 
-\[d_i(p_i) = f_i \left(\frac{p_i}{p_{0,i}}\right)^{\gamma_{*,i}} \]
-\hl{where $d_i(p_i)$ is the demand of item $i$ at price $p_{0,i}, f_i$ } is the baseline demand at price $p_{0,i}$ for item $i$ and $\gamma_{*,i} < -1$ is the elasticity of item $i$. Instead of this model, the authors proposed 
-\[d_{i,t}(p_i) = f_{i,t} \left(\frac{p_i}{p_{i,t-1}}\right)^{\gamma_{*,i}} \]
-which we will implement for this approach. $f_{i,t}$ is the demand forecast for item $i$ on day $t$ if the price is $p_{i,t-1}$. This has several advantages over the MNL model and the typical constant elasticity model. Firstly, the demand function in real world pricing systems is usually not stationary and the adaptations made can reflect this property by accounting for possible movements in the underlying demand function. Secondly, the MNL model assumes homogeneous customer behaviour i.e every customer has the same purchasing behaviour. On the other hand, the constant elasticity model is an aggregate model i.e the model perceives the market as a whole and not as one customer. This may be more reflective of demand in a real world setting.
+In this approach, the objective is to learn the true elasticity values for each product. We implement the Thompson sampling algorithm for dynamic pricing proposed by Ganti, Sustik, Tran \& Seaman (2018). In their paper, they consider the demand function to be a modified constant elasticity model. The commonly used constant elasticity model is 
+\[d_i(p_i) = f_i \left(\frac{p_i}{p_{i,0}}\right)^{\gamma_{*,i}} \tag{1} \] 
+where $d_i(p_i)$ is the demand of item $i$ at price $p_{i}, f_i$ is the baseline demand at price $p_{i,0}$ for item $i$ and $\gamma_{*,i} < -1$ is the elasticity of item $i$. This is also the demand function that was implemented in section 4.2. Instead of this model, the authors proposed 
+\[d_{i,t}(p_i) = f_{i,t} \left(\frac{p_i}{p_{i,t-1}}\right)^{\gamma_{*,i}} \tag{2}\]
+which we will implement for this approach. Notice that the notation is slightly different from what we used in the previous section. This is because we only considered discrete price points i.e. finite sets of prices in section 4 and now we are considering continuous price points i.e. infinite sets of prices. $f_{i,t}$ is the demand forecast for item $i$ on day $t$ using observed demand for item $i$ at different price points on days $t = 1,..., t-1$. $f_{i,t}$ can be obtained using various models. Some suggested examples include time series models such as ARMA, ARIMA, AR(k) or non-time series models such as logistic regression or even a combination of models to form a new model. In our application, we used a simple AR(k) model as suggested by the authors.
 \newline
 \newline
-In this section, we will compare the results of the dynamic pricing algorithm to a model with no dynamic pricing implemented, which we will call the constant price model. The comparison will be done in two settings - one with inventory constraint and the other without inventory constraint.
+This modified model has several advantages over the MNL model and the typical constant elasticity model. Firstly, the demand function in real world pricing systems is usually not stationary and the adaptations made can reflect this property by accounting for possible movements in the underlying demand function. Secondly, the MNL model assumes homogeneous customer behaviour i.e. every customer has the same purchasing behaviour. On the other hand, the constant elasticity model is an aggregate model i.e the model perceives the market as a whole and not as one customer. This may be more reflective of demand in a real world setting.
+\newline
+\newline
+Also, we would like to emphasise on the definition of stationarity. We understand that in certain papers and literature, non-stationary demand functions may mean entirely different demand functions in different time periods or the products' elasticity may be a variable generated from different functions. In this paper, the difference between our stationary and non-stationary demand functions lies in its parameters. The non-stationary demand function has parameters ($f_{i,t}, p_{i,t-1}$) that change in each time period. However, both are still considered constant price elasticity models. 
+\newline
+\newline
+In this section, we will compare the results of the dynamic pricing algorithm to a model with no dynamic pricing implemented, which we will call the constant price model. Static pricing is implemented instead i.e. prices are kept constant throughout the selling season. The comparison will be done in two settings - one with the stationary demand function in (1) and the other with non-stationary demand function in (2). For each of these settings, we further consider cases where inventory constraints are present and absent.
 \newline
 \newline
 The dynamic pricing algorithm needs a prior distribution $\Pi_0(\gamma_*)$ which is assumed to be a normal distribution for the elasticity and an estimate for the noise variance $\sigma^2$. The authors suggest using prior elasticity estimates from historical data as the mean $\mu_0$ of the prior distribution and $\Sigma_0 = cI$ for some constant c as the covariance matrix. Similarly, sample standard deviation of observed revenue from historical data can be used to estimate $\sigma$. In our implementation, since Thompson sampling learns the true parameter values over time, we randomly initialised $\mu_0 \in [-5, -1]^{66}$ and set $c$ to be 10\% of the mean of $\mu_0$. Even if the initialisation choice was poor, Thompson sampling will still be able to learn the true values albeit taking a longer period of time. From our dataset, there were 2 days in which all products had at least 1 sale. $\hat{\sigma}$ was set to be the standard deviation of the observed revenue for those two days. Here is how the algorithm proceeded:
 \newline
 \newline
-Set the true elasticity $\gamma_*$ to be some random vector where $\gamma_* \in [-3, -1]^{66}$ and this is not revealed to the algorithm. This is a reasonable assumption since the products in the dataset are children's books, which are usually elastic in demand. Set $\beta=0.5$, $p_{i,0}$ to be the actual price from the dataset and $d_{i,0}$ to be one of the eleven days from the dataset. By fixing $d_{i,0}$, the starting point of the algorithm is fixed. We may then compare performance across different models. $\epsilon_t$ is random noise sampled independently from $N(0,1)$. $T$ was chosen to be 15 in this section since sales promotions are usually not that long in real world pricing systems
+Set the true elasticity $\gamma_*$ to be some random vector where $\gamma_* \in [-3, -1]^{66}$ and this is not revealed to the algorithm. This is a reasonable assumption since the products in the dataset are children's books, which are usually elastic in demand. Set $\beta=0.5$, $p_{i,0}$ to be the actual price from the dataset and $d_{i,0}$ to be one of the eleven days from the dataset. By fixing $d_{i,0}$, the starting point of the algorithm is fixed and is based on real world data. We may then compare performance across different models. $\epsilon_t$ is random noise sampled independently from $N(0,1)$. $T$ was chosen to be 15 in this section since sales promotions are usually not that long in real world pricing systems.
 \newline
 \newline
-For iterations $t = 1,...,T$, the following process was done for the dynamic pricing algorithm:
+For iterations $t = 1,...,T$, the following process which was proposed by Ganti, Sustik, Tran \& Seaman (2018) was done for the dynamic pricing algorithm:
 \begin{enumerate}
-	\item Calculate demand forecast for each item $i$ using the autoregressive model \[ f_{i,t} = c_0 + \sum_{\tau=t-1}^{0} \beta^{t-\tau}d_{i,\tau} + \epsilon_t \]
+	\item Calculate demand forecast for each item $i$ using the autoregressive model \[ f_{i,t} = c_0 + \sum_{\tau=0}^{t-1} \beta^{t-\tau}d_{i,\tau} + \epsilon_t \]
 	\item Randomly sample from $\gamma_t \sim \Pi_{t-1}$ until all components of $\gamma_t$ are negative since elasticity values are negative.
 	\item Solve the following optimisation problem to get price vector $p_t$ given $p_{i,t-1}$ and estimates $f_{i,t}$ and $\gamma_t$ \[p_t = \argmax_p \sum_{i=1}^{N}\frac{p_i^2f_{i,t}\gamma_{*,i}}{p_{i,t-1}} -p_if_{i,t}\gamma_{*,i} + p_if_{i,t}\] \[\text{subject to: } p \in C_t \]
 	\item Apply prices $p_t$. The observed demand is generated by the following modified constant elasticity formula \[ d_{i,t}(p_{i,t}) = \text{max} \left(f_{i,t}\left(\frac{p_{i,t}}{p_{i,t-1}}\right)^{\gamma_*} + \epsilon_t, 0 \right) \] 
 	\item Update our prior distribution $\Pi_{t-1}(\gamma_*)$ to obtain the posterior distribution $\Pi_t(\gamma_*)$. The details of Bayes updating in this step can be found in  Ganti, Sustik, Tran \& Seaman (2018)'s paper - equations (16) and (17).
 \end{enumerate}
-For the constant price model, the price $p_t$ was set as $p_{i,0}$ in every iteration. Steps 2, 3 and 5 were also removed since we do not implement any learning algorithms. We are interested to investigate if applying dynamic pricing would lead to better results over not applying any algorithms.
+For the constant pricing model, the price $p_t$ was set as $p_{i,0}$ in every iteration. Steps 2, 3 and 5 were also removed since we do not implement any learning algorithms. We are interested to investigate if applying dynamic pricing would lead to better results over not applying any algorithms to assess the robustness of the algorithm proposed by the authors.
 \subsection{Non-stationary demand function}
-\subsubsection{Dynamic vs Constant pricing without constraint}
-In this subsection, we do not impose any constraint and simply implement the algorithm proposed by the authors on the real dataset.
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=1.03\textwidth]{2.png}
-	\caption{\label{fig:four}Comparing cumulated revenue between TS and constant pricing without inventory constraints}
-\end{figure}
-\newline
-Since we do not impose any inventory constraint, it is assumed that the seller has sufficient stock to satisfy demand in each time period. In each successive time period, the price of products fall gradually while demand increases steadily. As the products are elastic in demand, the decrease in prices leads to a larger increase in demand which results in higher revenue.
-\newline
-\newline
-By the end of the horizon, Thompson sampling earned 14.8\% more revenue than the constant pricing model and also sold 65.8\% more products. If we had 1000 of each product in inventory at the beginning of the selling season, we can also analyse the amount of inventory cleared. In most real world situations, products may no longer be sold after the selling season is over and there is a cost incurred by the seller for not being able to sell it. We can assign a cost to each product and investigate the total costs for each model. \hl{set higher cost?}By setting cost $= 0.5  p_{i,0}$ and taking into account the amount of products left over, Thompson sampling had incurred 15.5\% less costs than the constant pricing model. On the whole, Thompson sampling made 21.5\% less losses where loss = costs - revenue.
-\newline
-\newline
-We can frame this problem as trying to clear excess inventory during a finite selling season (15 time periods) and the decrease in prices as coupons offered to customers. Even though the main objective is to clear inventory, we also want to ensure that we are able to minimise losses and maximise profits as much as possible. Thus, when assuming no inventory constraints (the seller is able to meet the market's demand in every time period) and the independence of products' elasticities, the dynamic pricing algorithm works better.
-
+In this section, the demand function is chosen to be the one in (2).
 \subsubsection{Dynamic vs Constant pricing with constraint}
-In this subsection, we explicitly set the amount of inventory to be 50 and not 1000 as in the previous section as we are interested in how the algorithms perform when there is no more inventory. The algorithms will continue until all inventory has been cleared. More specifically, we subtract the observed demand in each iteration from a finite amount of inventory. When a product has run out of inventory, we set the observed demand in step 4 of the algorithm to be 0 for that product for all subsequent time periods.
+In this subsection, we explicitly set the amount of inventory to be 50 for each product as we are interested in how the algorithm proposed by the authors would perform on the real dataset when there is no more inventory. The algorithm will continue until all inventory has been cleared. More specifically, we subtract the observed demand in each iteration from a finite amount of inventory. When a product has run out of inventory, we set the observed demand in step 4 of the algorithm to be 0 for that product for all subsequent time periods since there is simply no more stock to meet the market's demand.
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=1.03\textwidth]{4.png}
 	\caption{\label{fig:five}Cumulated revenue of TS and constant pricing with inventory constraints}
 \end{figure}
 \newline
+As seen in Figure \ref{fig:five}, Thompson sampling clears the inventory much quicker than the constant pricing model. However, the amount of revenue generated by Thompson sampling is significantly lower. The Thompson sampling algorithm increases revenue by lowering prices which will lead to an increase in demand since the products' demand is elastic. This is not reflected in Figure \ref{fig:five} and we believe the reason may be due to the fact that we are simply considering too many time periods and most of the products have already run out of inventory. In other words, before Thompson sampling terminated at around time period = 35, many products were actually already sold out from time period = 20 and there were only a couple of products there were still in stock.
 \newline
-As seen in Figure \ref{fig:five}, Thompson sampling clears the inventory much quicker than the constant pricing model. However, the amount of revenue generated by Thompson sampling is significantly lower. As explained in the previous subsection, the Thompson sampling algorithm increases revenue by lowering prices which will lead to an increase in demand since the products' demand is elastic. This is not reflected in Figure \ref{fig:five} and we believe the reason may be due to the fact that most of the products have already run out of inventory. 
 \newline
-\newline
-If we repeat our approach in the previous subsection by cutting off the plots at time period = 15, the constant pricing model earned 30.9\% more revenue than Thompson sampling but incurred 45.3\% more costs. It also sold 8.5\% less products than Thompson sampling but still managed to record 29.6\% more profits where profits = revenue - costs. Thus, the decrease in prices is not compensated by the increase in demand as there is simply insufficient stock to meet the market's demand. This further reinforces our assumption from the previous subsection that the seller should be able to meet the market's demand in each time period. It may be difficult to observe from Figure \ref{fig:five} but between the second and fourth points, the revenue by Thompson sampling is actually greater than the revenue by the constant pricing model and it closely resembles the plot in Figure \ref{fig:four}. After the fourth point, the plot of Thompson sampling starts to taper off. This is due to inventory running out and thus the observed demand for most products is 0. \hl{wad if we cut off at 10, then factor in costs, ts might be better!}
+If we cut off the plots at time period = 15, the constant pricing model earned 30.9\% more revenue than Thompson sampling but incurred 45.3\% more costs. It also sold 8.5\% less products than Thompson sampling but still managed to record 29.6\% more profits where profits = revenue - costs. Thus, the decrease in prices is not compensated by the increase in demand as there is simply insufficient stock to meet the market's demand. This further reinforces our belief that the seller should be able to meet the market's demand in each time period. It may be difficult to observe from Figure \ref{fig:five} but between the second and fourth points, the revenue by Thompson sampling is actually greater than the revenue by the constant pricing model and it closely resembles the plot in Figure \ref{fig:four}. After the fourth point, the plot of Thompson sampling starts to taper off. This is due to inventory running out and thus the observed demand for most products is 0. It may thus be more effective if we considered a shorter selling season with less time periods where we do not have to worry about products running out of inventory which leads us to the next subsection.
 
-\subsection{Stationary demand function}
-here we try to implement their algorithm but with a constant elasticity model that is not modified i.e. 
-\[d_i(p_i) = f_i \left(\frac{p_i}{p_{0,i}}\right)^{\gamma_{*,i}} \]
-the only changes we need to make from the non-stationary setting in section 5.1 are ......
 \subsubsection{Dynamic vs Constant pricing without constraint}
+In this subsection, we do not impose any constraint and simply implement the algorithm proposed by the authors on the real dataset.
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=1.03\textwidth]{1.png}
-	\caption{\label{fig:1}Cumulated revenue of TS and constant pricing without inventory constraint}
+	\includegraphics[width=1.03\textwidth]{512.png}
+	\caption{\label{fig:four}Comparing cumulated revenue between TS and constant pricing without inventory constraints}
 \end{figure}
-similar to nonstationary setting, their ts algorithm works much better than constant pricing
+\newline
+Since we do not impose any inventory constraint, it is assumed that the seller has sufficient stock to satisfy demand in each time period. Just as in the previous subsection, in each successive time period, the price of products fall gradually while demand increases steadily. As the products are elastic in demand, the decrease in prices leads to a larger increase in demand which results in higher revenue.
+\newline
+\newline
+By the end of the horizon, Thompson sampling earned 14.8\% more revenue than the constant pricing model and also sold 65.8\% more products. If we had 1500 of each product in inventory at the beginning of the selling season, we can also analyse the amount of inventory cleared. In most real world situations, products may no longer be sold after the selling season is over and there is a cost incurred by the seller for not being able to sell it. We can assign a cost to each product and investigate the total costs for each model. By setting cost $= 0.5  p_{i,0}$ and taking into account the amount of products left over, Thompson sampling had incurred 66.5\% less costs than the constant pricing model. On the whole, Thompson sampling made 19\% more profits where profits = revenue - costs. We chose 1500 as our stock because through several runs and experiments, we know that the amount of stock cleared by Thompson sampling generally does not exceed 1500 for each product after 15 time periods since we want to prevent inventory constraint from being a reason for Thompson sampling's poor performance.
+\newline
+\newline
+We can frame this problem as trying to clear excess inventory during a finite selling season (15 time periods) and the decrease in prices as coupons offered to customers. Even though the main objective is to clear inventory, we also want to ensure that we are able to minimise losses and maximise profits as much as possible. Thus, when assuming no inventory constraints (the seller is able to meet the market's demand in every time period) and the independence of products' elasticities, the dynamic pricing algorithm works better.
+
+\subsection{Stationary demand function}
+In this section, the demand function is chosen to be the one in (1).
 \subsubsection{Dynamic vs Constant pricing with constraint}
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=1.03\textwidth]{3.png}
 	\caption{\label{fig:3}Cumulated revenue of TS and constant pricing without inventory constrain}
 \end{figure}
-unfortunately, the algorithms' flaws that were exposed in section 5.1.2 also resurface here...
+Here, we again set the amount of inventory to be 50 for each product in order to investigate the peformance of the algorithm under inventory constraints. Unfortunately, the algorithm's flaws that were exposed in section 5.1.1 also resurface here. In Figure \ref{fig:3}, we can see that the shape of the curve is very similar to the one seen in Figure \ref{fig:five}. The Thompson sampling algorithm again terminates much earlier than the constant pricing model which suggests that inventory is cleared much quicker. One interesting point to note is that in the early stages between points 1 to 8, we can see that the revenue increases at a much faster rate than in Figure \ref{fig:five} of the previous subsection. This suggests that Thompson sampling performs better when the demand function is stationary.
+\newline
+\newline
+If we cut off the plots at time period = 15, the revenue earned by the constant pricing model is 13.1\% more than the revenue earned by the modified Thompson sampling algorithm. In terms of costs, Thompson sampling actually incurred 84.3\% less costs. If we define profits = revenue - costs, the constant pricing model recorded 7.9\% more profits. This is also observed in section 5.1.1 where Thompson sampling incurred less costs, earned less revenue and recorded less profits. We believe this is again due to the consideration of too many time periods since Thompson sampling lowers prices to stimulate more market demand. This would not work as there is not enough stock to meet the increase in market demand and so observed demand for products out of stock is 0. We next consider a shorter selling season with less time periods to investigate if shorter selling seasons would help to mitigate the problem.
+\newpage
+\subsubsection{Dynamic vs Constant pricing without constraint}
+Similar to what was done in the non-stationary setting, we remove the inventory constraint and implement the algorithm on the real dataset with a stationary demand function.
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=1.03\textwidth]{522.png}
+	\caption{\label{fig:1}Cumulated revenue of TS and constant pricing without inventory constraint}
+\end{figure}
+\newline
+In this case, we see that Thompson sampling outperforms the constant pricing model. Since we removed the inventory constraint, it means that when Thompson sampling reduces prices to stimulate demand, the market demand is always met. This means that since the products have elastic demand in our initialisation, the decrease in prices leads to a larger increase in demand which results in more revenue.
+\newline
+\newline
+Here, we set our inventory to be 10000 because we know that through several runs and experiments, the maximum amount of stock Thompson sampling would clear for a product will not exceed 10000 in 15 time periods and this would help to ensure that inventory constraint is not a problem in this setting. We cannot set it to be 1500 as in section 5.1.2 because Thompson sampling somehow sells more products under the stationary demand function. Setting our inventory to be 1500 would inadvertently reproduce the plot in Figure \ref{fig:3} where the seller runs out of stock. This is also why the cumulated revenue throughout section 5.2 is greater than the figures observed in section 5.1. The larger amount of products sold here also possibly explains why the Thompson sampling revenue in Figure \ref{fig:1} is growing at a much larger rate than in Figure \ref{fig:3}.
+\newline
+\newline
+In terms of numbers, Thompson sampling had accumulated 65.3\% more revenue, incurred 71.9\% less costs and on the whole recorded 66.1\% more profits than the constant pricing model. This is consistent with our observations in section 5.1.2 since the seller can now meet the increasing market demand in each time period with the inventory constraint removed.
+
+
 \subsection{Conclusion of second approach}
-the ts algorithm proposed by (cite authors) works well in both stationary and non-stationary settings assuming there is sufficient inventory. possible extension to comparing with other algorithms adapted for infinite arms such as confidence bound target algorithm (citation) or ucb-f algorithm. ts seems simpler to implement than cbt and ucb-f since it requires less inputs? less preparation work required
+The Thompson sampling algorithm proposed by Ganti, Sustik, Tran \& Seaman (2018) works mostly well in both stationary and non-stationary settings assuming that the seller is able to meet the market's demand in every time period. The effectiveness of the algorithm is further amplified in the stationary case. It mostly outperforms the constant pricing model especially when there are no inventory constraints or when the selling season is short enough for inventory constraint to become a problem. Some possible extensions would be to compare this Thompson sampling algorithm to other algorithms adapted for infinite arms such as the confidence bound target (CBT) algorithm proposed by Chan \& Hy (2018)  or the UCB-F algorithm proposed by Wang, Audibert \& Munos (2009).
+
 %\newpage
 \section{Conclusion and future direction}
-In this paper, we explored the algorithm known as Thompson sampling in various settings. We compared its performance to other well-known algorithms such as UCB in the MAB problem using a MNL demand function with synthetic data. We observed that Thompson sampling greatly outperformed greedy algorithms and to a smaller extent, UCB algorithms which are considered to be more commonly utilised. 
+In this paper, we explored the algorithm known as Thompson sampling in various settings. We compared its performance to other well-known algorithms such as UCB in the MAB problem using a MNL demand function and the constant price elasticity function with both synthetic data and real data. We observed that Thompson sampling greatly outperformed greedy algorithms and to a smaller extent, UCB algorithms which are considered to be more commonly utilised. 
 \newline
 \newline
-We then implemented a dynamic pricing algorithm using Thompson sampling proposed by Ganti, Sustik, Tran \& Seaman (2018) on a real dataset which consisted of sales data of children's books. In this approach, instead of the MNL model, we used a modified constant elasticity model as the demand function. We compared its performance to a constant pricing model in two different settings: with inventory constraint and without inventory constraint. In the setting  without inventory constraint, Thompson sampling easily outperforms the constant pricing algorithm. It achieves higher revenue at less cost and is able to sell more products which led to smaller loss than the constant pricing algorithm. In the setting with inventory constraints, we set the observed demand of products with depleted stock to be 0. As a result, the constant pricing model outperforms Thompson sampling by tapering off much later. We believe this is due to the decrease in product prices not being sufficiently compensated by the increase in demand as there is simply no stock left. Thus, a required assumption of the dynamic pricing algorithm with Thompson sampling is that the seller must be able to meet customers' demand in the entire horizon.
+We then implemented a dynamic pricing algorithm using Thompson sampling proposed by Ganti, Sustik, Tran \& Seaman (2018) on a real dataset which consisted of sales data of children's books. In this approach, instead of the MNL model, we used a modified constant elasticity model as the demand function. We compared its performance to a constant pricing model in two different settings: with a non-stationary demand function and with a stationary demand function. For each of these settings, we further considered additional constraints, namely with inventory constraint and without inventory constraint. The results in both stationary and non-stationary settings were fairly similar so we will speak about both at the same time and highlight interesting points whenever necessary. 
+\newline
+\newline
+In the setting without inventory constraint, Thompson sampling easily outperforms the constant pricing algorithm. It achieves higher revenue at less cost and is able to sell more products which led to larger profits than the constant pricing algorithm. In the setting with inventory constraints, we set the observed demand of products with depleted stock to be 0. From our observations, the constant pricing model outperforms Thompson sampling and it tapers off much later. This is because Thompson sampling sold more goods at a faster rate than the constant pricing model. Thus, the decrease in product prices by Thompson sampling is not being sufficiently compensated by the increase in demand as there is simply no stock left. Therefore, a required assumption of the dynamic pricing algorithm with Thompson sampling is that either the seller must be able to meet customers' demand in the entire horizon or the selling season should be shortened such as inventory constraint is not a concern.
 \newline
 \newline
 As we saw in the second approach, the dynamic pricing algorithm with Thompson sampling fails when inventory constraints are introduced and only succeeds when the seller knows they can meet market demand during the selling season. In certain real world markets, this may not be a very flexible assumption since demand may change overtime due to external events. A seller might be in the middle of the selling season when he realises his supply is insufficient due to changes in the market. He will then have to cease Thompson sampling or risk incurring losses. It may thus be worthwhile to investigate extending this dynamic pricing algorithm with Thompson sampling to be more robust against inventory constraints. A possible direction would be to incorporate inventory constraints more elegantly instead of setting observed demand to be simply 0. A good resource to start with would be Ferreira, Simchi-Levi \& Wang (2017)'s paper where they investigate different products requiring different kinds of resources in detail.
@@ -426,6 +427,56 @@ As we saw in the second approach, the dynamic pricing algorithm with Thompson sa
 	
 	\bibitem{main}
 	Ganti, Sustik, Tran, Seaman. 2018. Thompson Sampling for Dynamic Pricing. 
+	
+	\bibitem{cbt}
+	Hock, Hu. 2018. Infinite Arms Bandit: Optimality via Confidence Bounds.
+	
+	\bibitem{ucbf}
+	Wang, Audibert, Munos. 2009. Algorithms for Infinitely Many-Armed Bandits.
 \end{thebibliography}
+
+\begin{appendices}
+	Code for section 4.1
+	\begin{verbatim}
+	Text enclosed inside \texttt{verbatim} environment 
+	is printed directly 
+	and all \LaTeX{} commands are ignored.
+	\end{verbatim}
+	\begin{sexylisting}[colback=white]{Script for section 4.1}
+public void here() {
+goes().the().code()
+		}
+	\end{sexylisting}
+	
+	\begin{sexylisting}[colback=white]{Script for section 4.2}
+public void here() {
+goes().the().code()
+		}
+	\end{sexylisting}
+
+	Code for section 4.2
+	\begin{verbatim}
+	content...
+	\end{verbatim}
+	Code for section 5.1.1
+	\begin{verbatim}
+	content...
+	\end{verbatim}
+	Code for section 5.1.2
+	\begin{verbatim}
+	content...
+	\end{verbatim}
+	Code for section 5.2.1
+	\begin{verbatim}
+	content...
+	\end{verbatim}
+	Code for section 5.2.2
+	\begin{verbatim}
+	content...
+	\end{verbatim}
+	
+\end{appendices}
+
+
 
 \end{document}
