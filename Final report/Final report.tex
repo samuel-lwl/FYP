@@ -337,7 +337,7 @@ In this subsection, we do not impose any constraint and simply implement the alg
 Since we do not impose any inventory constraint, it is assumed that the seller has sufficient stock to satisfy demand in each time period. Just as in the previous subsection, in each successive time period, the price of products fall gradually while demand increases steadily. As the products are elastic in demand, the decrease in prices leads to a larger increase in demand which results in higher revenue.
 \newline
 \newline
-By the end of the horizon, Thompson sampling earned 14.8\% more revenue than the constant pricing model and also sold 65.8\% more products. If we had 1500 of each product in inventory at the beginning of the selling season, we can also analyse the amount of inventory cleared. In most real world situations, products may no longer be sold after the selling season is over and there is a cost incurred by the seller for not being able to sell it. We can assign a cost to each product and investigate the total costs for each model. By setting cost $= 0.5  p_{i,0}$ and taking into account the amount of products left over, Thompson sampling had incurred 66.5\% less costs than the constant pricing model. On the whole, Thompson sampling made 19\% more profits where profits = revenue - costs. We chose 1500 as our stock because through several runs and experiments, we know that the amount of stock cleared by Thompson sampling generally does not exceed 1500 for each product after 15 time periods since we want to prevent inventory constraint from being a reason for Thompson sampling's poor performance.
+By the end of the horizon, Thompson sampling earned 14.8\% more revenue than the constant pricing model and also sold 65.8\% more products. If we had 1500 of each product in inventory at the beginning of the selling season, we can also analyse the amount of inventory cleared. In most real world situations, products may no longer be sold after the selling season is over and there is a cost incurred by the seller for not being able to sell it. We can assign a cost to each product and investigate the total costs for each model. By setting cost $= 0.5  p_{i,0}$ and taking into account the amount of products left over, Thompson sampling had incurred 9.5\% less costs than the constant pricing model. On the whole, Thompson sampling made 12.3\% less losses where loss = costs - revenue. We chose 1500 as our stock because through several runs and experiments, we know that the amount of stock cleared by Thompson sampling generally does not exceed 1500 for each product after 15 time periods since we want to prevent inventory constraint from being a reason for Thompson sampling's poor performance.
 \newline
 \newline
 We can frame this problem as trying to clear excess inventory during a finite selling season (15 time periods) and the decrease in prices as coupons offered to customers. Even though the main objective is to clear inventory, we also want to ensure that we are able to minimise losses and maximise profits as much as possible. Thus, when assuming no inventory constraints (the seller is able to meet the market's demand in every time period) and the independence of products' elasticities, the dynamic pricing algorithm works better.
@@ -353,7 +353,7 @@ In this section, the demand function is chosen to be the one in (1).
 Here, we again set the amount of inventory to be 50 for each product in order to investigate the peformance of the algorithm under inventory constraints. Unfortunately, the algorithm's flaws that were exposed in section 5.1.1 also resurface here. In Figure \ref{fig:3}, we can see that the shape of the curve is very similar to the one seen in Figure \ref{fig:five}. The Thompson sampling algorithm again terminates much earlier than the constant pricing model which suggests that inventory is cleared much quicker. One interesting point to note is that in the early stages between points 1 to 8, we can see that the revenue increases at a much faster rate than in Figure \ref{fig:five} of the previous subsection. This suggests that Thompson sampling performs better when the demand function is stationary.
 \newline
 \newline
-If we cut off the plots at time period = 15, the revenue earned by the constant pricing model is 13.1\% more than the revenue earned by the modified Thompson sampling algorithm. In terms of costs, Thompson sampling actually incurred 84.3\% less costs. If we define profits = revenue - costs, the constant pricing model recorded 7.9\% more profits. This is also observed in section 5.1.1 where Thompson sampling incurred less costs, earned less revenue and recorded less profits. We believe this is again due to the consideration of too many time periods since Thompson sampling lowers prices to stimulate more market demand. This would not work as there is not enough stock to meet the increase in market demand and so observed demand for products out of stock is 0. We next consider a shorter selling season with less time periods to investigate if shorter selling seasons would help to mitigate the problem.
+If we cut off the plots at time period = 15, the revenue earned by the constant pricing model is 13.1\% more than the revenue earned by the modified Thompson sampling algorithm. In terms of costs, Thompson sampling actually incurred 84.3\% less costs. If we define loss = costs - revenue, the constant pricing model recorded 7.9\% more profits. This is also observed in section 5.1.1 where Thompson sampling incurred less costs, earned less revenue and recorded less profits. We believe this is again due to the consideration of too many time periods since Thompson sampling lowers prices to stimulate more market demand. This would not work as there is not enough stock to meet the increase in market demand and so observed demand for products out of stock is 0. We next consider a shorter selling season with less time periods to investigate if shorter selling seasons would help to mitigate the problem.
 \newpage
 \subsubsection{Dynamic vs Constant pricing without constraint}
 Similar to what was done in the non-stationary setting, we remove the inventory constraint and implement the algorithm on the real dataset with a stationary demand function.
@@ -369,7 +369,7 @@ In this case, we see that Thompson sampling outperforms the constant pricing mod
 Here, we set our inventory to be 10000 because we know that through several runs and experiments, the maximum amount of stock Thompson sampling would clear for a product will not exceed 10000 in 15 time periods and this would help to ensure that inventory constraint is not a problem in this setting. We cannot set it to be 1500 as in section 5.1.2 because Thompson sampling somehow sells more products under the stationary demand function. Setting our inventory to be 1500 would inadvertently reproduce the plot in Figure \ref{fig:3} where the seller runs out of stock. This is also why the cumulated revenue throughout section 5.2 is greater than the figures observed in section 5.1. The larger amount of products sold here also possibly explains why the Thompson sampling revenue in Figure \ref{fig:1} is growing at a much larger rate than in Figure \ref{fig:3}.
 \newline
 \newline
-In terms of numbers, Thompson sampling had accumulated 65.3\% more revenue, incurred 71.9\% less costs and on the whole recorded 66.1\% more profits than the constant pricing model. This is consistent with our observations in section 5.1.2 since the seller can now meet the increasing market demand in each time period with the inventory constraint removed.
+In terms of numbers, Thompson sampling had accumulated 65.3\% more revenue, incurred 7.7\% less costs and on the whole recorded 11.8\% less losses than the constant pricing model where loss = costs - revenue. This is consistent with our observations in section 5.1.2 since the seller can now meet the increasing market demand in each time period with the inventory constraint removed.
 
 
 \subsection{Conclusion of second approach}
@@ -434,48 +434,6 @@ As we saw in the second approach, the dynamic pricing algorithm with Thompson sa
 	\bibitem{ucbf}
 	Wang, Audibert, Munos. 2009. Algorithms for Infinitely Many-Armed Bandits.
 \end{thebibliography}
-
-\begin{appendices}
-	Code for section 4.1
-	\begin{verbatim}
-	Text enclosed inside \texttt{verbatim} environment 
-	is printed directly 
-	and all \LaTeX{} commands are ignored.
-	\end{verbatim}
-	\begin{sexylisting}[colback=white]{Script for section 4.1}
-public void here() {
-goes().the().code()
-		}
-	\end{sexylisting}
-	
-	\begin{sexylisting}[colback=white]{Script for section 4.2}
-public void here() {
-goes().the().code()
-		}
-	\end{sexylisting}
-
-	Code for section 4.2
-	\begin{verbatim}
-	content...
-	\end{verbatim}
-	Code for section 5.1.1
-	\begin{verbatim}
-	content...
-	\end{verbatim}
-	Code for section 5.1.2
-	\begin{verbatim}
-	content...
-	\end{verbatim}
-	Code for section 5.2.1
-	\begin{verbatim}
-	content...
-	\end{verbatim}
-	Code for section 5.2.2
-	\begin{verbatim}
-	content...
-	\end{verbatim}
-	
-\end{appendices}
 
 
 

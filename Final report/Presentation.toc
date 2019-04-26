@@ -1,0 +1,8 @@
+\babel@toc {nil}{}
+\beamer@sectionintoc {1}{Problem definition}{3}{0}{1}
+\beamer@sectionintoc {2}{Classical TS}{9}{0}{2}
+\beamer@subsectionintoc {2}{1}{MNL model}{10}{0}{2}
+\beamer@subsectionintoc {2}{2}{Constant price elasticity model}{10}{0}{2}
+\beamer@sectionintoc {3}{Adapted TS}{16}{0}{3}
+\beamer@subsectionintoc {3}{1}{Non-stationary model}{17}{0}{3}
+\beamer@subsectionintoc {3}{2}{Stationary model}{17}{0}{3}
