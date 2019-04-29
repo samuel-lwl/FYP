@@ -98,7 +98,8 @@ data_all = []
 for arm in range(k):
     ep = np.empty([numvars,numep])
     for i in range(numvars):
-        ep[i] = np.random.uniform(low=0.0, high=truedemand[arm][i]/5, size=numep)
+        # choose epsilon to be within 0 to 5% of true demand
+        ep[i] = np.random.uniform(low=0.0, high=truedemand[arm][i]*0.05, size=numep)
     
     # create data via +epsilon and -epsilon so that the mean is still the theoretical mean
     temp1 = np.empty([numvars,numep])
@@ -107,25 +108,6 @@ for arm in range(k):
         temp1[i] = truedemand[arm][i] + ep[i]
         temp2[i] = truedemand[arm][i] - ep[i]
     data_all.append(np.append(temp1, temp2, axis=1))
-        
-
-# Appending all data points together for dynamic_TS approach
-dataall = np.append(data_all[0], data_all[1], axis=1)
-for arm in range(1, k-1):
-    dataall = np.append(dataall, data_all[arm+1], axis=1)
-
-# Obtain revenue of each day, find SD to estimate sigma in dynamic_TS approach
-revenue_of_prior = np.empty(numep*2*k) # each arm has numep*2 points. we have k arms.
-
-# For each arm
-for arm in range(k):
-    # For each data point of each arm
-    for i in range(numep*2):
-        # must reshape because data_all[arm][:,i] is 1 dimension
-        revenue_of_prior[i + (arm*(numep*2))] = np.sum(np.reshape(data_all[arm][:,i],(numvars,1)) * prices[arm]) 
-
-# Estimate of variance
-sighat = np.std(revenue_of_prior)
 
 # Number of iterations
 itr = 1000
